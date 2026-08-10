@@ -45,3 +45,5 @@
 ## Capture notes
 
 Every frame was checked for the API key and database password before being added. Nothing in these queries returns either, and the one credential screenshot shows names only.
+
+**Redacted post-capture (10 August):** `ss01`, `ss10`, `ss11`, `ss13`, `ss14`, `ss15`, `ss16`, `ss17` had the local machine's username/hostname visible in the terminal prompt (or, for `ss13`, a VS Code path breadcrumb) — not a secret, but not meant to be public either. Blacked out at the pixel level, not cropped, so the query results and other content each image exists to show are untouched. Full method in `decision_log.md` D-49.
