@@ -1,13 +1,13 @@
 # A11yAudit — Design Decision Log
 
-**Version 3.5 · 10 August 2026**
+**Version 3.6 · 10 August 2026**
 Purpose: record *why* the system is built the way it is, including alternatives rejected and claims corrected. This document is the primary artefact for technical review and for the STL presentation — it evidences reasoning, not just output.
 
 Format per entry: **Decision · Context · Alternatives considered · Rationale · Consequences.**
 
-**Changelog:** v2.1 D-01…D-15 (design) · v2.2 D-16…D-19 (Day 0) · v2.3 D-20…D-23 (Days 1–2) · v2.4 D-24…D-33 (Days 3–5) · v2.5 D-12 gap recorded, D-34 (documentation review) · v2.6 D-35…D-39 (Day 6 tests and second review pass) · v2.7 D-40 (GitHub packaging) · v2.8 D-41 (Day 7: presentation format, and a headline claim corrected) · v2.9 D-42 (slide deck, reversing D-41) · v3.0 D-43 (an unsupported claim about BD/bedtime retracted and replaced) · v3.1 D-44 (packaging by web upload; the staging folder had gone stale) · v3.2 D-45 (a fourth false claim, and a check built to catch the next one) · v3.3 D-46 (pre-commit review, 10 August: D-20's cut list corrected — five of six items were built after all) · v3.4 D-47 (pre-commit review, 10 August: `v_review_queue` INNER JOIN could hide escalated audits with no qualifying finding row — fixed to LEFT JOIN) · v3.5 D-48 (post-commit setup review, 10 August: `docker-compose.yml` project name pinned after a repo folder rename would have silently changed container names).
+**Changelog:** v2.1 D-01…D-15 (design) · v2.2 D-16…D-19 (Day 0) · v2.3 D-20…D-23 (Days 1–2) · v2.4 D-24…D-33 (Days 3–5) · v2.5 D-12 gap recorded, D-34 (documentation review) · v2.6 D-35…D-39 (Day 6 tests and second review pass) · v2.7 D-40 (GitHub packaging) · v2.8 D-41 (Day 7: presentation format, and a headline claim corrected) · v2.9 D-42 (slide deck, reversing D-41) · v3.0 D-43 (an unsupported claim about BD/bedtime retracted and replaced) · v3.1 D-44 (packaging by web upload; the staging folder had gone stale) · v3.2 D-45 (a fourth false claim, and a check built to catch the next one) · v3.3 D-46 (pre-commit review, 10 August: D-20's cut list corrected — five of six items were built after all) · v3.4 D-47 (pre-commit review, 10 August: `v_review_queue` INNER JOIN could hide escalated audits with no qualifying finding row — fixed to LEFT JOIN) · v3.5 D-48 (post-commit setup review, 10 August: `docker-compose.yml` project name pinned after a repo folder rename would have silently changed container names) · v3.6 D-49 (10 August: eight screenshots redacted at pixel level to remove the local username/hostname without losing surrounding content).
 
-**Completeness:** D-01 to D-48, no missing numbers, no duplicates. D-12 is an unused number, recorded as such below.
+**Completeness:** D-01 to D-49, no missing numbers, no duplicates. D-12 is an unused number, recorded as such below.
 
 ---
 
@@ -657,6 +657,22 @@ It is deliberately crude and over-inclusive: statements about this system are fa
 **Rationale:** this is the same shape of problem as D-46/D-47 — a value that used to be implicitly correct (because it depended on an assumption, here "the folder is called `a11yaudit`") stops being correct the moment that assumption changes, with nothing forcing a check. Pinning the name removes the assumption entirely rather than documenting around it.
 
 **Consequences:** `docker compose ps` will show `a11yaudit-postgres-1` / `a11yaudit-n8n-1` regardless of the containing folder's name, matching `meta/_DAY1_COMMANDS.md` and `PROJECT_STATUS.md` as originally documented. No other file references `COMPOSE_PROJECT_NAME` or depends on the old implicit behaviour — checked repo-wide. Not yet run against a live container (none is currently up); takes effect on the next `docker compose up`.
+
+---
+
+## D-49 — Eight screenshots redacted (visible local username/machine name), pixel-level not crop-level
+
+**Context:** the 10 August credential sweep (documented earlier this session, not as its own D-number) flagged eight screenshots showing the local terminal prompt `[local username/hostname, redacted]` and one VS Code breadcrumb showing the same username — `screenshots/ss01_containers_and_n8n.png`, `ss10_audit_row.png`, `ss11_review_queue.png`, `ss13_generated_report.png`, `ss14_scores_all_audits.png`, `ss15_error_log_full.png`, `ss16_idempotency.png`, `ss17_e11_fallback.png`. Flagged as manual work at the time because image editing was assumed out of reach for the agent.
+
+**What was actually needed, and why cropping wasn't enough:** in most of these images the prompt recurs multiple times interleaved with content worth keeping (SQL query results, `docker ps` output) — `ss01` alone has the string in four separate places. A top/bottom crop would have discarded that content along with the username. Selective redaction (covering only the username span, on each line it appears) was the only approach that kept everything else intact.
+
+**Method:** for each image, the pristine version was pulled back from this repo's own first commit (`git show 6a2689a:screenshots/<file> > /tmp/...`) rather than edited in place first — the first attempt on `ss01` overwrote the working copy before measuring precisely enough, losing the ability to re-measure from a clean source. Redaction itself used Pillow (`pip3 install --user Pillow`, no admin rights needed) to draw filled rectangles matching the surrounding background colour, with boundaries found programmatically (scanning for pixel columns that are background-coloured across the full text-row height, rather than reading coordinates off the image by eye) rather than guessed. Every redaction was verified by re-opening the saved file and visually inspecting the exact region before moving to the next image — one round (`ss01`) needed three corrective passes (a doubled rectangle from copy-paste confusion in an unrelated review step earlier in the session was not the cause here, but the same lesson applied: verify the written file, not the command that wrote it).
+
+**Alternatives considered:** blurring instead of solid-fill redaction — rejected, blur can be reversible with the right technique and gives no stronger guarantee than a solid rectangle, which is simpler to verify. Cropping the whole terminal pane out of `ss01` — rejected, would have discarded the SQL result content the screenshot exists to show.
+
+**Verified after the fact:** all eight files still open as valid PNGs at their original pixel dimensions (no accidental crop or corruption); each redacted region re-inspected at 2-3x zoom after saving. File sizes dropped (PNG compresses solid-colour rectangles well) — expected, not a sign of data loss. Files were read-only (`-r--------`) as committed; `chmod u+w` was needed before overwriting, then left writable.
+
+**Consequences:** none of the eight images' informational content (query results, table output, report text, container status) was lost — only the recurring local username/hostname string. Not covered by this pass: `ss08_intake_form.png` (rated LOW in the original sweep — a form URL with a UUID, only locally resolvable, not a personal identifier), left as-is per that earlier assessment.
 
 ---
 
