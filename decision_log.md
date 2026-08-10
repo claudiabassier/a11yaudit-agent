@@ -1,13 +1,13 @@
 # A11yAudit — Design Decision Log
 
-**Version 3.4 · 10 August 2026**
+**Version 3.5 · 10 August 2026**
 Purpose: record *why* the system is built the way it is, including alternatives rejected and claims corrected. This document is the primary artefact for technical review and for the STL presentation — it evidences reasoning, not just output.
 
 Format per entry: **Decision · Context · Alternatives considered · Rationale · Consequences.**
 
-**Changelog:** v2.1 D-01…D-15 (design) · v2.2 D-16…D-19 (Day 0) · v2.3 D-20…D-23 (Days 1–2) · v2.4 D-24…D-33 (Days 3–5) · v2.5 D-12 gap recorded, D-34 (documentation review) · v2.6 D-35…D-39 (Day 6 tests and second review pass) · v2.7 D-40 (GitHub packaging) · v2.8 D-41 (Day 7: presentation format, and a headline claim corrected) · v2.9 D-42 (slide deck, reversing D-41) · v3.0 D-43 (an unsupported claim about BD/bedtime retracted and replaced) · v3.1 D-44 (packaging by web upload; the staging folder had gone stale) · v3.2 D-45 (a fourth false claim, and a check built to catch the next one) · v3.3 D-46 (pre-commit review, 10 August: D-20's cut list corrected — five of six items were built after all) · v3.4 D-47 (pre-commit review, 10 August: `v_review_queue` INNER JOIN could hide escalated audits with no qualifying finding row — fixed to LEFT JOIN).
+**Changelog:** v2.1 D-01…D-15 (design) · v2.2 D-16…D-19 (Day 0) · v2.3 D-20…D-23 (Days 1–2) · v2.4 D-24…D-33 (Days 3–5) · v2.5 D-12 gap recorded, D-34 (documentation review) · v2.6 D-35…D-39 (Day 6 tests and second review pass) · v2.7 D-40 (GitHub packaging) · v2.8 D-41 (Day 7: presentation format, and a headline claim corrected) · v2.9 D-42 (slide deck, reversing D-41) · v3.0 D-43 (an unsupported claim about BD/bedtime retracted and replaced) · v3.1 D-44 (packaging by web upload; the staging folder had gone stale) · v3.2 D-45 (a fourth false claim, and a check built to catch the next one) · v3.3 D-46 (pre-commit review, 10 August: D-20's cut list corrected — five of six items were built after all) · v3.4 D-47 (pre-commit review, 10 August: `v_review_queue` INNER JOIN could hide escalated audits with no qualifying finding row — fixed to LEFT JOIN) · v3.5 D-48 (post-commit setup review, 10 August: `docker-compose.yml` project name pinned after a repo folder rename would have silently changed container names).
 
-**Completeness:** D-01 to D-47, no missing numbers, no duplicates. D-12 is an unused number, recorded as such below.
+**Completeness:** D-01 to D-48, no missing numbers, no duplicates. D-12 is an unused number, recorded as such below.
 
 ---
 
@@ -641,6 +641,22 @@ It is deliberately crude and over-inclusive: statements about this system are fa
 **Rationale:** this is the same failure shape decision_log.md has named repeatedly — absence of a specific signal (here, a flagged finding row) read as absence of a problem, rather than as a gap in how the signal is surfaced (D-18, D-32, D-36). R7's entire purpose is that safety-relevant content is never reviewed by AI alone; a worklist that can silently omit the audit R7 escalated defeats that purpose at the tool level even though the rule itself fired correctly.
 
 **Consequences:** `postgres_schema.sql`'s `v_review_queue` definition updated in place (`CREATE OR REPLACE VIEW`, no migration needed for existing data — the view is derived, not stored). Applying the updated definition to a running database requires re-running that `CREATE OR REPLACE VIEW` statement against it; the schema file is the source of truth, not the live container until refreshed. No code outside the view definition itself depends on the previous row shape — checked repo-wide, `v_review_queue` is read only by manual reviewer queries, never by an n8n node.
+
+---
+
+## D-48 — `docker-compose.yml` had no pinned project name; today's repo reorganisation would have silently renamed the containers
+
+**Context:** after the first commit, the working folder was renamed and moved for clarity (`a11yaudit` → `a11yaudit-agent`, relocated from `~/projekte/a11yaudit-agent` to `~/Desktop/a11yaudit-agent/repo`) — see the working log for 10 August. A final setup review before pausing for the day checked `docker-compose.yml` and found no top-level `name:` key and no `COMPOSE_PROJECT_NAME` set anywhere in the repo. Docker Compose falls back to the current directory's basename for the project name when neither is set, and derives container names from it.
+
+**Not hypothetical — the basename actually changed.** The folder Compose would have been run from was `a11yaudit` when `meta/_DAY1_COMMANDS.md` was written and documents "two lines, `a11yaudit-postgres-1` and `a11yaudit-n8n-1`" as the expected `docker compose ps` output. After today's move, the working directory's basename is `repo`, not `a11yaudit` — an unqualified `docker compose up -d` run from here would have produced differently-named containers (something derived from `repo`), silently breaking that documented expectation and any command that assumes the old container names.
+
+**Decision:** add `name: a11yaudit` as an explicit top-level key in `docker-compose.yml`, pinning the Compose project name regardless of which directory the command is run from.
+
+**Alternatives considered:** passing `-p a11yaudit` on every `docker compose` invocation, or setting `COMPOSE_PROJECT_NAME=a11yaudit` in `.env`. Both work but must be remembered and repeated correctly every time; a wrong or omitted flag reintroduces the exact same silent drift. The `name:` key is checked into the repo once and applies unconditionally — it can't be forgotten on a future rename.
+
+**Rationale:** this is the same shape of problem as D-46/D-47 — a value that used to be implicitly correct (because it depended on an assumption, here "the folder is called `a11yaudit`") stops being correct the moment that assumption changes, with nothing forcing a check. Pinning the name removes the assumption entirely rather than documenting around it.
+
+**Consequences:** `docker compose ps` will show `a11yaudit-postgres-1` / `a11yaudit-n8n-1` regardless of the containing folder's name, matching `meta/_DAY1_COMMANDS.md` and `PROJECT_STATUS.md` as originally documented. No other file references `COMPOSE_PROJECT_NAME` or depends on the old implicit behaviour — checked repo-wide. Not yet run against a live container (none is currently up); takes effect on the next `docker compose up`.
 
 ---
 
