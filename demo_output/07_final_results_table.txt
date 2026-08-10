@@ -1,0 +1,7 @@
+              page_title              | screening_score |   screening_label   | pemat_understandability | pemat_actionability | cci_score | triggered_rules  
+--------------------------------------+-----------------+---------------------+-------------------------+---------------------+-----------+------------------
+ BP meds (poor fixture) — text branch |               0 | severe issues found |                   22.20 |               33.30 |     18.80 | {R1,R4,R7,R8,R9}
+ BP meds (poor fixture)               |               0 | severe issues found |                   28.60 |               33.30 |     22.20 | {R1,R4,R7,R8,R9}
+ BP meds (corrected twin)             |              38 | severe issues found |                   92.90 |              100.00 |     88.20 | {R1,R4,R7,R9}
+(3 rows)
+

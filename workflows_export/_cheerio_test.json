@@ -1,0 +1,87 @@
+{
+  "updatedAt": "2026-07-31T13:10:34.657Z",
+  "createdAt": "2026-07-31T13:01:51.476Z",
+  "id": "LkaAWEvgS8jOXqLQ",
+  "name": "_cheerio_test",
+  "description": null,
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "1f9c6ed8-4908-4869-aaaf-f054f5074bfa",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "jsCode": "/**\n * DAY 1 — cheerio reachability test. Manual Trigger → Code node → Execute.\n * Takes two minutes. Run it BEFORE building anything that depends on cheerio.\n *\n * PASS  → { cheerio_available: true, ... , h1: \"It works\" }\n *         Use code/05_automated_checks.js.\n *\n * FAIL  → the node shows an error containing \"Cannot find module 'cheerio'\"\n *         or the output says cheerio_available: false.\n *         → 30 MINUTES MAXIMUM on configuration (check that\n *           NODE_FUNCTION_ALLOW_EXTERNAL=cheerio is really in the running\n *           container: `docker compose exec n8n env | grep NODE_FUNCTION`,\n *           and that the container was recreated, not just restarted:\n *           `docker compose up -d --force-recreate n8n`).\n *         → then switch permanently to code/05_automated_checks_regex.js,\n *           add one line to decision_log.md, and move on. The fallback is\n *           verified byte-identical; nothing is lost. Do not spend the\n *           afternoon on this.\n *\n * The same test covers Node 8's crypto dependency.\n */\n\nconst result = { cheerio_available: false, crypto_available: false, errors: [] };\n\ntry {\n  const cheerio = require('cheerio');\n  const $ = cheerio.load('<html><body><h1>It works</h1><img src=\"x.png\"></body></html>');\n  result.cheerio_available = true;\n  result.h1 = $('h1').text();\n  result.img_without_alt = $('img').filter((_, el) => $(el).attr('alt') === undefined).length;\n} catch (e) {\n  result.errors.push('cheerio: ' + e.message);\n}\n\ntry {\n  const crypto = require('crypto');\n  result.crypto_available = true;\n  result.sha256_of_abc = crypto.createHash('sha256').update('abc', 'utf8').digest('hex');\n  // must equal ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad\n  result.sha256_correct = result.sha256_of_abc === 'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad';\n} catch (e) {\n  result.errors.push('crypto: ' + e.message + ' (harmless — Node 8 falls back to its own SHA-256)');\n}\n\nresult.verdict = result.cheerio_available\n  ? 'PASS — use 05_automated_checks.js'\n  : 'FAIL — 30 min max, then use 05_automated_checks_regex.js and log it';\n\nreturn [{ json: result }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "f4f90d9a-89b2-415b-9bb2-e8e1684e1a2c",
+      "name": "_cheerio_test"
+    }
+  ],
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "_cheerio_test",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": null,
+  "nodeGroups": [],
+  "pinData": {},
+  "versionId": "861db0dd-dcdf-4b86-acfc-5a62e4af58ad",
+  "activeVersionId": null,
+  "versionCounter": 4,
+  "triggerCount": 0,
+  "sourceWorkflowId": null,
+  "tags": [],
+  "shared": [
+    {
+      "updatedAt": "2026-07-31T13:01:51.476Z",
+      "createdAt": "2026-07-31T13:01:51.476Z",
+      "role": "workflow:owner",
+      "workflowId": "LkaAWEvgS8jOXqLQ",
+      "projectId": "gct5zgUocGu0Thrs",
+      "project": {
+        "updatedAt": "2026-07-31T13:00:06.046Z",
+        "createdAt": "2026-07-31T12:52:32.495Z",
+        "id": "gct5zgUocGu0Thrs",
+        "name": "A11yAudit <maintainer@example.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "customTelemetryTags": [],
+        "creatorId": "2928790d-7ef4-4cce-a92b-c967c68a023e"
+      }
+    }
+  ],
+  "versionMetadata": {
+    "name": null,
+    "description": null
+  }
+}

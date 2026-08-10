@@ -1,0 +1,42 @@
+# ---------------------------------------------------------------------------
+# Secrets — never commit, never include in the submission package.
+# A lost N8N_ENCRYPTION_KEY makes every credential saved in n8n permanently
+# unreadable; an exposed one is a credential leak. Keep the values in a
+# password manager AND one second location.
+# ---------------------------------------------------------------------------
+.env
+*.env
+!.env.example
+
+# n8n exports made with "Copy to clipboard with credentials" contain secrets.
+# Always export with "Download". See build_runbook.md §6.
+*credentials*.json
+*_with_credentials*.json
+
+# Postgres dumps may contain audited page content
+*.dump
+*.sql.gz
+pgdata/
+
+# ---------------------------------------------------------------------------
+# OS, editor and tooling noise
+# ---------------------------------------------------------------------------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+desktop.ini
+
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+venv/

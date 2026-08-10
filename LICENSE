@@ -1,0 +1,37 @@
+MIT License
+
+Copyright (c) 2026 Claudia Bassier
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+NOTE ON SCOPE AND USE
+
+This software produces a screening report over a listed subset of WCAG 2.2
+success criteria. It makes no conformance claim and must not be used as the
+basis for one. Its language analysis is an unvalidated adaptation of PEMAT-P
+(AHRQ) and the CDC Clear Communication Index, both of which were designed for
+trained human raters assessing complete materials; output is labelled
+"PEMAT-informed" and "CCI-informed" and is not an official or validated
+application of either instrument. Neither AHRQ nor CDC endorses this tool.
+
+The accuracy of its AI-assisted findings is unmeasured. Safety-relevant
+content is routed to a human reviewer by design, and that routing must not be
+removed. See readme.md, "What it is not".

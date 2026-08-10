@@ -1,0 +1,9 @@
+          occurred_at          |   workflow_name    |    node_name    |  error_class  |                   error_message                    
+-------------------------------+--------------------+-----------------+---------------+----------------------------------------------------
+ 2026-08-03 18:44:04.762904+00 | Example Workflow   | Node With Error | unknown_error | Example Error Message
+ 2026-08-04 15:16:11.004925+00 | WF1 - Audit Intake | Normalize Input | unknown_error | neither a URL nor pasted content was supplied. [li
+ 2026-08-04 15:26:36.28466+00  | WF1 - Audit Intake | Normalize Input | no_content    | no_content - neither a URL nor pasted content was 
+ 2026-08-04 15:37:39.987408+00 | WF1 - Audit Intake | Normalize Input | unknown_error | let is not defined [line 63]
+ 2026-08-04 15:43:55.369674+00 | WF1 - Audit Intake | Normalize Input | unknown_error | let is not defined [line 63]
+(5 rows)
+

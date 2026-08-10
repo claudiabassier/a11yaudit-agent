@@ -1,0 +1,441 @@
+{
+  "name": "SUB-A_AI_Analysis",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        144
+      ],
+      "id": "d4acfe16-0674-4e49-89a9-91f2a4a2945f",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "jsCode": "/**\n * ============================================================================\n * Node: A2 — Build Prompt (Code)   ·   Subworkflow: SUB-A\n * Spec: workflow_spec.md §2 (A2, A3 system prompt + user message), v2.1\n * ============================================================================\n *\n * PURPOSE\n *   Assembles everything the AI chat node (A3) needs: the fixed system\n *   prompt (verbatim from the spec) and the per-audit user message.\n *   Also passes context through, because A4 (Validate Output) reads\n *   content_text / deterministic_items / attempt from THIS node via\n *   $('Build Prompt').\n *\n * EXPECTED INPUT (one item, from A1 Execute Workflow Trigger — the\n * contract defined at WF1 Node 10):\n *   { json: {\n *       content_text: string,          // required\n *       content_language: \"en\"|\"de\",\n *       page_title: string|null,\n *       audience: string,\n *       is_very_short: boolean,\n *       content_truncated: boolean,\n *       deterministic_items: { \"PEMAT_8\": \"pass\", \"CCI_3\": \"fail\", ... }\n *   } }\n *\n * OUTPUT (one item)\n *   { json: {\n *       system_prompt: string,         // → A3 \"System Message\" field\n *       user_message: string,          // → A3 \"Prompt\"/\"Text\" field\n *       attempt: 1,\n *       content_text, content_language, page_title, audience,\n *       is_very_short, content_truncated, deterministic_items   // pass-through\n *   } }\n *\n *   In the A3 chat node, reference these as expressions:\n *     System Message: {{ $json.system_prompt }}\n *     Prompt:         {{ $json.user_message }}\n *\n * DEFENSIVE DEFAULTS (real input is messy; the AI call must still be sane)\n *   - content_text missing/empty → throw. Upstream Hash+Guard (Node 8)\n *     should have stopped this; failing loudly here beats sending the AI\n *     an empty MATERIAL block and getting 30 hallucinated verdicts back.\n *   - audience missing → \"general public / patients (assume low prior\n *     medical knowledge)\" — the conservative reading level.\n *   - page_title null → \"(not provided)\". language unknown → \"en\".\n *   - deterministic_items not an object → {} (AI then judges everything;\n *     Node 11 precedence still lets deterministic verdicts override later).\n * ============================================================================\n */\n\n// System prompt — verbatim from workflow_spec.md §2 (A3), v2.1.\n// If the spec prompt changes, change it THERE first, then re-copy here.\nconst SYSTEM_PROMPT = `You are an accessibility and health-literacy analysis assistant. You\nsupport a human auditor of digital health content. You never make final\ncompliance, legal, or clinical decisions.\n\nYou perform two tasks.\n\nTASK 1 — BARRIER FINDINGS\nIdentify accessibility barriers detectable from text and markup:\n - WCAG 2.2 criteria that require judgment: 3.1.3 (unusual words),\n   3.1.4 (abbreviations), 3.1.5 (reading level), 2.4.6 (headings and\n   labels), 3.3.2 (instructions), 1.3.1 (semantic structure).\n - Comprehension barriers for patients: unexplained jargon, undefined\n   abbreviations, complex sentences, missing or unclear instructions,\n   ambiguous dosing or timing language, unstated action triggers.\nDo NOT report colour contrast, keyboard operation, focus order, media\ncaptions, or anything requiring a rendered page — you cannot observe them.\n\nTASK 2 — INSTRUMENT ASSESSMENT\nScore the items listed below, drawn from PEMAT-P (AHRQ) and the CDC Clear\nCommunication Index. For each: verdict \"pass\", \"fail\" or \"not_applicable\",\nplus a one-sentence rationale citing evidence from the material.\nItems already decided deterministically are given to you in\n\\`deterministic_items\\` — do NOT re-judge those; they are fixed.\nJudge every item strictly from the material itself. Do not use outside\nknowledge of the subject. Rate \"pass\" only if the criterion holds\nthroughout the material (AHRQ guidance: 80–100% of the time).\n\nPEMAT understandability items to judge:\n 1 purpose completely evident\n 2 no content that distracts from the purpose\n 3 uses common, everyday language\n 4 medical terms defined when used\n 5 uses active voice\n 6 numbers clear and easy to understand      [not_applicable if no numbers]\n 7 does not expect the user to perform calculations\n 10 information in a logical sequence\n 11 provides a summary                        [not_applicable if very short]\nPEMAT actionability items to judge:\n 20 clearly identifies at least one action the user can take\n 21 addresses the user directly when describing actions\n 22 breaks actions into manageable, explicit steps\n 24 gives instructions or examples for any calculations [n/a if none]\n 25 explains how to use charts/tables to take action    [n/a if none]\n\nCDC Index items to judge:\n 1 contains one main message statement\n 2 main message at the top (first section, visible without scrolling)\n 5 includes at least one call to action for the audience\n 6 main message and call to action both use active voice\n 7 always uses words the audience uses; all specialized terms and\n   abbreviations explained (not merely defined) at first use\n 10 most important information summarized in the first section\n 11 explains what authoritative sources know AND do not know\n 12–14 behavioral recommendation present / why it matters / specific\n   directions how to perform it                [n/a if no recommendation]\n 15–17 numbers familiar and necessary / meaning explained / audience\n   must calculate (item 17: \"yes, must calculate\" = fail)  [n/a if no numbers]\n 18–20 nature of risk explained / risks AND benefits addressed / numeric\n   probability also given in words or visual    [n/a if no risk content]\n\nRULES\n- Evidence must be quoted verbatim from the input, max 300 characters.\n  Never invent content. If you cannot quote it, do not report it.\n- severity: critical = could lead to patient harm or blocks the task;\n  high = major barrier for a user group; medium = significant difficulty;\n  low = minor friction.\n- confidence: your certainty (0.0-1.0) that this is a real barrier.\n- explanation_plain: 1-3 sentences a non-expert understands.\n- recommendation: one concrete, actionable fix.\n- Maximum 25 findings, most severe first.\n- Do NOT assess legal compliance (EAA/BFSG/EN 301 549). That is decided\n  outside this call.\n- Do NOT give clinical advice or judge medical correctness.\n\nRespond with ONLY a JSON object matching this schema exactly — no markdown,\nno code fences, no commentary.\n\n{\n  \"schema_version\": \"2.0\",\n  \"analysis_status\": \"ok\",\n  \"summary\": \"2-4 sentences\",\n  \"findings\": [\n    {\n      \"finding_key\": \"ai-pemat4-abbrev-bd\",\n      \"wcag_criterion\": \"3.1.4\",\n      \"wcag_level\": \"A\",\n      \"category\": \"perceivable|operable|understandable|robust|cognitive\",\n      \"instrument\": \"PEMAT|CCI|null\",\n      \"instrument_item\": 4,\n      \"severity\": \"critical|high|medium|low\",\n      \"confidence\": 0.92,\n      \"title\": \"max 80 chars\",\n      \"explanation_plain\": \"string\",\n      \"recommendation\": \"string\",\n      \"evidence\": \"verbatim quote, max 300 chars\"\n    }\n  ],\n  \"instrument_items\": [\n    { \"instrument\": \"PEMAT\", \"item_no\": 4, \"verdict\": \"fail\",\n      \"rationale\": \"string\", \"evidence\": \"verbatim quote or null\" }\n  ],\n  \"positive_observations\": [\"string\"]\n}`;\n\n// ---- read input defensively ------------------------------------------------\nconst item = $input.all()[0] || { json: {} };\nconst j = item.json || {};\n\nconst contentText = (typeof j.content_text === 'string') ? j.content_text.trim() : '';\nif (!contentText) {\n  // Node 8 (Hash + Guard) should have stopped empty content already.\n  throw new Error('A2 Build Prompt: content_text is missing or empty — refusing to call the AI without material.');\n}\n\nconst audience = (typeof j.audience === 'string' && j.audience.trim())\n  ? j.audience.trim()\n  : 'general public / patients (assume low prior medical knowledge)';\nconst pageTitle = (typeof j.page_title === 'string' && j.page_title.trim())\n  ? j.page_title.trim()\n  : '(not provided)';\nconst language = (j.content_language === 'de' || j.content_language === 'en')\n  ? j.content_language\n  : 'en';\nconst isVeryShort = j.is_very_short === true;\nconst isTruncated = j.content_truncated === true;\nconst detItems = (j.deterministic_items && typeof j.deterministic_items === 'object' && !Array.isArray(j.deterministic_items))\n  ? j.deterministic_items\n  : {};\n\n// REVIEW FIX (31 Jul): only items with a real verdict are \"already decided\".\n// On the text branch every deterministic item is \"not_assessed\"; telling the\n// model «already decided: not_assessed» is meaningless instruction noise.\nconst decidedItems = {};\nfor (const [k, v] of Object.entries(detItems)) {\n  if (v === 'pass' || v === 'fail' || v === 'not_applicable') decidedItems[k] = v;\n}\n\n// ---- user message — template from workflow_spec.md §2 ----------------------\nconst userMessage =\n  `Audience: ${audience} | Title: ${pageTitle} | Language: ${language}` +\n  ` | Very short: ${isVeryShort} | Truncated: ${isTruncated}\\n` +\n  `Already decided (do not re-judge): ${JSON.stringify(decidedItems)}\\n\\n` +\n  `MATERIAL:\\n${contentText}`;\n\n// ---- return ----------------------------------------------------------------\nreturn [{\n  json: {\n    system_prompt: SYSTEM_PROMPT,\n    user_message: userMessage,\n    attempt: 1,\n    // pass-through — A4 reads these via $('Build Prompt'):\n    content_text: contentText,\n    content_language: language,\n    page_title: (typeof j.page_title === 'string' && j.page_title.trim()) ? j.page_title.trim() : null,\n    audience,\n    is_very_short: isVeryShort,\n    content_truncated: isTruncated,\n    deterministic_items: detItems,\n  },\n}];\n\n/* ============================================================================\n * STANDALONE TEST INPUT — pin this on the node in n8n:\n * open the node → Input panel → \"Pin data\" → paste the array below → Execute.\n *\n * Expected result:\n *   - one output item\n *   - system_prompt: the full fixed prompt (starts \"You are an accessibility…\")\n *   - user_message starts:\n *       Audience: adults newly prescribed anticoagulants | Title: Taking your\n *       blood thinner | Language: en | Very short: false | Truncated: false\n *     then the deterministic_items JSON, then \"MATERIAL:\" and the text.\n *   - attempt: 1, all pass-through fields present.\n *\n * Also try: delete \"audience\"      → default audience string is used.\n * Also try: set \"content_text\": \"\" → node fails with a clear error (correct:\n *           empty material must never reach the AI).\n\n[\n  {\n    \"json\": {\n      \"content_text\": \"Take 1 tablet BD with food.\\nIf you miss a dose, contact your GP surgery.\",\n      \"content_language\": \"en\",\n      \"page_title\": \"Taking your blood thinner\",\n      \"audience\": \"adults newly prescribed anticoagulants\",\n      \"is_very_short\": false,\n      \"content_truncated\": false,\n      \"deterministic_items\": { \"PEMAT_8\": \"pass\", \"CCI_3\": \"fail\" }\n    }\n  }\n]\n\n * ========================================================================== */"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        144
+      ],
+      "id": "0e5974df-0ff3-4e41-876d-61e11178e704",
+      "name": "Build Prompt"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "claude-sonnet-4-6",
+          "mode": "id"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "={{ $json.user_message }}"
+            }
+          ]
+        },
+        "options": {
+          "system": "={{ $json.system_prompt }}",
+          "maxTokens": 16000,
+          "temperature": 0
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.anthropic",
+      "typeVersion": 1,
+      "position": [
+        448,
+        144
+      ],
+      "id": "0d7a92e1-5192-4d06-9487-c5c56e573f94",
+      "name": "AI Analysis",
+      "credentials": {
+        "anthropicApi": {
+          "id": "5WVzsoNCm1M8TLEY",
+          "name": "Anthropic account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "/**\n * ============================================================================\n * Node: A4 — Validate Output (Code)   ·   Subworkflow: SUB-A\n * Spec: workflow_spec.md §2 (A4), v2.1\n * ============================================================================\n *\n * PURPOSE\n *   Deterministic gate between the AI's raw response and the rest of the\n *   system. Nothing the AI says passes this node unless it is schema-valid\n *   and every evidence quote is verifiably present in the source text.\n *\n * EXPECTED INPUT (one item, from the AI chat node \"AI Analysis\")\n *   item.json contains the model response text. The exact field varies by\n *   chat node, so several common locations are tried:\n *     output | text | response | completion | message.content |\n *     choices[0].message.content | content (string or Anthropic block array)\n *   If the chat node failed with Continue On Fail, item.json.error is set.\n *\n *   Context (content_text, deterministic_items, attempt) is read from the\n *   \"Build Prompt\" node via $('Build Prompt'). If that node is absent\n *   (standalone test with pinned data), the same fields are read from the\n *   input item itself — so the test block below works without the rest of\n *   the workflow.\n *\n * OUTPUT (always exactly one item)\n *   { json: {\n *       valid: boolean,            // route: true → A6 Return, false → A5 Repair\n *       api_error: boolean,        // true → skip repair, go straight to fallback\n *       attempt: number,\n *       errors: string[],          // validation errors, for the repair message\n *       analysis: { schema_version, analysis_status, summary,\n *                   findings[], instrument_items[], positive_observations[] },\n *       dropped_unverified: number,        // findings dropped: evidence not in source\n *       instrument_evidence_removed: number,\n *       missing_items: string[],           // e.g. [\"PEMAT_5\",\"CCI_11\"]\n *       missing_items_count: number\n *   } }\n *\n * DESIGN DECISIONS ENFORCED HERE\n *   - Evidence must be a literal substring of content_text after whitespace\n *     normalisation. Not found → the finding is DROPPED (not repaired) and\n *     counted in dropped_unverified. Anti-fabrication check (spec A4 step 3).\n *   - Structural/enum errors → valid:false → repair attempt (A5).\n *   - Non-numeric confidence is coerced to 0, not repaired: 0 is the\n *     conservative value (rule R3 then forces review on high/critical).\n *   - Missing instrument items become verdict \"not_assessed\" so a partial\n *     AI response cannot silently inflate subscores (review fix #5).\n *     not_assessed rows get decided_by \"deterministic\" (this validator is\n *     deterministic code; DB enum is deterministic|ai|human).\n *   - Max 25 findings, most severe kept.\n * ============================================================================\n */\n\n// ---- constants -------------------------------------------------------------\nconst SEVERITIES = ['critical', 'high', 'medium', 'low'];\nconst SEV_RANK = { critical: 0, high: 1, medium: 2, low: 3 };\nconst CATEGORIES = ['perceivable', 'operable', 'understandable', 'robust', 'cognitive'];\nconst WCAG_LEVELS = ['A', 'AA', 'AAA'];\nconst WCAG_RE = /^\\d\\.\\d{1,2}\\.\\d{1,2}$/;\nconst VERDICTS = ['pass', 'fail', 'not_applicable'];\n// Items the prompt asks the AI to judge (knowledge_base.md §2.1/§2.2/§3):\nconst AI_ITEMS = {\n  PEMAT: [1, 2, 3, 4, 5, 6, 7, 10, 11, 20, 21, 22, 24, 25],\n  CCI:   [1, 2, 5, 6, 7, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],\n};\n// Any item number that may legally appear in instrument_items:\nconst VALID_ITEMS = {\n  PEMAT: [1,2,3,4,5,6,7,8,9,10,11,12,15,16,17,18,19,20,21,22,23,24,25,26],\n  CCI:   [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],\n};\nconst MAX_FINDINGS = 25;\nconst MAX_ERRORS = 20; // cap the error list so the repair message stays short\n\n// ---- helpers ---------------------------------------------------------------\nconst normWs = (s) => String(s == null ? '' : s).replace(/\\s+/g, ' ').trim();\nconst isNonEmptyString = (v) => typeof v === 'string' && v.trim().length > 0;\n\nfunction extractResponseText(json) {\n  const cands = [\n    json.output, json.text, json.response, json.completion,\n    json.message && json.message.content,\n    json.choices && json.choices[0] && json.choices[0].message && json.choices[0].message.content,\n    json.content,\n  ];\n  for (let c of cands) {\n    if (Array.isArray(c)) c = c.map((b) => (b && (b.text || b.content)) || '').join('\\n');\n    if (isNonEmptyString(c)) return c;\n  }\n  // Model output already parsed to an object by the chat node:\n  if (json.schema_version && Array.isArray(json.findings)) return JSON.stringify(json);\n  return null;\n}\n\nfunction parseJsonLenient(raw) {\n  let s = String(raw).trim();\n  s = s.replace(/^```(?:json)?\\s*/i, '').replace(/\\s*```\\s*$/, ''); // strip code fences\n  try { return JSON.parse(s); } catch (e) { /* fall through */ }\n  const a = s.indexOf('{'); const b = s.lastIndexOf('}');\n  if (a !== -1 && b > a) {\n    try { return JSON.parse(s.slice(a, b + 1)); } catch (e) { /* fall through */ }\n  }\n  return null;\n}\n\n// ---- context (workflow mode or standalone-test mode) -----------------------\nconst inputItem = $input.all()[0] || { json: {} };\nconst j = inputItem.json || {};\n\nlet ctx = {};\ntry { ctx = $('Build Prompt').first().json || {}; } catch (e) { ctx = {}; }\nconst contentText   = isNonEmptyString(j.content_text) ? j.content_text\n                    : (isNonEmptyString(ctx.content_text) ? ctx.content_text : '');\nconst detItems      = (j.deterministic_items && typeof j.deterministic_items === 'object') ? j.deterministic_items\n                    : ((ctx.deterministic_items && typeof ctx.deterministic_items === 'object') ? ctx.deterministic_items : {});\nconst attempt       = Number(j.attempt || ctx.attempt || 1) || 1;\nconst normContent   = normWs(contentText);\n\nconst fail = (errors, apiError = false) => [{\n  json: {\n    valid: false, api_error: apiError, attempt,\n    errors: errors.slice(0, MAX_ERRORS),\n    analysis: null,\n    dropped_unverified: 0, instrument_evidence_removed: 0,\n    missing_items: [], missing_items_count: 0,\n  },\n}];\n\n// ---- 0a. context guard (REVIEW FIX, 31 Jul) --------------------------------\n// If content_text is unreachable (e.g. the Build Prompt node was renamed),\n// EVERY evidence check would fail and the node would return a cheerful\n// \"valid, 0 findings\" — a broken pipeline that looks like a clean page.\n// Fail to fallback instead: R2 then forces a full human audit.\nif (!normContent) {\n  return [{\n    json: {\n      valid: false, api_error: true, attempt,\n      errors: ['context_unavailable: content_text could not be read from the Build Prompt node or the input item; evidence cannot be verified, so no finding may be trusted.'],\n      analysis: null, dropped_unverified: 0, instrument_evidence_removed: 0,\n      missing_items: [], missing_items_count: 0,\n    },\n  }];\n}\n\n// ---- 0b. chat-node API error → straight to fallback (no repair) ------------\nif (j.error) {\n  return fail(['api_error: ' + normWs(typeof j.error === 'string' ? j.error : (j.error.message || JSON.stringify(j.error))).slice(0, 200)], true);\n}\n\n// ---- 1. locate and parse the response --------------------------------------\nconst raw = extractResponseText(j);\nif (!raw) return fail(['No response text found on the input item.']);\nconst p = parseJsonLenient(raw);\nif (!p || typeof p !== 'object' || Array.isArray(p)) {\n  return fail(['Response is not parseable as a JSON object. Respond with ONLY the JSON object, no commentary.']);\n}\n\n// ---- 2. top-level structure ------------------------------------------------\nconst errors = [];\nif (p.schema_version !== '2.0') errors.push('schema_version must be \"2.0\".');\nif (p.analysis_status !== 'ok') errors.push('analysis_status must be \"ok\".');\nif (!isNonEmptyString(p.summary)) errors.push('summary must be a non-empty string.');\nif (!Array.isArray(p.findings)) errors.push('findings must be an array.');\nif (!Array.isArray(p.instrument_items)) errors.push('instrument_items must be an array.');\nif (errors.length) return fail(errors);\n\n// ---- 3. findings: schema, enums, clamp, evidence verification --------------\nlet droppedUnverified = 0;\nconst findings = [];\np.findings.forEach((f, i) => {\n  const at = `findings[${i}]`;\n  if (!f || typeof f !== 'object') { errors.push(`${at}: not an object.`); return; }\n  if (!isNonEmptyString(f.finding_key)) { errors.push(`${at}: finding_key must be a non-empty string.`); return; }\n  if (!SEVERITIES.includes(f.severity)) { errors.push(`${at}: severity \"${f.severity}\" invalid.`); return; }\n  if (!CATEGORIES.includes(f.category)) { errors.push(`${at}: category \"${f.category}\" invalid.`); return; }\n  if (f.wcag_criterion != null && !WCAG_RE.test(String(f.wcag_criterion))) {\n    errors.push(`${at}: wcag_criterion \"${f.wcag_criterion}\" must match d.d.d or be null.`); return;\n  }\n  if (f.wcag_level != null && !WCAG_LEVELS.includes(f.wcag_level)) {\n    errors.push(`${at}: wcag_level \"${f.wcag_level}\" invalid.`); return;\n  }\n  if (f.instrument != null && !['PEMAT', 'CCI'].includes(f.instrument)) {\n    errors.push(`${at}: instrument \"${f.instrument}\" invalid.`); return;\n  }\n  if (f.instrument != null && !VALID_ITEMS[f.instrument].includes(Number(f.instrument_item))) {\n    errors.push(`${at}: instrument_item ${f.instrument_item} not valid for ${f.instrument}.`); return;\n  }\n  if (!isNonEmptyString(f.title) || !isNonEmptyString(f.explanation_plain) || !isNonEmptyString(f.recommendation)) {\n    errors.push(`${at}: title, explanation_plain and recommendation must be non-empty strings.`); return;\n  }\n  if (!isNonEmptyString(f.evidence)) { errors.push(`${at}: evidence must be a non-empty string.`); return; }\n  if (f.evidence.length > 300) { errors.push(`${at}: evidence exceeds 300 characters.`); return; }\n\n  // Anti-fabrication check: literal substring after whitespace normalisation.\n  if (!normContent.includes(normWs(f.evidence))) { droppedUnverified += 1; return; } // drop silently, count it\n\n  let conf = Number(f.confidence);\n  if (!isFinite(conf)) conf = 0;               // conservative: 0 trips rule R3 on high/critical\n  conf = Math.max(0, Math.min(1, conf));\n\n  findings.push({\n    finding_key: normWs(f.finding_key).slice(0, 120),\n    wcag_criterion: f.wcag_criterion == null ? null : String(f.wcag_criterion),\n    wcag_level: f.wcag_level == null ? null : f.wcag_level,\n    category: f.category,\n    instrument: f.instrument == null ? null : f.instrument,\n    instrument_item: f.instrument == null ? null : Number(f.instrument_item),\n    severity: f.severity,\n    confidence: conf,\n    title: normWs(f.title).slice(0, 80),\n    explanation_plain: String(f.explanation_plain).trim(),\n    recommendation: String(f.recommendation).trim(),\n    evidence: String(f.evidence).trim(),\n    evidence_verified: true,\n    source: 'ai',\n  });\n});\n\n// ---- 4. instrument items: enums + completeness diff ------------------------\nlet evidenceRemoved = 0;\nconst seen = new Set();\nconst items = [];\np.instrument_items.forEach((it, i) => {\n  const at = `instrument_items[${i}]`;\n  if (!it || typeof it !== 'object') { errors.push(`${at}: not an object.`); return; }\n  if (!['PEMAT', 'CCI'].includes(it.instrument)) { errors.push(`${at}: instrument \"${it.instrument}\" invalid.`); return; }\n  const no = Number(it.item_no);\n  if (!VALID_ITEMS[it.instrument].includes(no)) { errors.push(`${at}: item_no ${it.item_no} not valid for ${it.instrument}.`); return; }\n  if (!VERDICTS.includes(it.verdict)) { errors.push(`${at}: verdict \"${it.verdict}\" invalid.`); return; }\n  const key = `${it.instrument}_${no}`;\n  if (seen.has(key)) return; // duplicate: keep first occurrence\n  seen.add(key);\n  let ev = isNonEmptyString(it.evidence) ? String(it.evidence).trim() : null;\n  if (ev && !normContent.includes(normWs(ev))) { ev = null; evidenceRemoved += 1; } // unverifiable quote removed, verdict kept\n  items.push({\n    instrument: it.instrument, item_no: no, verdict: it.verdict,\n    rationale: isNonEmptyString(it.rationale) ? normWs(it.rationale) : '',\n    evidence: ev, decided_by: 'ai',\n  });\n});\n\nif (errors.length) return fail(errors);\n\n// Completeness (review fix #5): required = AI-judged set minus items already\n// decided deterministically (passed in via deterministic_items, e.g. \"PEMAT_8\").\nconst missing = [];\nfor (const instr of ['PEMAT', 'CCI']) {\n  for (const no of AI_ITEMS[instr]) {\n    const key = `${instr}_${no}`;\n    if (key in detItems) continue;   // decided by code, AI was told not to judge it\n    if (seen.has(key)) continue;\n    missing.push(key);\n    items.push({\n      instrument: instr, item_no: no, verdict: 'not_assessed',\n      rationale: 'Not returned by the AI; excluded from the subscore denominator.',\n      evidence: null, decided_by: 'deterministic',\n    });\n  }\n}\n\n// ---- 5. cap at 25 findings, most severe kept (stable within severity) ------\nfindings.sort((a, b) => SEV_RANK[a.severity] - SEV_RANK[b.severity]);\nconst finalFindings = findings.slice(0, MAX_FINDINGS);\n\n// ---- 6. return -------------------------------------------------------------\nreturn [{\n  json: {\n    valid: true, api_error: false, attempt, errors: [],\n    analysis: {\n      schema_version: '2.0',\n      analysis_status: 'ok',\n      summary: normWs(p.summary),\n      findings: finalFindings,\n      instrument_items: items,\n      positive_observations: Array.isArray(p.positive_observations)\n        ? p.positive_observations.filter(isNonEmptyString).map(normWs) : [],\n    },\n    dropped_unverified: droppedUnverified,\n    instrument_evidence_removed: evidenceRemoved,\n    missing_items: missing,\n    missing_items_count: missing.length,\n  },\n}];\n\n/* ============================================================================\n * STANDALONE TEST INPUT — pin this on the node in n8n:\n * open the node → Input panel → \"Pin data\" (or \"Edit output\" on the previous\n * node) → paste the array below → Execute node.\n *\n * Expected result with this input:\n *   valid: true\n *   analysis.findings: 1 finding (the fabricated-evidence one is dropped)\n *   dropped_unverified: 1\n *   missing_items_count: 28  (30 AI-judged items − PEMAT_4 and CCI_1 returned;\n *     PEMAT_8 and CCI_3 are deterministic and not in the AI-judged set anyway)\n *   analysis.instrument_items: 30 rows (2 from the AI + 28 not_assessed)\n *\n * Also try: change \"analysis_status\" to \"partial\"  → valid:false, 1 error.\n * Also try: add  \"error\": \"timeout\"  at the top level → api_error:true.\n\n[\n  {\n    \"json\": {\n      \"content_text\": \"Take 1 tablet BD with food.\\nIf you miss a dose, contact your GP surgery.\",\n      \"deterministic_items\": { \"PEMAT_8\": \"pass\", \"CCI_3\": \"fail\" },\n      \"attempt\": 1,\n      \"output\": \"```json\\n{\\\"schema_version\\\":\\\"2.0\\\",\\\"analysis_status\\\":\\\"ok\\\",\\\"summary\\\":\\\"The material uses an unexplained dosing abbreviation and lacks a defined action path.\\\",\\\"findings\\\":[{\\\"finding_key\\\":\\\"ai-pemat4-abbrev-bd\\\",\\\"wcag_criterion\\\":\\\"3.1.4\\\",\\\"wcag_level\\\":\\\"A\\\",\\\"category\\\":\\\"understandable\\\",\\\"instrument\\\":\\\"PEMAT\\\",\\\"instrument_item\\\":4,\\\"severity\\\":\\\"critical\\\",\\\"confidence\\\":0.92,\\\"title\\\":\\\"Dosing abbreviation BD is never explained\\\",\\\"explanation_plain\\\":\\\"BD means twice daily, but the material never says so. A reader could take the wrong dose.\\\",\\\"recommendation\\\":\\\"Replace BD with 'twice a day' or define it at first use.\\\",\\\"evidence\\\":\\\"Take 1 tablet BD with food.\\\"},{\\\"finding_key\\\":\\\"ai-fabricated\\\",\\\"wcag_criterion\\\":null,\\\"wcag_level\\\":null,\\\"category\\\":\\\"cognitive\\\",\\\"instrument\\\":null,\\\"instrument_item\\\":null,\\\"severity\\\":\\\"high\\\",\\\"confidence\\\":0.8,\\\"title\\\":\\\"Fabricated quote test\\\",\\\"explanation_plain\\\":\\\"This finding cites text that is not in the source.\\\",\\\"recommendation\\\":\\\"n/a\\\",\\\"evidence\\\":\\\"Consult the enclosed leaflet for details.\\\"}],\\\"instrument_items\\\":[{\\\"instrument\\\":\\\"PEMAT\\\",\\\"item_no\\\":4,\\\"verdict\\\":\\\"fail\\\",\\\"rationale\\\":\\\"BD is used without definition.\\\",\\\"evidence\\\":\\\"Take 1 tablet BD with food.\\\"},{\\\"instrument\\\":\\\"CCI\\\",\\\"item_no\\\":1,\\\"verdict\\\":\\\"pass\\\",\\\"rationale\\\":\\\"One clear main message.\\\",\\\"evidence\\\":null}],\\\"positive_observations\\\":[\\\"Short sentences throughout.\\\"]}\\n```\"\n    }\n  }\n]\n\n * ========================================================================== */"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        800,
+        144
+      ],
+      "id": "d2eaff0b-7e23-4a95-aaf1-fbda1aa20175",
+      "name": "Validate Output"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "b753a9bc-2ccc-486e-be7b-5469dd7db027",
+              "leftValue": "={{ $json.valid }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1024,
+        144
+      ],
+      "id": "76c29cdd-ebf0-4373-b377-483352dcb374",
+      "name": "Valid?"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "4ee78800-cc6a-4be4-b771-dc083ce5b3a8",
+              "leftValue": "={{ $json.api_error }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1232,
+        -224
+      ],
+      "id": "bd50da54-7c26-4036-b4c8-0b3ae588d3e9",
+      "name": "API Error?."
+    },
+    {
+      "parameters": {
+        "jsCode": "/**\n * ============================================================================\n * Node: A5 — Fallback (Code)   ·   Subworkflow: SUB-A\n * Spec: workflow_spec.md §2 (A5 fallback object), v2.1\n * Written Day 2, 3 August 2026.\n * ============================================================================\n *\n * PURPOSE\n *   The end of the unsafe path. Reached when the AI call failed outright\n *   (api_error) or when its output was still invalid after one repair\n *   attempt. Emits an explicit, honest \"no analysis\" object.\n *\n *   This node is the concrete form of the project's core principle: the\n *   system never silently degrades. It does not return an empty findings\n *   list that looks like a clean page. It returns analysis_status\n *   \"fallback\", which WF1's rule R2 converts into MANDATORY HUMAN AUDIT.\n *   An audit with no AI contribution is a correct outcome; an audit that\n *   looks complete but is not is the one failure mode this design forbids.\n *\n * EXPECTED INPUT (one item — the output of A4 Validate Output, arriving via\n * either the \"API error\" branch or the second failed validation)\n *   { valid: false, api_error: boolean, attempt: number, errors: string[] }\n *\n * OUTPUT (one item — the fallback object, flat, as Node 11 expects)\n *   { schema_version, analysis_status: \"fallback\", summary, findings: [],\n *     instrument_items: [], positive_observations: [],\n *     fallback_reason: \"api_error\" | \"validation_failed\",\n *     attempt, errors, dropped_unverified: 0, missing_items_count: 0 }\n *\n * NOTE ON fallback_reason\n *   Distinguishing the two reasons matters for the error log and for the\n *   report's limitations section: \"the AI was unreachable\" and \"the AI\n *   answered but could not produce valid output twice\" are different\n *   failures with different implications for a re-run.\n *\n * ---------------------------------------------------------------------------\n * TEST INPUT — pin on this node to run it standalone:\n *\n * [{ \"valid\": false, \"api_error\": true, \"attempt\": 1,\n *    \"errors\": [\"api_error: Bad request - please check your parameters\"] }]\n *\n * Expect: fallback_reason \"api_error\", findings [], instrument_items [].\n * ---------------------------------------------------------------------------\n */\n\nconst MAX_ERRORS_KEPT = 10;   // keep the log readable; full detail is in the execution\n\nconst input = ($input.all()[0] || {}).json || {};\n\nconst apiError = input.api_error === true;\nconst reason = apiError ? 'api_error' : 'validation_failed';\n\n// Errors are carried through so the report and error_log can say WHY the\n// analysis is missing. Truncated, never dropped entirely.\nconst errors = Array.isArray(input.errors)\n  ? input.errors.slice(0, MAX_ERRORS_KEPT).map((e) => String(e))\n  : [];\n\nreturn [{\n  json: {\n    schema_version: '2.0',\n    analysis_status: 'fallback',\n    summary: 'AI analysis unavailable or invalid after retry. Full human audit required.',\n    findings: [],\n    instrument_items: [],\n    positive_observations: [],\n    fallback_reason: reason,\n    attempt: Number(input.attempt) || 1,\n    errors,\n    // Present so downstream nodes can read them unconditionally:\n    dropped_unverified: 0,\n    missing_items_count: 0,\n  },\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2272,
+        -240
+      ],
+      "id": "49fb46cb-9e77-42bb-afb4-6cc7a4551418",
+      "name": "Fallback."
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "claude-sonnet-4-6",
+          "mode": "id"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "={{ $('Build Prompt').first().json.user_message }}\n\nYOUR PREVIOUS RESPONSE WAS REJECTED BY VALIDATION.\nErrors: {{ $json.errors.join(' | ') }}\nReturn ONLY a valid JSON object matching the schema exactly. No markdown, no code fences, no commentary."
+            }
+          ]
+        },
+        "options": {
+          "system": "={{ $('Build Prompt').first().json.system_prompt }}",
+          "maxTokens": 16000,
+          "temperature": 0
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.anthropic",
+      "typeVersion": 1,
+      "position": [
+        1360,
+        368
+      ],
+      "id": "7b2a68f9-d7dd-4179-8316-5039a90bc3a1",
+      "name": "AI Analysis (repair)",
+      "credentials": {
+        "anthropicApi": {
+          "id": "5WVzsoNCm1M8TLEY",
+          "name": "Anthropic account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3b4cf6f4-1c97-4b58-9c1b-de4ac9e824df",
+              "name": "attempt",
+              "value": 2,
+              "type": "number"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        1840,
+        368
+      ],
+      "id": "3565a6e6-ea1e-4d63-bfc2-d182d29582b7",
+      "name": "Mark Attempt 2"
+    },
+    {
+      "parameters": {
+        "jsCode": "/**\n * ============================================================================\n * Node: A4 — Validate Output (Code)   ·   Subworkflow: SUB-A\n * Spec: workflow_spec.md §2 (A4), v2.1\n * ============================================================================\n *\n * PURPOSE\n *   Deterministic gate between the AI's raw response and the rest of the\n *   system. Nothing the AI says passes this node unless it is schema-valid\n *   and every evidence quote is verifiably present in the source text.\n *\n * EXPECTED INPUT (one item, from the AI chat node \"AI Analysis\")\n *   item.json contains the model response text. The exact field varies by\n *   chat node, so several common locations are tried:\n *     output | text | response | completion | message.content |\n *     choices[0].message.content | content (string or Anthropic block array)\n *   If the chat node failed with Continue On Fail, item.json.error is set.\n *\n *   Context (content_text, deterministic_items, attempt) is read from the\n *   \"Build Prompt\" node via $('Build Prompt'). If that node is absent\n *   (standalone test with pinned data), the same fields are read from the\n *   input item itself — so the test block below works without the rest of\n *   the workflow.\n *\n * OUTPUT (always exactly one item)\n *   { json: {\n *       valid: boolean,            // route: true → A6 Return, false → A5 Repair\n *       api_error: boolean,        // true → skip repair, go straight to fallback\n *       attempt: number,\n *       errors: string[],          // validation errors, for the repair message\n *       analysis: { schema_version, analysis_status, summary,\n *                   findings[], instrument_items[], positive_observations[] },\n *       dropped_unverified: number,        // findings dropped: evidence not in source\n *       instrument_evidence_removed: number,\n *       missing_items: string[],           // e.g. [\"PEMAT_5\",\"CCI_11\"]\n *       missing_items_count: number\n *   } }\n *\n * DESIGN DECISIONS ENFORCED HERE\n *   - Evidence must be a literal substring of content_text after whitespace\n *     normalisation. Not found → the finding is DROPPED (not repaired) and\n *     counted in dropped_unverified. Anti-fabrication check (spec A4 step 3).\n *   - Structural/enum errors → valid:false → repair attempt (A5).\n *   - Non-numeric confidence is coerced to 0, not repaired: 0 is the\n *     conservative value (rule R3 then forces review on high/critical).\n *   - Missing instrument items become verdict \"not_assessed\" so a partial\n *     AI response cannot silently inflate subscores (review fix #5).\n *     not_assessed rows get decided_by \"deterministic\" (this validator is\n *     deterministic code; DB enum is deterministic|ai|human).\n *   - Max 25 findings, most severe kept.\n * ============================================================================\n */\n\n// ---- constants -------------------------------------------------------------\nconst SEVERITIES = ['critical', 'high', 'medium', 'low'];\nconst SEV_RANK = { critical: 0, high: 1, medium: 2, low: 3 };\nconst CATEGORIES = ['perceivable', 'operable', 'understandable', 'robust', 'cognitive'];\nconst WCAG_LEVELS = ['A', 'AA', 'AAA'];\nconst WCAG_RE = /^\\d\\.\\d{1,2}\\.\\d{1,2}$/;\nconst VERDICTS = ['pass', 'fail', 'not_applicable'];\n// Items the prompt asks the AI to judge (knowledge_base.md §2.1/§2.2/§3):\nconst AI_ITEMS = {\n  PEMAT: [1, 2, 3, 4, 5, 6, 7, 10, 11, 20, 21, 22, 24, 25],\n  CCI:   [1, 2, 5, 6, 7, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],\n};\n// Any item number that may legally appear in instrument_items:\nconst VALID_ITEMS = {\n  PEMAT: [1,2,3,4,5,6,7,8,9,10,11,12,15,16,17,18,19,20,21,22,23,24,25,26],\n  CCI:   [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],\n};\nconst MAX_FINDINGS = 25;\nconst MAX_ERRORS = 20; // cap the error list so the repair message stays short\n\n// ---- helpers ---------------------------------------------------------------\nconst normWs = (s) => String(s == null ? '' : s).replace(/\\s+/g, ' ').trim();\nconst isNonEmptyString = (v) => typeof v === 'string' && v.trim().length > 0;\n\nfunction extractResponseText(json) {\n  const cands = [\n    json.output, json.text, json.response, json.completion,\n    json.message && json.message.content,\n    json.choices && json.choices[0] && json.choices[0].message && json.choices[0].message.content,\n    json.content,\n  ];\n  for (let c of cands) {\n    if (Array.isArray(c)) c = c.map((b) => (b && (b.text || b.content)) || '').join('\\n');\n    if (isNonEmptyString(c)) return c;\n  }\n  // Model output already parsed to an object by the chat node:\n  if (json.schema_version && Array.isArray(json.findings)) return JSON.stringify(json);\n  return null;\n}\n\nfunction parseJsonLenient(raw) {\n  let s = String(raw).trim();\n  s = s.replace(/^```(?:json)?\\s*/i, '').replace(/\\s*```\\s*$/, ''); // strip code fences\n  try { return JSON.parse(s); } catch (e) { /* fall through */ }\n  const a = s.indexOf('{'); const b = s.lastIndexOf('}');\n  if (a !== -1 && b > a) {\n    try { return JSON.parse(s.slice(a, b + 1)); } catch (e) { /* fall through */ }\n  }\n  return null;\n}\n\n// ---- context (workflow mode or standalone-test mode) -----------------------\nconst inputItem = $input.all()[0] || { json: {} };\nconst j = inputItem.json || {};\n\nlet ctx = {};\ntry { ctx = $('Build Prompt').first().json || {}; } catch (e) { ctx = {}; }\nconst contentText   = isNonEmptyString(j.content_text) ? j.content_text\n                    : (isNonEmptyString(ctx.content_text) ? ctx.content_text : '');\nconst detItems      = (j.deterministic_items && typeof j.deterministic_items === 'object') ? j.deterministic_items\n                    : ((ctx.deterministic_items && typeof ctx.deterministic_items === 'object') ? ctx.deterministic_items : {});\nconst attempt       = Number(j.attempt || ctx.attempt || 1) || 1;\nconst normContent   = normWs(contentText);\n\nconst fail = (errors, apiError = false) => [{\n  json: {\n    valid: false, api_error: apiError, attempt,\n    errors: errors.slice(0, MAX_ERRORS),\n    analysis: null,\n    dropped_unverified: 0, instrument_evidence_removed: 0,\n    missing_items: [], missing_items_count: 0,\n  },\n}];\n\n// ---- 0a. context guard (REVIEW FIX, 31 Jul) --------------------------------\n// If content_text is unreachable (e.g. the Build Prompt node was renamed),\n// EVERY evidence check would fail and the node would return a cheerful\n// \"valid, 0 findings\" — a broken pipeline that looks like a clean page.\n// Fail to fallback instead: R2 then forces a full human audit.\nif (!normContent) {\n  return [{\n    json: {\n      valid: false, api_error: true, attempt,\n      errors: ['context_unavailable: content_text could not be read from the Build Prompt node or the input item; evidence cannot be verified, so no finding may be trusted.'],\n      analysis: null, dropped_unverified: 0, instrument_evidence_removed: 0,\n      missing_items: [], missing_items_count: 0,\n    },\n  }];\n}\n\n// ---- 0b. chat-node API error → straight to fallback (no repair) ------------\nif (j.error) {\n  return fail(['api_error: ' + normWs(typeof j.error === 'string' ? j.error : (j.error.message || JSON.stringify(j.error))).slice(0, 200)], true);\n}\n\n// ---- 1. locate and parse the response --------------------------------------\nconst raw = extractResponseText(j);\nif (!raw) return fail(['No response text found on the input item.']);\nconst p = parseJsonLenient(raw);\nif (!p || typeof p !== 'object' || Array.isArray(p)) {\n  return fail(['Response is not parseable as a JSON object. Respond with ONLY the JSON object, no commentary.']);\n}\n\n// ---- 2. top-level structure ------------------------------------------------\nconst errors = [];\nif (p.schema_version !== '2.0') errors.push('schema_version must be \"2.0\".');\nif (p.analysis_status !== 'ok') errors.push('analysis_status must be \"ok\".');\nif (!isNonEmptyString(p.summary)) errors.push('summary must be a non-empty string.');\nif (!Array.isArray(p.findings)) errors.push('findings must be an array.');\nif (!Array.isArray(p.instrument_items)) errors.push('instrument_items must be an array.');\nif (errors.length) return fail(errors);\n\n// ---- 3. findings: schema, enums, clamp, evidence verification --------------\nlet droppedUnverified = 0;\nconst findings = [];\np.findings.forEach((f, i) => {\n  const at = `findings[${i}]`;\n  if (!f || typeof f !== 'object') { errors.push(`${at}: not an object.`); return; }\n  if (!isNonEmptyString(f.finding_key)) { errors.push(`${at}: finding_key must be a non-empty string.`); return; }\n  if (!SEVERITIES.includes(f.severity)) { errors.push(`${at}: severity \"${f.severity}\" invalid.`); return; }\n  if (!CATEGORIES.includes(f.category)) { errors.push(`${at}: category \"${f.category}\" invalid.`); return; }\n  if (f.wcag_criterion != null && !WCAG_RE.test(String(f.wcag_criterion))) {\n    errors.push(`${at}: wcag_criterion \"${f.wcag_criterion}\" must match d.d.d or be null.`); return;\n  }\n  if (f.wcag_level != null && !WCAG_LEVELS.includes(f.wcag_level)) {\n    errors.push(`${at}: wcag_level \"${f.wcag_level}\" invalid.`); return;\n  }\n  if (f.instrument != null && !['PEMAT', 'CCI'].includes(f.instrument)) {\n    errors.push(`${at}: instrument \"${f.instrument}\" invalid.`); return;\n  }\n  if (f.instrument != null && !VALID_ITEMS[f.instrument].includes(Number(f.instrument_item))) {\n    errors.push(`${at}: instrument_item ${f.instrument_item} not valid for ${f.instrument}.`); return;\n  }\n  if (!isNonEmptyString(f.title) || !isNonEmptyString(f.explanation_plain) || !isNonEmptyString(f.recommendation)) {\n    errors.push(`${at}: title, explanation_plain and recommendation must be non-empty strings.`); return;\n  }\n  if (!isNonEmptyString(f.evidence)) { errors.push(`${at}: evidence must be a non-empty string.`); return; }\n  if (f.evidence.length > 300) { errors.push(`${at}: evidence exceeds 300 characters.`); return; }\n\n  // Anti-fabrication check: literal substring after whitespace normalisation.\n  if (!normContent.includes(normWs(f.evidence))) { droppedUnverified += 1; return; } // drop silently, count it\n\n  let conf = Number(f.confidence);\n  if (!isFinite(conf)) conf = 0;               // conservative: 0 trips rule R3 on high/critical\n  conf = Math.max(0, Math.min(1, conf));\n\n  findings.push({\n    finding_key: normWs(f.finding_key).slice(0, 120),\n    wcag_criterion: f.wcag_criterion == null ? null : String(f.wcag_criterion),\n    wcag_level: f.wcag_level == null ? null : f.wcag_level,\n    category: f.category,\n    instrument: f.instrument == null ? null : f.instrument,\n    instrument_item: f.instrument == null ? null : Number(f.instrument_item),\n    severity: f.severity,\n    confidence: conf,\n    title: normWs(f.title).slice(0, 80),\n    explanation_plain: String(f.explanation_plain).trim(),\n    recommendation: String(f.recommendation).trim(),\n    evidence: String(f.evidence).trim(),\n    evidence_verified: true,\n    source: 'ai',\n  });\n});\n\n// ---- 4. instrument items: enums + completeness diff ------------------------\nlet evidenceRemoved = 0;\nconst seen = new Set();\nconst items = [];\np.instrument_items.forEach((it, i) => {\n  const at = `instrument_items[${i}]`;\n  if (!it || typeof it !== 'object') { errors.push(`${at}: not an object.`); return; }\n  if (!['PEMAT', 'CCI'].includes(it.instrument)) { errors.push(`${at}: instrument \"${it.instrument}\" invalid.`); return; }\n  const no = Number(it.item_no);\n  if (!VALID_ITEMS[it.instrument].includes(no)) { errors.push(`${at}: item_no ${it.item_no} not valid for ${it.instrument}.`); return; }\n  if (!VERDICTS.includes(it.verdict)) { errors.push(`${at}: verdict \"${it.verdict}\" invalid.`); return; }\n  const key = `${it.instrument}_${no}`;\n  if (seen.has(key)) return; // duplicate: keep first occurrence\n  seen.add(key);\n  let ev = isNonEmptyString(it.evidence) ? String(it.evidence).trim() : null;\n  if (ev && !normContent.includes(normWs(ev))) { ev = null; evidenceRemoved += 1; } // unverifiable quote removed, verdict kept\n  items.push({\n    instrument: it.instrument, item_no: no, verdict: it.verdict,\n    rationale: isNonEmptyString(it.rationale) ? normWs(it.rationale) : '',\n    evidence: ev, decided_by: 'ai',\n  });\n});\n\nif (errors.length) return fail(errors);\n\n// Completeness (review fix #5): required = AI-judged set minus items already\n// decided deterministically (passed in via deterministic_items, e.g. \"PEMAT_8\").\nconst missing = [];\nfor (const instr of ['PEMAT', 'CCI']) {\n  for (const no of AI_ITEMS[instr]) {\n    const key = `${instr}_${no}`;\n    if (key in detItems) continue;   // decided by code, AI was told not to judge it\n    if (seen.has(key)) continue;\n    missing.push(key);\n    items.push({\n      instrument: instr, item_no: no, verdict: 'not_assessed',\n      rationale: 'Not returned by the AI; excluded from the subscore denominator.',\n      evidence: null, decided_by: 'deterministic',\n    });\n  }\n}\n\n// ---- 5. cap at 25 findings, most severe kept (stable within severity) ------\nfindings.sort((a, b) => SEV_RANK[a.severity] - SEV_RANK[b.severity]);\nconst finalFindings = findings.slice(0, MAX_FINDINGS);\n\n// ---- 6. return -------------------------------------------------------------\nreturn [{\n  json: {\n    valid: true, api_error: false, attempt, errors: [],\n    analysis: {\n      schema_version: '2.0',\n      analysis_status: 'ok',\n      summary: normWs(p.summary),\n      findings: finalFindings,\n      instrument_items: items,\n      positive_observations: Array.isArray(p.positive_observations)\n        ? p.positive_observations.filter(isNonEmptyString).map(normWs) : [],\n    },\n    dropped_unverified: droppedUnverified,\n    instrument_evidence_removed: evidenceRemoved,\n    missing_items: missing,\n    missing_items_count: missing.length,\n  },\n}];\n\n/* ============================================================================\n * STANDALONE TEST INPUT — pin this on the node in n8n:\n * open the node → Input panel → \"Pin data\" (or \"Edit output\" on the previous\n * node) → paste the array below → Execute node.\n *\n * Expected result with this input:\n *   valid: true\n *   analysis.findings: 1 finding (the fabricated-evidence one is dropped)\n *   dropped_unverified: 1\n *   missing_items_count: 28  (30 AI-judged items − PEMAT_4 and CCI_1 returned;\n *     PEMAT_8 and CCI_3 are deterministic and not in the AI-judged set anyway)\n *   analysis.instrument_items: 30 rows (2 from the AI + 28 not_assessed)\n *\n * Also try: change \"analysis_status\" to \"partial\"  → valid:false, 1 error.\n * Also try: add  \"error\": \"timeout\"  at the top level → api_error:true.\n\n[\n  {\n    \"json\": {\n      \"content_text\": \"Take 1 tablet BD with food.\\nIf you miss a dose, contact your GP surgery.\",\n      \"deterministic_items\": { \"PEMAT_8\": \"pass\", \"CCI_3\": \"fail\" },\n      \"attempt\": 1,\n      \"output\": \"```json\\n{\\\"schema_version\\\":\\\"2.0\\\",\\\"analysis_status\\\":\\\"ok\\\",\\\"summary\\\":\\\"The material uses an unexplained dosing abbreviation and lacks a defined action path.\\\",\\\"findings\\\":[{\\\"finding_key\\\":\\\"ai-pemat4-abbrev-bd\\\",\\\"wcag_criterion\\\":\\\"3.1.4\\\",\\\"wcag_level\\\":\\\"A\\\",\\\"category\\\":\\\"understandable\\\",\\\"instrument\\\":\\\"PEMAT\\\",\\\"instrument_item\\\":4,\\\"severity\\\":\\\"critical\\\",\\\"confidence\\\":0.92,\\\"title\\\":\\\"Dosing abbreviation BD is never explained\\\",\\\"explanation_plain\\\":\\\"BD means twice daily, but the material never says so. A reader could take the wrong dose.\\\",\\\"recommendation\\\":\\\"Replace BD with 'twice a day' or define it at first use.\\\",\\\"evidence\\\":\\\"Take 1 tablet BD with food.\\\"},{\\\"finding_key\\\":\\\"ai-fabricated\\\",\\\"wcag_criterion\\\":null,\\\"wcag_level\\\":null,\\\"category\\\":\\\"cognitive\\\",\\\"instrument\\\":null,\\\"instrument_item\\\":null,\\\"severity\\\":\\\"high\\\",\\\"confidence\\\":0.8,\\\"title\\\":\\\"Fabricated quote test\\\",\\\"explanation_plain\\\":\\\"This finding cites text that is not in the source.\\\",\\\"recommendation\\\":\\\"n/a\\\",\\\"evidence\\\":\\\"Consult the enclosed leaflet for details.\\\"}],\\\"instrument_items\\\":[{\\\"instrument\\\":\\\"PEMAT\\\",\\\"item_no\\\":4,\\\"verdict\\\":\\\"fail\\\",\\\"rationale\\\":\\\"BD is used without definition.\\\",\\\"evidence\\\":\\\"Take 1 tablet BD with food.\\\"},{\\\"instrument\\\":\\\"CCI\\\",\\\"item_no\\\":1,\\\"verdict\\\":\\\"pass\\\",\\\"rationale\\\":\\\"One clear main message.\\\",\\\"evidence\\\":null}],\\\"positive_observations\\\":[\\\"Short sentences throughout.\\\"]}\\n```\"\n    }\n  }\n]\n\n * ========================================================================== */"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2064,
+        368
+      ],
+      "id": "e7b74dff-c511-4903-8b6d-e1347b2808ee",
+      "name": "Validate Output2"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "f0978d14-5899-433d-a020-649de56b9913",
+              "leftValue": "={{ $json.valid }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        2272,
+        368
+      ],
+      "id": "7ef640f8-a7d9-4285-b862-1c80b70296b8",
+      "name": "Valid 2?"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        2736,
+        128
+      ],
+      "id": "beeb1639-ac05-4c2f-afe8-c6a22cbe5277",
+      "name": "Return"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Build Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Prompt": {
+      "main": [
+        [
+          {
+            "node": "AI Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Analysis": {
+      "main": [
+        [
+          {
+            "node": "Validate Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Output": {
+      "main": [
+        [
+          {
+            "node": "Valid?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Valid?": {
+      "main": [
+        [
+          {
+            "node": "Return",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "API Error?.",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "API Error?.": {
+      "main": [
+        [
+          {
+            "node": "Fallback.",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Analysis (repair)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Analysis (repair)": {
+      "main": [
+        [
+          {
+            "node": "Mark Attempt 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark Attempt 2": {
+      "main": [
+        [
+          {
+            "node": "Validate Output2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Output2": {
+      "main": [
+        [
+          {
+            "node": "Valid 2?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Valid 2?": {
+      "main": [
+        [
+          {
+            "node": "Return",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fallback.",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fallback.": {
+      "main": [
+        [
+          {
+            "node": "Return",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "fv9YbvAy2rfKC2Ng",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "bef9a497-054a-4301-83e7-0f6f32d87019",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "9f378ccd5c2a111715c7aec009829175393e79d71f0048caa403dbca5163ad33"
+  },
+  "nodeGroups": [],
+  "id": "4K342U3TtgqWWp6A",
+  "tags": []
+}

@@ -1,0 +1,9 @@
+                 page_title                  | run_count |    status    | source_type | ai_fallback_used 
+---------------------------------------------+-----------+--------------+-------------+------------------
+ BP meds (poor fixture)                      |         6 | needs_review | url         | f
+ BP meds (poor fixture) — text branch        |         1 | needs_review | text        | f
+ BP meds (corrected twin)                    |         3 | needs_review | url         | f
+ E11 AI unreachable test - preventer inhaler |         1 | needs_review | text        | t
+ S5 very short material - water tablet       |         4 | needs_review | url         | f
+(5 rows)
+

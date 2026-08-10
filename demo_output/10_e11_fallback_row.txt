@@ -1,0 +1,11 @@
+-[ RECORD 1 ]-----------+--------------------------------------------
+page_title              | E11 AI unreachable test - preventer inhaler
+status                  | needs_review
+ai_fallback_used        | t
+triggered_rules         | {R2,R7}
+safety_terms_found      | {112,emergency,puffs}
+screening_score         | 100
+pemat_understandability | 
+not_assessed_count      | 44
+completed_at            | 
+

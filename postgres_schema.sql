@@ -1,0 +1,271 @@
+-- ================================================================
+-- A11yAudit — Postgres schema
+-- Version 2.0 · 31 July 2026 · Postgres 16
+--
+-- v2.0 changes: added instrument_items table (per-item audit trail),
+--   PEMAT/CCI subscores on audits, instrument reference on findings,
+--   safety_terms_found, not_assessed_count, v_audit_summary view.
+-- v1.0: audits, findings, error_log, v_review_queue.
+--
+-- Run once:
+--   docker compose exec -T postgres psql -U <user> -d <db> < postgres_schema.sql
+-- Verify:
+--   \dt   and   \dv     (expect 4 tables, 2 views)
+-- ================================================================
+
+CREATE EXTENSION IF NOT EXISTS pgcrypto;   -- gen_random_uuid()
+
+-- ----------------------------------------------------------------
+-- audits — one row per audited content item (upsert by content_hash)
+-- ----------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS audits (
+    audit_id            uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    content_hash        text NOT NULL UNIQUE,
+    source_type         text NOT NULL CHECK (source_type IN ('url','text')),
+    page_url            text,
+    page_title          text,
+    content_language    text NOT NULL DEFAULT 'en',
+    audience            text NOT NULL,          -- required by CCI methodology
+    content_excerpt     text,                   -- first ~500 chars; anonymized test data only
+    word_count          integer,
+    is_very_short       boolean NOT NULL DEFAULT false,
+    eaa_scope           boolean NOT NULL DEFAULT false,
+    auditor_note        text,
+
+    -- WCAG screening result (deliberately NOT named "conformance" — the tool
+    -- screens a listed subset of criteria and makes no conformance claim)
+    screening_score     integer CHECK (screening_score BETWEEN 0 AND 100),
+    screening_label     text CHECK (screening_label IN
+                          ('no issues in screened subset','issues found','severe issues found')),
+
+    -- Instrument subscores — deliberately NOT blended with screening_score
+    pemat_understandability numeric(5,2) CHECK (pemat_understandability BETWEEN 0 AND 100),
+    pemat_actionability     numeric(5,2) CHECK (pemat_actionability     BETWEEN 0 AND 100),
+    cci_score               numeric(5,2) CHECK (cci_score               BETWEEN 0 AND 100),
+    not_assessed_count      integer NOT NULL DEFAULT 0,
+
+    -- routing / provenance
+    human_review_required boolean NOT NULL DEFAULT false,
+    legally_relevant      boolean NOT NULL DEFAULT false,
+    triggered_rules       text[] NOT NULL DEFAULT '{}',   -- e.g. {R1,R7,R9}
+    safety_terms_found    text[] NOT NULL DEFAULT '{}',   -- deterministic prescreen hits
+    ai_model              text,
+    ai_fallback_used      boolean NOT NULL DEFAULT false,
+    ai_disagreement       boolean NOT NULL DEFAULT false,
+    automated_checks_skipped boolean NOT NULL DEFAULT false,
+    content_truncated     boolean NOT NULL DEFAULT false,
+
+    -- outputs
+    report_md           text,
+    statement_draft     text,
+
+    status              text NOT NULL DEFAULT 'in_progress'
+                          CHECK (status IN ('in_progress','completed','needs_review','failed')),
+    run_count           integer NOT NULL DEFAULT 1,
+    created_at          timestamptz NOT NULL DEFAULT now(),
+    updated_at          timestamptz NOT NULL DEFAULT now(),
+    completed_at        timestamptz
+);
+
+CREATE INDEX IF NOT EXISTS idx_audits_status ON audits (status);
+CREATE INDEX IF NOT EXISTS idx_audits_created ON audits (created_at DESC);
+
+-- ----------------------------------------------------------------
+-- findings — one row per barrier (deterministic or AI-proposed)
+-- ----------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS findings (
+    finding_id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    audit_id            uuid NOT NULL REFERENCES audits(audit_id) ON DELETE CASCADE,
+    finding_key         text NOT NULL,
+    source              text NOT NULL CHECK (source IN ('automated','ai')),
+
+    wcag_criterion      text,                   -- '1.1.1' or NULL
+    wcag_level          text CHECK (wcag_level IN ('A','AA','AAA')),
+    instrument          text CHECK (instrument IN ('PEMAT','CCI')),
+    instrument_item     integer,
+    category            text NOT NULL CHECK (category IN
+                          ('perceivable','operable','understandable','robust','cognitive')),
+
+    severity            text NOT NULL CHECK (severity IN ('critical','high','medium','low')),
+    confidence          numeric(3,2) NOT NULL DEFAULT 1.00
+                          CHECK (confidence BETWEEN 0 AND 1),
+    title               text NOT NULL,
+    explanation_plain   text NOT NULL,
+    recommendation      text NOT NULL,
+    evidence            text,
+    evidence_verified   boolean NOT NULL DEFAULT false,  -- quote found verbatim in source
+
+    human_review_required boolean NOT NULL DEFAULT false,
+    review_reason       text,                   -- 'R1'..'R9'
+    status              text NOT NULL DEFAULT 'open'
+                          CHECK (status IN ('open','confirmed','dismissed')),
+    reviewer_note       text,
+    reviewed_at         timestamptz,
+    created_at          timestamptz NOT NULL DEFAULT now(),
+
+    UNIQUE (audit_id, finding_key),
+    -- an instrument reference must name both instrument and item, or neither
+    CONSTRAINT chk_instrument_pair CHECK (
+        (instrument IS NULL AND instrument_item IS NULL)
+     OR (instrument IS NOT NULL AND instrument_item IS NOT NULL))
+);
+
+CREATE INDEX IF NOT EXISTS idx_findings_audit    ON findings (audit_id);
+CREATE INDEX IF NOT EXISTS idx_findings_severity ON findings (severity);
+CREATE INDEX IF NOT EXISTS idx_findings_criterion ON findings (wcag_criterion);
+CREATE INDEX IF NOT EXISTS idx_findings_review   ON findings (human_review_required)
+    WHERE human_review_required;
+
+-- ----------------------------------------------------------------
+-- instrument_items — per-item audit trail of the assessment itself.
+-- This is what a reviewer inspects to check the tool's reasoning.
+-- ----------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS instrument_items (
+    item_row_id     uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    audit_id        uuid NOT NULL REFERENCES audits(audit_id) ON DELETE CASCADE,
+    instrument      text NOT NULL CHECK (instrument IN ('PEMAT','CCI')),
+    item_no         integer NOT NULL,
+    domain          text CHECK (domain IN
+                      ('understandability','actionability',
+                       'core','behavioral','numbers','risk')),
+    verdict         text NOT NULL CHECK (verdict IN
+                      ('pass','fail','not_applicable','not_assessed')),
+    decided_by      text NOT NULL CHECK (decided_by IN ('deterministic','ai','human')),
+    rationale       text,
+    evidence        text,
+    overridden_by_human boolean NOT NULL DEFAULT false,
+    created_at      timestamptz NOT NULL DEFAULT now(),
+
+    UNIQUE (audit_id, instrument, item_no)
+);
+
+CREATE INDEX IF NOT EXISTS idx_items_audit ON instrument_items (audit_id);
+CREATE INDEX IF NOT EXISTS idx_items_fail  ON instrument_items (instrument, item_no)
+    WHERE verdict = 'fail';
+
+-- ----------------------------------------------------------------
+-- error_log — metadata only, never content (GDPR data minimisation)
+-- ----------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS error_log (
+    error_id        uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    occurred_at     timestamptz NOT NULL DEFAULT now(),
+    workflow_name   text NOT NULL,
+    node_name       text,
+    error_class     text,      -- 'validation_failed','api_error','http_timeout','no_content',...
+    error_message   text,      -- sanitized; no payload
+    execution_id    text
+);
+
+-- ----------------------------------------------------------------
+-- v_review_queue — the human-in-the-loop worklist
+-- ----------------------------------------------------------------
+-- REVIEW FIX (10 Aug, pre-commit review Teil 1 #1 / decision_log.md D-47):
+-- was an INNER JOIN gated on f.human_review_required (set only by R1/R9,
+-- see 14a_build_findings_payload.js) — an audit escalated by R2..R8 with no
+-- individually-flagged finding row (e.g. an AI-fallback audit with zero
+-- findings) never appeared here at all, despite audits.status = 'needs_review'.
+-- LEFT JOIN with the finding-selection conditions moved into ON (not WHERE,
+-- which would silently re-narrow the LEFT JOIN back to INNER) makes audit-row
+-- visibility depend only on the audit itself; finding detail still shows
+-- where a qualifying finding exists.
+CREATE OR REPLACE VIEW v_review_queue AS
+SELECT
+    a.audit_id, a.page_url, a.page_title, a.audience,
+    a.screening_score, a.screening_label,
+    a.pemat_understandability, a.pemat_actionability, a.cci_score,
+    a.legally_relevant, a.triggered_rules, a.safety_terms_found,
+    f.finding_id, f.finding_key, f.severity, f.confidence,
+    f.instrument, f.instrument_item, f.title, f.review_reason,
+    f.evidence_verified, f.status AS finding_status,
+    a.created_at
+FROM audits a
+LEFT JOIN findings f
+       ON f.audit_id = a.audit_id
+      AND f.human_review_required
+      AND f.status = 'open'
+WHERE a.status = 'needs_review'
+  AND a.human_review_required
+ORDER BY
+    CASE f.severity WHEN 'critical' THEN 1 WHEN 'high' THEN 2
+                    WHEN 'medium' THEN 3 ELSE 4 END,
+    a.created_at;
+
+-- ----------------------------------------------------------------
+-- v_audit_summary — cross-audit reporting (the payoff over Sheets)
+-- e.g. "which criterion fails most often across all audited pages?"
+-- ----------------------------------------------------------------
+CREATE OR REPLACE VIEW v_audit_summary AS
+SELECT
+    COALESCE(f.wcag_criterion,
+             f.instrument || ' item ' || f.instrument_item::text,
+             'unclassified')          AS criterion,
+    f.severity,
+    COUNT(*)                          AS occurrences,
+    COUNT(DISTINCT f.audit_id)        AS affected_audits,
+    ROUND(AVG(f.confidence), 2)       AS avg_confidence,
+    SUM(CASE WHEN f.status = 'confirmed' THEN 1 ELSE 0 END) AS confirmed_by_human,
+    SUM(CASE WHEN f.status = 'dismissed' THEN 1 ELSE 0 END) AS dismissed_by_human
+FROM findings f
+GROUP BY 1, 2
+ORDER BY occurrences DESC;
+
+-- Note: once enough audits are reviewed, dismissed_by_human / occurrences
+-- gives an empirical false-positive rate per criterion — the beginning of
+-- a validation story for the tool. See decision_log.md D-09.
+
+-- ----------------------------------------------------------------
+-- updated_at trigger
+-- ----------------------------------------------------------------
+CREATE OR REPLACE FUNCTION set_updated_at() RETURNS trigger AS $$
+BEGIN
+    NEW.updated_at := now();
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_audits_updated ON audits;
+CREATE TRIGGER trg_audits_updated
+    BEFORE UPDATE ON audits
+    FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+
+-- ================================================================
+-- Reference queries used by the n8n Postgres nodes
+-- ================================================================
+
+-- Node 13 — Upsert Audit
+-- INSERT INTO audits (content_hash, source_type, page_url, page_title,
+--                     content_language, audience, content_excerpt, word_count,
+--                     is_very_short, eaa_scope, auditor_note,
+--                     screening_score, screening_label,
+--                     pemat_understandability, pemat_actionability, cci_score,
+--                     not_assessed_count, human_review_required, legally_relevant,
+--                     triggered_rules, safety_terms_found, ai_model,
+--                     ai_fallback_used, ai_disagreement,
+--                     automated_checks_skipped, content_truncated)
+-- VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26)
+-- ON CONFLICT (content_hash) DO UPDATE SET
+--     run_count = audits.run_count + 1,
+--     status    = 'in_progress',
+--     screening_score = EXCLUDED.screening_score,
+--     screening_label = EXCLUDED.screening_label,
+--     pemat_understandability = EXCLUDED.pemat_understandability,
+--     pemat_actionability     = EXCLUDED.pemat_actionability,
+--     cci_score               = EXCLUDED.cci_score,
+--     human_review_required   = EXCLUDED.human_review_required,
+--     legally_relevant        = EXCLUDED.legally_relevant,
+--     triggered_rules         = EXCLUDED.triggered_rules
+-- RETURNING audit_id;
+
+-- Node 14 — Insert Findings (idempotent)
+-- INSERT INTO findings (...) VALUES (...)
+-- ON CONFLICT (audit_id, finding_key) DO UPDATE SET
+--     severity = EXCLUDED.severity, confidence = EXCLUDED.confidence,
+--     explanation_plain = EXCLUDED.explanation_plain,
+--     recommendation = EXCLUDED.recommendation;
+
+-- Node 15 — Insert Instrument Items (idempotent)
+-- INSERT INTO instrument_items (...) VALUES (...)
+-- ON CONFLICT (audit_id, instrument, item_no) DO UPDATE SET
+--     verdict = EXCLUDED.verdict, decided_by = EXCLUDED.decided_by,
+--     rationale = EXCLUDED.rationale
+-- WHERE instrument_items.overridden_by_human = false;   -- never overwrite a human
