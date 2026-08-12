@@ -1,32 +1,51 @@
 /**
  * ============================================================================
- * Node: A4 — Validate Output (Code)   ·   Subworkflow: SUB-A
- * Spec: workflow_spec.md §2 (A4), v2.1
+ * Node: A4 — Validate Output (Code)   ·   Subworkflow: SUB-A_Validate
+ * Spec: workflow_spec.md §2 (A4 / SUB-A_Validate)
  * ============================================================================
+ *
+ * NOTE (12 Aug 2026): this file's contract changed to support extraction
+ * into its own standalone n8n subworkflow, called from two places inside
+ * SUB-A (after "AI Analysis" and after "AI Analysis (repair)") instead of
+ * being pasted twice as byte-identical Code nodes. See decision_log.md for
+ * the entry recording this change once the canvas wiring is complete.
  *
  * PURPOSE
  *   Deterministic gate between the AI's raw response and the rest of the
  *   system. Nothing the AI says passes this node unless it is schema-valid
  *   and every evidence quote is verifiably present in the source text.
  *
- * EXPECTED INPUT (one item, from the AI chat node "AI Analysis")
- *   item.json contains the model response text. The exact field varies by
- *   chat node, so several common locations are tried:
+ * EXPECTED INPUT (one item)
+ *   item.json contains the model response text, exactly as produced by the
+ *   AI chat node. The exact field varies by chat node, so several common
+ *   locations are tried:
  *     output | text | response | completion | message.content |
  *     choices[0].message.content | content (string or Anthropic block array)
  *   If the chat node failed with Continue On Fail, item.json.error is set.
  *
- *   Context (content_text, deterministic_items, attempt) is read from the
- *   "Build Prompt" node via $('Build Prompt'). If that node is absent
- *   (standalone test with pinned data), the same fields are read from the
- *   input item itself — so the test block below works without the rest of
- *   the workflow.
+ *   All context is now passed explicitly on the SAME item — no $() lookup
+ *   of any sibling node is used inside this file:
+ *     content_text          string,  required
+ *     deterministic_items   object,  optional (default {})
+ *     attempt                number, required — 1 on the first call, 2 on
+ *                             the second; set as a literal on the caller
+ *                             side, not read from anywhere upstream
+ *     allow_repair           boolean, required — true only on the call made
+ *                             after the first AI attempt; false on the call
+ *                             made after the repair attempt. Anything other
+ *                             than the literal `true` is treated as false.
+ *   This makes the contract identical in workflow mode and in the
+ *   standalone-test mode below — there is only one way in.
  *
  * OUTPUT (always exactly one item)
  *   { json: {
- *       valid: boolean,            // route: true → A6 Return, false → A5 Repair
- *       api_error: boolean,        // true → skip repair, go straight to fallback
+ *       valid: boolean,            // schema-valid and evidence-checked?
+ *       api_error: boolean,        // true → never repair, go to fallback
  *       attempt: number,
+ *       next_action: string,       // 'accept' | 'repair' | 'fallback' —
+ *                                  // see next_action() below; the caller's
+ *                                  // IF-routing should read this, not
+ *                                  // re-derive it from valid/api_error.
  *       errors: string[],          // validation errors, for the repair message
  *       analysis: { schema_version, analysis_status, summary,
  *                   findings[], instrument_items[], positive_observations[] },
@@ -40,7 +59,11 @@
  *   - Evidence must be a literal substring of content_text after whitespace
  *     normalisation. Not found → the finding is DROPPED (not repaired) and
  *     counted in dropped_unverified. Anti-fabrication check (spec A4 step 3).
- *   - Structural/enum errors → valid:false → repair attempt (A5).
+ *     This is independent of next_action: a valid response with dropped
+ *     findings is still valid, never routed to repair.
+ *   - Structural/enum errors → valid:false → next_action 'repair', but only
+ *     if allow_repair is true; otherwise 'fallback'. This is what makes a
+ *     third repair attempt structurally impossible, not just unlikely.
  *   - Non-numeric confidence is coerced to 0, not repaired: 0 is the
  *     conservative value (rule R3 then forces review on high/critical).
  *   - Missing instrument items become verdict "not_assessed" so a partial
@@ -102,22 +125,31 @@ function parseJsonLenient(raw) {
   return null;
 }
 
-// ---- context (workflow mode or standalone-test mode) -----------------------
+// ---- context (single input item, workflow mode or standalone-test mode) ----
 const inputItem = $input.all()[0] || { json: {} };
 const j = inputItem.json || {};
 
-let ctx = {};
-try { ctx = $('Build Prompt').first().json || {}; } catch (e) { ctx = {}; }
-const contentText   = isNonEmptyString(j.content_text) ? j.content_text
-                    : (isNonEmptyString(ctx.content_text) ? ctx.content_text : '');
-const detItems      = (j.deterministic_items && typeof j.deterministic_items === 'object') ? j.deterministic_items
-                    : ((ctx.deterministic_items && typeof ctx.deterministic_items === 'object') ? ctx.deterministic_items : {});
-const attempt       = Number(j.attempt || ctx.attempt || 1) || 1;
-const normContent   = normWs(contentText);
+const contentText = isNonEmptyString(j.content_text) ? j.content_text : '';
+const detItems    = (j.deterministic_items && typeof j.deterministic_items === 'object') ? j.deterministic_items : {};
+const attempt     = Number(j.attempt || 1) || 1;
+const allowRepair = j.allow_repair === true; // anything but literal true → false (safer default)
+const normContent = normWs(contentText);
+
+// next_action encodes the routing decision the caller's IF-node used to have
+// to infer from canvas position alone. valid → accept. api_error → always
+// fallback, never repair. Otherwise: repair only if this call is allowed to
+// trigger one — this is what makes a third repair attempt structurally
+// impossible rather than merely unlikely (see D-H / Sprint-Schritt 4).
+function nextAction(valid, apiError, repairAllowed) {
+  if (valid) return 'accept';
+  if (apiError) return 'fallback';
+  return repairAllowed ? 'repair' : 'fallback';
+}
 
 const fail = (errors, apiError = false) => [{
   json: {
     valid: false, api_error: apiError, attempt,
+    next_action: nextAction(false, apiError, allowRepair),
     errors: errors.slice(0, MAX_ERRORS),
     analysis: null,
     dropped_unverified: 0, instrument_evidence_removed: 0,
@@ -125,16 +157,19 @@ const fail = (errors, apiError = false) => [{
   },
 }];
 
-// ---- 0a. context guard (REVIEW FIX, 31 Jul) --------------------------------
-// If content_text is unreachable (e.g. the Build Prompt node was renamed),
-// EVERY evidence check would fail and the node would return a cheerful
-// "valid, 0 findings" — a broken pipeline that looks like a clean page.
-// Fail to fallback instead: R2 then forces a full human audit.
+// ---- 0a. context guard (REVIEW FIX, 31 Jul; contract updated 12 Aug) -------
+// If content_text is missing, EVERY evidence check would fail and the node
+// would return a cheerful "valid, 0 findings" — a broken pipeline that looks
+// like a clean page. Fail to fallback instead: R2 then forces a full human
+// audit. This is now a genuine input-validation guard (the caller sent an
+// incomplete item) rather than a defence against a specific sibling-node
+// rename, but the failure mode it prevents is unchanged.
 if (!normContent) {
   return [{
     json: {
       valid: false, api_error: true, attempt,
-      errors: ['context_unavailable: content_text could not be read from the Build Prompt node or the input item; evidence cannot be verified, so no finding may be trusted.'],
+      next_action: nextAction(false, true, allowRepair),
+      errors: ['context_unavailable: content_text was not provided in the subworkflow\'s input; evidence cannot be verified, so no finding may be trusted.'],
       analysis: null, dropped_unverified: 0, instrument_evidence_removed: 0,
       missing_items: [], missing_items_count: 0,
     },
@@ -264,7 +299,9 @@ const finalFindings = findings.slice(0, MAX_FINDINGS);
 // ---- 6. return -------------------------------------------------------------
 return [{
   json: {
-    valid: true, api_error: false, attempt, errors: [],
+    valid: true, api_error: false, attempt,
+    next_action: nextAction(true, false, allowRepair),
+    errors: [],
     analysis: {
       schema_version: '2.0',
       analysis_status: 'ok',
@@ -287,15 +324,18 @@ return [{
  * node) → paste the array below → Execute node.
  *
  * Expected result with this input:
- *   valid: true
+ *   valid: true, next_action: 'accept'
  *   analysis.findings: 1 finding (the fabricated-evidence one is dropped)
  *   dropped_unverified: 1
  *   missing_items_count: 28  (30 AI-judged items − PEMAT_4 and CCI_1 returned;
  *     PEMAT_8 and CCI_3 are deterministic and not in the AI-judged set anyway)
  *   analysis.instrument_items: 30 rows (2 from the AI + 28 not_assessed)
  *
- * Also try: change "analysis_status" to "partial"  → valid:false, 1 error.
- * Also try: add  "error": "timeout"  at the top level → api_error:true.
+ * Also try: change "analysis_status" to "partial"
+ *   → valid:false, 1 error, next_action: 'repair' (allow_repair is true below)
+ *   → change "allow_repair" to false on the same input → next_action: 'fallback'
+ * Also try: add  "error": "timeout"  at the top level
+ *   → api_error:true, next_action: 'fallback' regardless of allow_repair.
 
 [
   {
@@ -303,6 +343,7 @@ return [{
       "content_text": "Take 1 tablet BD with food.\nIf you miss a dose, contact your GP surgery.",
       "deterministic_items": { "PEMAT_8": "pass", "CCI_3": "fail" },
       "attempt": 1,
+      "allow_repair": true,
       "output": "```json\n{\"schema_version\":\"2.0\",\"analysis_status\":\"ok\",\"summary\":\"The material uses an unexplained dosing abbreviation and lacks a defined action path.\",\"findings\":[{\"finding_key\":\"ai-pemat4-abbrev-bd\",\"wcag_criterion\":\"3.1.4\",\"wcag_level\":\"A\",\"category\":\"understandable\",\"instrument\":\"PEMAT\",\"instrument_item\":4,\"severity\":\"critical\",\"confidence\":0.92,\"title\":\"Dosing abbreviation BD is never explained\",\"explanation_plain\":\"BD means twice daily, but the material never says so. A reader could take the wrong dose.\",\"recommendation\":\"Replace BD with 'twice a day' or define it at first use.\",\"evidence\":\"Take 1 tablet BD with food.\"},{\"finding_key\":\"ai-fabricated\",\"wcag_criterion\":null,\"wcag_level\":null,\"category\":\"cognitive\",\"instrument\":null,\"instrument_item\":null,\"severity\":\"high\",\"confidence\":0.8,\"title\":\"Fabricated quote test\",\"explanation_plain\":\"This finding cites text that is not in the source.\",\"recommendation\":\"n/a\",\"evidence\":\"Consult the enclosed leaflet for details.\"}],\"instrument_items\":[{\"instrument\":\"PEMAT\",\"item_no\":4,\"verdict\":\"fail\",\"rationale\":\"BD is used without definition.\",\"evidence\":\"Take 1 tablet BD with food.\"},{\"instrument\":\"CCI\",\"item_no\":1,\"verdict\":\"pass\",\"rationale\":\"One clear main message.\",\"evidence\":null}],\"positive_observations\":[\"Short sentences throughout.\"]}\n```"
     }
   }
