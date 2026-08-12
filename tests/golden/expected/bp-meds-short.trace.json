@@ -328,6 +328,7 @@
       "valid": false,
       "api_error": false,
       "attempt": 1,
+      "next_action": "repair",
       "errors": [
         "Response is not parseable as a JSON object. Respond with ONLY the JSON object, no commentary."
       ],

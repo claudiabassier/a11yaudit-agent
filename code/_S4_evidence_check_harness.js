@@ -27,25 +27,28 @@ const aiResponse = {
   positive_observations: []
 };
 
-const buildPromptCtx = {
-  content_text: CONTENT, content_language: "en",
-  page_title: "S4 fabricated evidence test",
-  audience: "patients and family members, average to low health literacy",
-  is_very_short: true, content_truncated: false, deterministic_items: {}, attempt: 1
-};
+// Contract updated 12 Aug 2026 (Sprint-Schritt 4-5): A4 no longer resolves
+// content_text/deterministic_items/attempt via $('Build Prompt') — it was
+// extracted into its own subworkflow (SUB-A_Validate-dev) and now takes
+// everything as explicit input on the same item as the AI response, the
+// same way the canvas Set-node "Prep Validate Input" assembles it before
+// the real Execute-Workflow call. No $ shim is needed anymore at all.
+const item = Object.assign({}, aiResponse, {
+  content_text: CONTENT,
+  deterministic_items: {},
+  attempt: 1,
+  allow_repair: true,
+});
 
-const $input = { all: () => [{ json: aiResponse }] };
-const $ = (name) => {
-  if (name === 'Build Prompt') return { first: () => ({ json: buildPromptCtx }), all: () => [{ json: buildPromptCtx }] };
-  throw new Error('unreachable node: ' + name);
-};
+const $input = { all: () => [{ json: item }] };
 
-const runner = new Function('$input', '$', code + '\n');
-const out = runner($input, $);
+const runner = new Function('$input', code + '\n');
+const out = runner($input);
 const r = Array.isArray(out) ? out[0].json : out.json;
 
 console.log('valid                :', r.valid);
 console.log('api_error            :', r.api_error);
+console.log('next_action          :', r.next_action);
 console.log('dropped_unverified   :', r.dropped_unverified);
 console.log('findings surviving   :', r.analysis.findings.length);
 console.log('surviving keys       :', r.analysis.findings.map(f => f.finding_key).join(', ') || '(none)');

@@ -10,14 +10,20 @@
  * list and why): Node 06 (text branch), Fetch Page (fixtures are local
  * files), the Postgres nodes (13/13a/14/14a/17/19), WF-Error, and the real
  * repair-chain re-call (AI Analysis (repair) → Mark Attempt 2 →
- * Validate Output2) — there is no second pinned response to feed it.
+ * Call SUB-A_Validate (2)) — there is no second pinned response to feed it.
  *
- * $('...') lookups are wired to mirror the PRODUCTION path, not the
- * standalone-test fallback each node file also supports: Node 05 receives
- * only `{data: html}}` and must resolve metadata via $('Normalize Input');
- * A4 receives only the pinned AI response and must resolve content_text via
- * $('Build Prompt'). This means the harness also exercises the $ lookup
- * wiring itself, not just each node's fallback branch.
+ * $('...') lookups are wired to mirror the PRODUCTION path for every node
+ * except A4: Node 05 receives only `{data: html}}` and must resolve metadata
+ * via $('Normalize Input'). A4 is the one exception, updated 12 Aug 2026
+ * (Sprint-Schritt 4-5) — it was extracted into its own subworkflow
+ * (`SUB-A_Validate-dev`) and no longer resolves context via $('Build
+ * Prompt') at all; the caller now merges content_text/deterministic_items
+ * onto the item explicitly (mirroring the canvas Set-node "Prep Validate
+ * Input"), and attempt/allow_repair are literals the caller sets, not read
+ * from anywhere upstream. This fixture always represents the FIRST call
+ * (attempt: 1, allow_repair: true) — there is no second pinned response to
+ * exercise the repair-branch call (attempt: 2, allow_repair: false), same
+ * scope limit as the real repair chain noted above.
  * ============================================================================
  */
 
@@ -121,20 +127,32 @@ function runFixture(fx) {
   // ---- [pinned] — replaces the "AI Analysis" node ----------------------------
   const pinned = JSON.parse(fs.readFileSync(path.join(RESPONSES_DIR, fx.responseFile), 'utf8'));
 
-  // ---- A4 — Validate Output ---------------------------------------------------
-  // Only the pinned response is on the item — content_text/deterministic_items/
-  // attempt must come from the $('Build Prompt') shim (production path).
-  const a4 = run('A4_validate_output.js', [{ json: pinned }], nodeOutputs)[0].json;
+  // ---- A4 — Validate Output (now: SUB-A_Validate-dev, called with attempt 1) --
+  // Contract updated 12 Aug 2026 (Sprint-Schritt 4-5): explicit input, not a
+  // $('Build Prompt') lookup — content_text/deterministic_items are merged
+  // onto the item here, the same way the canvas Set-node "Prep Validate
+  // Input" does before the real Execute-Workflow call. Passing {} (not
+  // nodeOutputs) as the $ shim below is deliberate: if A4 still referenced
+  // $('Build Prompt') anywhere, this would throw "unreachable node" and fail
+  // the test loudly, which is the regression check that the old coupling is
+  // really gone, not just assumed gone.
+  const a4Input = Object.assign({}, pinned, {
+    content_text: a2.content_text,
+    deterministic_items: a2.deterministic_items,
+    attempt: 1,
+    allow_repair: true,
+  });
+  const a4 = run('A4_validate_output.js', [{ json: a4Input }], {})[0].json;
   nodes['A4_validate_output'] = a4;
 
   // ---- (A5 — Fallback, only when A4 rejects) ---------------------------------
   // Scope simplification, documented in README.md and decision_log.md: the
   // real repair chain (AI Analysis (repair) → Mark Attempt 2 →
-  // Validate Output2) is NOT re-invoked — there is no second pinned response.
-  // Routing A4's invalid output straight through A5 models "repair was
-  // attempted and also failed", which is what actually happened in the real
-  // D-27 incident this fixture reproduces (same token-ceiling cause on both
-  // attempts).
+  // Call SUB-A_Validate (2)) is NOT re-invoked — there is no second pinned
+  // response. Routing A4's invalid output straight through A5 models "repair
+  // was attempted and also failed", which is what actually happened in the
+  // real D-27 incident this fixture reproduces (same token-ceiling cause on
+  // both attempts).
   let subAReturn = a4;
   if (a4.valid !== true) {
     const a5 = run('A5_fallback.js', [{ json: a4 }], {})[0].json;
