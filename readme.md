@@ -138,6 +138,7 @@ The Code nodes need `NODE_FUNCTION_ALLOW_EXTERNAL=cheerio` and `NODE_FUNCTION_AL
 | `code/_DAY0_REVIEW.md` | pre-build code review: eight defects found in my own code before any node was built |
 | `code/_S4_evidence_check_harness.js` | the harness used to test the anti-fabrication check against a known-fabricated finding |
 | `fixtures/` | three test pages — a deliberately poor health page, its corrected twin (both with expected results written *before* the build), and a short well-formed leaflet used to test the very-short-material rule |
+| `tests/golden/` | regression harness — pins the AI response so the Code-node chain runs deterministically outside n8n; runs in a throwaway Docker image, no local Node.js needed; also carries `engine_drift.js`, comparing the cheerio and regex check engines against each other on all three fixtures |
 | `demo_output/` | generated audit reports pulled from the database, the before/after comparison, and the failure-path test records |
 | `demo_output/01_before_after_comparison.md` | **the headline result** — both score tables from the demo pair side by side, with the caveats that must accompany them |
 | `screenshots/` | proof of execution, with a capture list and notes on what to say about each frame |

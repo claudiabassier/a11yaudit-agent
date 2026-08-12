@@ -201,4 +201,4 @@ R('R9', r9Trigger);                     // safety && (PEMAT-4 fail || CCI-7 fail
 
 Der R9-Upgrade auf `critical` (läuft vor der Score-Berechnung) matcht zusätzlich auf `wcag_criterion === '3.1.4'` oder `'3.1.3'` — breiter als reine Instrument-Tags (siehe `decision_log.md` D-30).
 
-**Verzeichnisstruktur:** `workflows_export/` enthält vier Dateien, nicht drei (siehe Repository-Tabelle oben). Rest der Struktur deckt sich mit der Repository-Tabelle. `tests/golden/` existiert noch nicht (Sprint-Schritt 3, offen).
+**Verzeichnisstruktur:** `workflows_export/` enthält vier Dateien, nicht drei (siehe Repository-Tabelle oben). Rest der Struktur deckt sich mit der Repository-Tabelle. `tests/golden/` existiert seit Sprint-Schritt 3 (12. August): Docker-basierter Regressionsrunner mit fixierter AI-Antwort (`./tests/golden/run.sh`) plus `engine_drift.js` (cheerio- vs. Regex-Engine-Vergleich) — siehe `decision_log.md` D-52/D-53.
