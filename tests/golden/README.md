@@ -48,7 +48,9 @@ reported with its exact dotted path.
   fallback when `$('Upsert Audit')` is unreachable.
 - **`WF-Error`** — none of the three fixtures exercise a thrown error.
 - **The real repair-chain re-call** (`AI Analysis (repair)` → `Mark Attempt 2`
-  → `Validate Output2`) — there is no second pinned response. When A4 rejects
+  → `Call SUB-A_Validate (2)`, formerly `Validate Output2` before D-55's
+  extraction into a shared subworkflow) — there is no second pinned response.
+  When A4 rejects
   the pinned response (the `short` fixture), the harness routes straight
   through `A5_fallback.js` instead of re-invoking a repair call. This models
   "repair was attempted and also failed" — which is what actually happened in

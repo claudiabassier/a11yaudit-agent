@@ -7,9 +7,10 @@
  * PURPOSE
  *   Assembles everything the AI chat node (A3) needs: the fixed system
  *   prompt (verbatim from the spec) and the per-audit user message.
- *   Also passes context through, because A4 (Validate Output) reads
- *   content_text / deterministic_items / attempt from THIS node via
- *   $('Build Prompt').
+ *   Also computes content_text / deterministic_items so a canvas Set-node
+ *   ("Prep Validate Input" / the extended "Mark Attempt 2") can read them
+ *   via $('Build Prompt') and pass them on explicitly to SUB-A_Validate
+ *   (D-55) — A4 itself no longer performs that $() lookup.
  *
  * EXPECTED INPUT (one item, from A1 Execute Workflow Trigger — the
  * contract defined at WF1 Node 10):

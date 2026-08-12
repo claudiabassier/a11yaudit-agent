@@ -4,11 +4,13 @@
  * Spec: workflow_spec.md §2 (A4 / SUB-A_Validate)
  * ============================================================================
  *
- * NOTE (12 Aug 2026): this file's contract changed to support extraction
- * into its own standalone n8n subworkflow, called from two places inside
- * SUB-A (after "AI Analysis" and after "AI Analysis (repair)") instead of
- * being pasted twice as byte-identical Code nodes. See decision_log.md for
- * the entry recording this change once the canvas wiring is complete.
+ * NOTE (12 Aug 2026, decision_log.md D-55): extracted into its own
+ * standalone n8n subworkflow, `SUB-A_Validate-dev`, called from two places
+ * inside `SUB-A_AI_Analysis-dev` (after "AI Analysis" and after "AI
+ * Analysis (repair)") instead of being pasted twice as byte-identical Code
+ * nodes. Live on the dev branch only so far; the original
+ * `workflows_export/SUB-A_AI_Analysis.json` still shows the old duplicated
+ * nodes and is untouched.
  *
  * PURPOSE
  *   Deterministic gate between the AI's raw response and the rest of the

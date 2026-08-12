@@ -71,11 +71,11 @@ Der begutachtete Stand (Version 1.3, 5. August 2026) bleibt unversehrt. Weiteren
 
 **Im Repo**
 
-Zielzustand von Sprint-Schritt 2 (siehe „Aktueller Arbeitsstand") — noch nicht umgesetzt. Aktuell: kein Commit, kein Tag, kein Branch außer `main` (`git log` zeigt „does not have any commits yet"); die Workflow-Exporte liegen noch direkt in `workflows_export/`, nicht in einem eingefrorenen Unterverzeichnis.
+*Ursprünglich als Zielzustand von Sprint-Schritt 1/2 formuliert (unmittelbar nach dem Kopieren des Repos, vor dem ersten Commit) — inzwischen umgesetzt, dieser Absatz war seither nicht mehr aktualisiert worden (dieselbe Art Drift, die diese Datei selbst an anderer Stelle als Fehlerklasse benennt). Tatsächlicher Stand: Tag `v1.3-capstone` gesetzt, Arbeit läuft auf dem Branch `subworkflow-refactor` (nicht auf `main`), mehrere Commits vorhanden — siehe `git log` oder `A11yAudit_Fahrplan.md` für den aktuellen Stand, nicht diesen Absatz.*
 
-- Tag `v1.3-capstone` soll den eingereichten Stand markieren, sobald der erste Commit steht.
-- Arbeit soll auf Zweigen laufen, nicht direkt auf `main`.
-- `workflows_export/v1.3-as-submitted/` soll als eingefrorenes Unterverzeichnis angelegt werden und danach nicht mehr angefasst werden.
+- ~~Tag `v1.3-capstone` soll den eingereichten Stand markieren, sobald der erste Commit steht.~~ Erledigt.
+- ~~Arbeit soll auf Zweigen laufen, nicht direkt auf `main`.~~ Erledigt (`subworkflow-refactor`).
+- `workflows_export/v1.3-as-submitted/` als eingefrorenes Unterverzeichnis war so geplant, existiert aber nicht — die Exporte liegen weiterhin direkt in `workflows_export/`; laut „Verifizierte Referenz" unten (10.08.) unverändert original, das genügt bisher als Schutz.
 
 **In n8n**
 
