@@ -145,7 +145,7 @@ Sprint zur Aufarbeitung der Review-Punkte. Reihenfolge:
 1. Repo sauber aufsetzen, Credential-Sweep (Schwerpunkt `screenshots/` und `meta/`)
 2. Entwicklungsumgebung aufsetzen: Tag `v1.3-capstone`, Arbeitszweig, Workflows in n8n duplizieren, Datentrennung entscheiden
 3. Regressionsbasis unter `tests/golden/` aus den bestehenden Fixtures
-4. **Geteilte Validierungs-Subworkflow** — `Validate Output` und `Validate Output2` enthalten dieselbe Logik doppelt
+4. **Geteilte Validierungs-Subworkflow** — `Validate Output` und `Validate Output2` enthalten dieselbe Logik doppelt. *Erledigt auf `-dev` (12. August, `decision_log.md` D-55): eine Subworkflow `SUB-A_Validate-dev`, zwei Aufrufstellen, D-A und D-H strukturell mit geschlossen. Reparaturpfad-Aufruf im Live-Editor nicht beobachtbar (n8n-Pin-Einschränkung wie D-38) — Lücke offen benannt, nicht verschwiegen. `workflows_export/*.json` (Original) unverändert.*
 5. Fetch-Failure-Pfad nachweisen, im Format der bestehenden Failure-Path-Records
 6. D-36 beheben
 7. Konzeptnotiz `docs/scoring-stability.md`
