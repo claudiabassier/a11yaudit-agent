@@ -1,13 +1,13 @@
 # A11yAudit — Design Decision Log
 
-**Version 3.6 · 10 August 2026**
+**Version 3.7 · 12 August 2026**
 Purpose: record *why* the system is built the way it is, including alternatives rejected and claims corrected. This document is the primary artefact for technical review and for the STL presentation — it evidences reasoning, not just output.
 
 Format per entry: **Decision · Context · Alternatives considered · Rationale · Consequences.**
 
-**Changelog:** v2.1 D-01…D-15 (design) · v2.2 D-16…D-19 (Day 0) · v2.3 D-20…D-23 (Days 1–2) · v2.4 D-24…D-33 (Days 3–5) · v2.5 D-12 gap recorded, D-34 (documentation review) · v2.6 D-35…D-39 (Day 6 tests and second review pass) · v2.7 D-40 (GitHub packaging) · v2.8 D-41 (Day 7: presentation format, and a headline claim corrected) · v2.9 D-42 (slide deck, reversing D-41) · v3.0 D-43 (an unsupported claim about BD/bedtime retracted and replaced) · v3.1 D-44 (packaging by web upload; the staging folder had gone stale) · v3.2 D-45 (a fourth false claim, and a check built to catch the next one) · v3.3 D-46 (pre-commit review, 10 August: D-20's cut list corrected — five of six items were built after all) · v3.4 D-47 (pre-commit review, 10 August: `v_review_queue` INNER JOIN could hide escalated audits with no qualifying finding row — fixed to LEFT JOIN) · v3.5 D-48 (post-commit setup review, 10 August: `docker-compose.yml` project name pinned after a repo folder rename would have silently changed container names) · v3.6 D-49 (10 August: eight screenshots redacted at pixel level to remove the local username/hostname without losing surrounding content).
+**Changelog:** v2.1 D-01…D-15 (design) · v2.2 D-16…D-19 (Day 0) · v2.3 D-20…D-23 (Days 1–2) · v2.4 D-24…D-33 (Days 3–5) · v2.5 D-12 gap recorded, D-34 (documentation review) · v2.6 D-35…D-39 (Day 6 tests and second review pass) · v2.7 D-40 (GitHub packaging) · v2.8 D-41 (Day 7: presentation format, and a headline claim corrected) · v2.9 D-42 (slide deck, reversing D-41) · v3.0 D-43 (an unsupported claim about BD/bedtime retracted and replaced) · v3.1 D-44 (packaging by web upload; the staging folder had gone stale) · v3.2 D-45 (a fourth false claim, and a check built to catch the next one) · v3.3 D-46 (pre-commit review, 10 August: D-20's cut list corrected — five of six items were built after all) · v3.4 D-47 (pre-commit review, 10 August: `v_review_queue` INNER JOIN could hide escalated audits with no qualifying finding row — fixed to LEFT JOIN) · v3.5 D-48 (post-commit setup review, 10 August: `docker-compose.yml` project name pinned after a repo folder rename would have silently changed container names) · v3.6 D-49 (10 August: eight screenshots redacted at pixel level to remove the local username/hostname without losing surrounding content) · v3.7 D-50 (12 August: Tag 2 dev environment stood up — `-dev` workflows publish-chained and verified against `execution_entity`; an n8n 2.32.7 test-form CSP bug found and worked around).
 
-**Completeness:** D-01 to D-49, no missing numbers, no duplicates. D-12 is an unused number, recorded as such below.
+**Completeness:** D-01 to D-50, no missing numbers, no duplicates. D-12 is an unused number, recorded as such below.
 
 ---
 
@@ -673,6 +673,45 @@ It is deliberately crude and over-inclusive: statements about this system are fa
 **Verified after the fact:** all eight files still open as valid PNGs at their original pixel dimensions (no accidental crop or corruption); each redacted region re-inspected at 2-3x zoom after saving. File sizes dropped (PNG compresses solid-colour rectangles well) — expected, not a sign of data loss. Files were read-only (`-r--------`) as committed; `chmod u+w` was needed before overwriting, then left writable.
 
 **Consequences:** none of the eight images' informational content (query results, table output, report text, container status) was lost — only the recurring local username/hostname string. Not covered by this pass: `ss08_intake_form.png` (rated LOW in the original sweep — a form URL with a UUID, only locally resolvable, not a personal identifier), left as-is per that earlier assessment.
+
+---
+
+## D-50 — Dev environment stood up (Tag 2); n8n test-form CSP bug found and worked around
+
+**Context:** Sprint Tag 2 (`02_Sprintplan.md`): duplicate the three workflows with a `-dev` suffix, deactivate the originals, repoint `Call SUB-A` and both error-workflow settings at the `-dev` copies, and prove the dev chain actually runs before touching any scoring/subworkflow logic.
+
+**Done:**
+- `WF1 - Audit Intake-dev`, `SUB-A_AI_Analysis-dev`, `WF-Error-dev` created, published. Originals (`WF1 - Audit Intake`, `SUB-A_AI_Analysis`, `WF-Error`) unpublished.
+- `Call SUB-A` node in WF1-dev repointed to `SUB-A_AI_Analysis-dev` (id `vK4HhxgU9byGvqVp`).
+- Error Workflow setting in both WF1-dev and SUB-A-dev repointed to `WF-Error-dev`.
+- **Two things this session got wrong before landing on the fix, recorded because they're a real footgun in this n8n version:**
+  1. Assumed "Publish" and "Active" were the same toggle. They are not — a `docker compose logs` restart showed n8n's "Start Active Workflows" list reactivating the *originals* even after they'd been unpublished, and a duplicated workflow's own `Publish` state does not by itself make its sub-workflow references valid — n8n refuses to publish a workflow that calls an unpublished sub-workflow (`SUB-A_AI_Analysis-dev` had to be published before `WF1-dev` would accept publishing).
+  2. n8n's own restart-time log line ("Activated workflow...") was misread as evidence of a *live* problem when it was stale log history from a container restart days earlier — corrected by checking a fresh `docker compose restart n8n` and re-reading the log, which then correctly listed the three `-dev` workflows as active.
+
+**The actual blocker, found and isolated:** the workflow's Test URL (`/form-test/<id>`) rendered a blank page in every browser tried (Chrome, Chrome Incognito) with zero corresponding server-side log output. `curl` against the same URL returned a complete, valid 33 KB HTML document (HTTP 200) — so n8n was serving the page correctly; the browser was failing to render it. The response header explains why:
+
+```
+Content-Security-Policy: sandbox allow-downloads allow-forms allow-modals allow-orientation-lock
+  allow-pointer-lock allow-popups allow-popups-to-escape-sandbox allow-presentation allow-scripts
+  allow-top-navigation-by-user-activation allow-top-navigation-to-custom-protocols
+```
+
+No `allow-same-origin` token. A `sandbox` CSP without `allow-same-origin` forces the browser to treat the document as an opaque, unique origin — same-origin requests the form's own embedded script needs to make against `localhost:5678` are then blocked, silently, with no network request ever attempted and therefore no server log entry. This reproduced identically across browsers and profiles, which is consistent with a server-sent header causing it rather than local browser state. Appears to be an n8n 2.32.7 defect or misconfiguration in how it serves test-mode form pages, not something introduced by duplicating the workflow.
+
+**Decision:** don't chase a fix inside n8n's own code (out of scope, and the production form path — `/form/<id>`, no test-mode sandboxing — was never confirmed broken, only the test path). Instead, verified the dev chain using n8n's built-in "set mock data" feature on the `On form submission` node, which injects a trigger payload directly and skips the browser-rendered form entirely.
+
+**Verification, not just a claim it worked:** queried `execution_entity` directly rather than trusting the editor's green checkmarks —
+
+```
+ id | workflowId       | status  | startedAt
+ 74 | vK4HhxgU9byGvqVp  | success | 2026-08-12 09:31:06 (SUB-A_AI_Analysis-dev)
+ 73 | JbyzWB2b6hEPA8aM  | success | 2026-08-12 09:31:06 (WF1 - Audit Intake-dev)
+ 72 | JbyzWB2b6hEPA8aM  | error   | 2026-08-12 09:29:41 (WF1-dev, mock content below the 200-char minimum — hash_guard correctly rejected it)
+```
+
+Executions 73→74 run back to back on the `-dev` IDs specifically, not the originals (`cplV72n5kJnDaP3S` / `4K342U3TtgqWWp6A`, last seen in executions 70/71 from 6 August). The chain is real, not assumed.
+
+**Consequences:** dev environment is live and correctly isolated from the originals for workflow execution. Data separation (own schema/database) is the next Tag 2 item, not yet done — `hash_guard`'s idempotency logic means a shared database would still mutate the submitted-state audit rows on every dev run. The n8n test-form CSP bug is a known, worked-around limitation for this environment; anyone testing WF1-dev interactively should use "set mock data" or the production form URL, not the test URL, until/unless upgrading n8n resolves it.
 
 ---
 
