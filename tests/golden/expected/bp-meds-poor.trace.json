@@ -1,0 +1,2424 @@
+{
+  "fixture": "bp-meds-poor",
+  "fixed_now": "2026-08-01T00:00:00.000Z",
+  "nodes": {
+    "02_normalize_input": {
+      "source_type": "url",
+      "page_url": "https://example.org/med/bp-meds-poor",
+      "pasted_content": null,
+      "page_title": "Blood pressure medication guide (uncorrected)",
+      "content_language": "en",
+      "audience": "patients and family members, average to low health literacy",
+      "eaa_scope": false,
+      "auditor_note": null,
+      "normalize_note": null,
+      "started_at": "2026-08-01T00:00:00.000Z"
+    },
+    "05_automated_checks": {
+      "source_type": "url",
+      "page_url": "https://example.org/med/bp-meds-poor",
+      "page_title": "Blood pressure medication guide (uncorrected)",
+      "content_language": "en",
+      "audience": "patients and family members, average to low health literacy",
+      "eaa_scope": false,
+      "auditor_note": null,
+      "started_at": "2026-08-01T00:00:00.000Z",
+      "content_text": "Welcome to our award-winning patient portal! Did you know we were voted best regional health website 2024? Follow us on social media and subscribe to our newsletter for exciting updates.\n\n## Pharmacological management of arterial hypertension\n\nAntihypertensive therapy with ACE inhibitors is initiated when lifestyle modification proves insufficient. The medication is to be taken as prescribed. Take 1 tablet (5 mg) BD. The dosage may be titrated upwards by the treating physician if blood pressure targets are not attained. It should be noted that abrupt discontinuation is to be avoided, as rebound hypertension may be precipitated. Renal function and serum electrolytes are to be monitored periodically, since hyperkalaemia and deterioration of renal parameters have been observed in susceptible patients. Concomitant administration of NSAIDs is discouraged owing to attenuation of the antihypertensive effect and potentiation of nephrotoxicity. In the event that a dose is omitted, the omitted dose should be taken as soon as it is remembered, unless the subsequent dose is imminent, in which case the omitted dose should be disregarded and the ordinary schedule resumed. Doubling of doses is contraindicated. An overdose may manifest as pronounced hypotension, in which case medical attention should be sought. Side effects of a transient nature, including dry cough, dizziness and cephalalgia, have been reported in a proportion of patients and generally do not necessitate cessation of therapy.\n\n#### Additional information\n\n- Store below 25 degrees\n- Keep out of reach of children\n- Do not use after the expiry date\n- Protect from moisture\n- Do not transfer to another container\n- Return unused tablets to the pharmacy\n- Do not share your medication with others\n- Consult the package leaflet for excipients\n- Inform your physician if pregnant or breastfeeding\n\nMorning | 1 tablet\nEvening | 1 tablet\n\nFor inquiries utilise the contact form below.",
+      "word_count": 301,
+      "paragraph_count": 5,
+      "is_very_short": false,
+      "automated_findings": [
+        {
+          "finding_key": "auto-1.1.1-img-alt",
+          "wcag_criterion": "1.1.1",
+          "wcag_level": "A",
+          "category": "perceivable",
+          "severity": "high",
+          "confidence": 1,
+          "title": "1 image(s) without alt attribute",
+          "explanation_plain": "Images without an alt attribute are invisible to screen-reader users; assistive technology may read the file name instead.",
+          "recommendation": "Add an alt attribute to every image: descriptive if informative, empty (alt=\"\") if decorative.",
+          "evidence": "<img src=\"bp-chart.png\">",
+          "source": "automated"
+        },
+        {
+          "finding_key": "auto-3.1.1-html-lang",
+          "wcag_criterion": "3.1.1",
+          "wcag_level": "A",
+          "category": "understandable",
+          "severity": "high",
+          "confidence": 1,
+          "title": "Page language not declared",
+          "explanation_plain": "Without a lang attribute, screen readers guess the pronunciation rules and may read the text in the wrong language.",
+          "recommendation": "Add lang=\"de\" or lang=\"en\" to the <html> element.",
+          "evidence": "<html>",
+          "source": "automated"
+        },
+        {
+          "finding_key": "auto-1.3.1-no-h1",
+          "wcag_criterion": "1.3.1",
+          "wcag_level": "A",
+          "category": "perceivable",
+          "severity": "medium",
+          "confidence": 1,
+          "title": "No top-level heading (h1)",
+          "explanation_plain": "Screen-reader users navigate by headings; without an h1 the page has no announced main topic.",
+          "recommendation": "Give the page exactly one h1 stating its main topic.",
+          "evidence": "heading levels found: 2, 4",
+          "source": "automated"
+        },
+        {
+          "finding_key": "auto-1.3.1-heading-skip",
+          "wcag_criterion": "1.3.1",
+          "wcag_level": "A",
+          "category": "perceivable",
+          "severity": "medium",
+          "confidence": 1,
+          "title": "Heading level skipped (h2 → h4)",
+          "explanation_plain": "Skipped heading levels break the outline that assistive technology builds from the page.",
+          "recommendation": "Use consecutive heading levels; do not jump levels for visual effect.",
+          "evidence": "heading sequence: 2 → 4",
+          "source": "automated"
+        },
+        {
+          "finding_key": "auto-2.4.4-link-name",
+          "wcag_criterion": "2.4.4",
+          "wcag_level": "A",
+          "category": "operable",
+          "severity": "high",
+          "confidence": 1,
+          "title": "1 link(s)/button(s) without accessible name",
+          "explanation_plain": "A control with no text and no label is announced only as \"link\" or \"button\" — the user cannot know what it does.",
+          "recommendation": "Give every link and button visible text, or an aria-label if it is icon-only.",
+          "evidence": "<a href=\"/contact\"></a>",
+          "source": "automated"
+        },
+        {
+          "finding_key": "auto-3.3.2-input-label",
+          "wcag_criterion": "3.3.2",
+          "wcag_level": "A",
+          "category": "understandable",
+          "severity": "high",
+          "confidence": 1,
+          "title": "1 form field(s) without a label",
+          "explanation_plain": "Unlabelled form fields leave screen-reader users guessing what to enter.",
+          "recommendation": "Associate every field with a <label for=\"…\">, or add aria-label.",
+          "evidence": "<input type=\"text\" name=\"email\">",
+          "source": "automated"
+        },
+        {
+          "finding_key": "auto-2.4.2-title",
+          "wcag_criterion": "2.4.2",
+          "wcag_level": "A",
+          "category": "operable",
+          "severity": "medium",
+          "confidence": 1,
+          "title": "Page has no title",
+          "explanation_plain": "The title is the first thing a screen reader announces and what appears in tabs and bookmarks.",
+          "recommendation": "Add a descriptive <title> in the <head>.",
+          "evidence": "<head> contains no non-empty <title>",
+          "source": "automated"
+        },
+        {
+          "finding_key": "auto-1.3.1-table-th",
+          "wcag_criterion": "1.3.1",
+          "wcag_level": "A",
+          "category": "perceivable",
+          "severity": "medium",
+          "confidence": 1,
+          "title": "1 data table(s) without header cells",
+          "explanation_plain": "Without <th> header cells a screen reader cannot tell the user what each column or row means.",
+          "recommendation": "Mark header cells with <th> (and scope=\"col\"/\"row\" where needed).",
+          "evidence": "<table> <tbody><tr><td>Morning</td><td>1 tablet</td></tr> <tr><td>Evening</td><td>1 tablet</td></tr> </tbody></table>",
+          "source": "automated"
+        }
+      ],
+      "deterministic_items": {
+        "PEMAT_8": "fail",
+        "PEMAT_9": "pass",
+        "PEMAT_12": "pass",
+        "PEMAT_17": "fail",
+        "PEMAT_19": "fail",
+        "CCI_3": "fail",
+        "CCI_8": "fail",
+        "CCI_9": "pass"
+      },
+      "deterministic_observations": [
+        {
+          "instrument": "PEMAT",
+          "item_no": 8,
+          "verdict": "fail",
+          "rationale": "At least one section between headings exceeds 150 words (max found: 188).",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 9,
+          "verdict": "pass",
+          "rationale": "2 heading(s) present. Informativeness is judged separately by the AI.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 12,
+          "verdict": "pass",
+          "rationale": "Lists or emphasis markup present as visual cues.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 17,
+          "verdict": "fail",
+          "rationale": "At least one image lacks both alt text and a figcaption.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 19,
+          "verdict": "fail",
+          "rationale": "At least one table has no header cells.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 3,
+          "verdict": "fail",
+          "rationale": "No heading or emphasis markup in the first section.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 8,
+          "verdict": "fail",
+          "rationale": "A list runs longer than 7 items without a break (CDC rule).",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 9,
+          "verdict": "pass",
+          "rationale": "2 headings structure the material into chunks.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        }
+      ],
+      "automated_checks_skipped": false,
+      "checks_engine": "cheerio"
+    },
+    "08_hash_guard": {
+      "source_type": "url",
+      "page_url": "https://example.org/med/bp-meds-poor",
+      "page_title": "Blood pressure medication guide (uncorrected)",
+      "content_language": "en",
+      "audience": "patients and family members, average to low health literacy",
+      "eaa_scope": false,
+      "auditor_note": null,
+      "started_at": "2026-08-01T00:00:00.000Z",
+      "content_text": "Welcome to our award-winning patient portal! Did you know we were voted best regional health website 2024? Follow us on social media and subscribe to our newsletter for exciting updates.\n\n## Pharmacological management of arterial hypertension\n\nAntihypertensive therapy with ACE inhibitors is initiated when lifestyle modification proves insufficient. The medication is to be taken as prescribed. Take 1 tablet (5 mg) BD. The dosage may be titrated upwards by the treating physician if blood pressure targets are not attained. It should be noted that abrupt discontinuation is to be avoided, as rebound hypertension may be precipitated. Renal function and serum electrolytes are to be monitored periodically, since hyperkalaemia and deterioration of renal parameters have been observed in susceptible patients. Concomitant administration of NSAIDs is discouraged owing to attenuation of the antihypertensive effect and potentiation of nephrotoxicity. In the event that a dose is omitted, the omitted dose should be taken as soon as it is remembered, unless the subsequent dose is imminent, in which case the omitted dose should be disregarded and the ordinary schedule resumed. Doubling of doses is contraindicated. An overdose may manifest as pronounced hypotension, in which case medical attention should be sought. Side effects of a transient nature, including dry cough, dizziness and cephalalgia, have been reported in a proportion of patients and generally do not necessitate cessation of therapy.\n\n#### Additional information\n\n- Store below 25 degrees\n- Keep out of reach of children\n- Do not use after the expiry date\n- Protect from moisture\n- Do not transfer to another container\n- Return unused tablets to the pharmacy\n- Do not share your medication with others\n- Consult the package leaflet for excipients\n- Inform your physician if pregnant or breastfeeding\n\nMorning | 1 tablet\nEvening | 1 tablet\n\nFor inquiries utilise the contact form below.",
+      "word_count": 301,
+      "paragraph_count": 5,
+      "is_very_short": false,
+      "automated_findings": [
+        {
+          "finding_key": "auto-1.1.1-img-alt",
+          "wcag_criterion": "1.1.1",
+          "wcag_level": "A",
+          "category": "perceivable",
+          "severity": "high",
+          "confidence": 1,
+          "title": "1 image(s) without alt attribute",
+          "explanation_plain": "Images without an alt attribute are invisible to screen-reader users; assistive technology may read the file name instead.",
+          "recommendation": "Add an alt attribute to every image: descriptive if informative, empty (alt=\"\") if decorative.",
+          "evidence": "<img src=\"bp-chart.png\">",
+          "source": "automated"
+        },
+        {
+          "finding_key": "auto-3.1.1-html-lang",
+          "wcag_criterion": "3.1.1",
+          "wcag_level": "A",
+          "category": "understandable",
+          "severity": "high",
+          "confidence": 1,
+          "title": "Page language not declared",
+          "explanation_plain": "Without a lang attribute, screen readers guess the pronunciation rules and may read the text in the wrong language.",
+          "recommendation": "Add lang=\"de\" or lang=\"en\" to the <html> element.",
+          "evidence": "<html>",
+          "source": "automated"
+        },
+        {
+          "finding_key": "auto-1.3.1-no-h1",
+          "wcag_criterion": "1.3.1",
+          "wcag_level": "A",
+          "category": "perceivable",
+          "severity": "medium",
+          "confidence": 1,
+          "title": "No top-level heading (h1)",
+          "explanation_plain": "Screen-reader users navigate by headings; without an h1 the page has no announced main topic.",
+          "recommendation": "Give the page exactly one h1 stating its main topic.",
+          "evidence": "heading levels found: 2, 4",
+          "source": "automated"
+        },
+        {
+          "finding_key": "auto-1.3.1-heading-skip",
+          "wcag_criterion": "1.3.1",
+          "wcag_level": "A",
+          "category": "perceivable",
+          "severity": "medium",
+          "confidence": 1,
+          "title": "Heading level skipped (h2 → h4)",
+          "explanation_plain": "Skipped heading levels break the outline that assistive technology builds from the page.",
+          "recommendation": "Use consecutive heading levels; do not jump levels for visual effect.",
+          "evidence": "heading sequence: 2 → 4",
+          "source": "automated"
+        },
+        {
+          "finding_key": "auto-2.4.4-link-name",
+          "wcag_criterion": "2.4.4",
+          "wcag_level": "A",
+          "category": "operable",
+          "severity": "high",
+          "confidence": 1,
+          "title": "1 link(s)/button(s) without accessible name",
+          "explanation_plain": "A control with no text and no label is announced only as \"link\" or \"button\" — the user cannot know what it does.",
+          "recommendation": "Give every link and button visible text, or an aria-label if it is icon-only.",
+          "evidence": "<a href=\"/contact\"></a>",
+          "source": "automated"
+        },
+        {
+          "finding_key": "auto-3.3.2-input-label",
+          "wcag_criterion": "3.3.2",
+          "wcag_level": "A",
+          "category": "understandable",
+          "severity": "high",
+          "confidence": 1,
+          "title": "1 form field(s) without a label",
+          "explanation_plain": "Unlabelled form fields leave screen-reader users guessing what to enter.",
+          "recommendation": "Associate every field with a <label for=\"…\">, or add aria-label.",
+          "evidence": "<input type=\"text\" name=\"email\">",
+          "source": "automated"
+        },
+        {
+          "finding_key": "auto-2.4.2-title",
+          "wcag_criterion": "2.4.2",
+          "wcag_level": "A",
+          "category": "operable",
+          "severity": "medium",
+          "confidence": 1,
+          "title": "Page has no title",
+          "explanation_plain": "The title is the first thing a screen reader announces and what appears in tabs and bookmarks.",
+          "recommendation": "Add a descriptive <title> in the <head>.",
+          "evidence": "<head> contains no non-empty <title>",
+          "source": "automated"
+        },
+        {
+          "finding_key": "auto-1.3.1-table-th",
+          "wcag_criterion": "1.3.1",
+          "wcag_level": "A",
+          "category": "perceivable",
+          "severity": "medium",
+          "confidence": 1,
+          "title": "1 data table(s) without header cells",
+          "explanation_plain": "Without <th> header cells a screen reader cannot tell the user what each column or row means.",
+          "recommendation": "Mark header cells with <th> (and scope=\"col\"/\"row\" where needed).",
+          "evidence": "<table> <tbody><tr><td>Morning</td><td>1 tablet</td></tr> <tr><td>Evening</td><td>1 tablet</td></tr> </tbody></table>",
+          "source": "automated"
+        }
+      ],
+      "deterministic_items": {
+        "PEMAT_8": "fail",
+        "PEMAT_9": "pass",
+        "PEMAT_12": "pass",
+        "PEMAT_17": "fail",
+        "PEMAT_19": "fail",
+        "CCI_3": "fail",
+        "CCI_8": "fail",
+        "CCI_9": "pass"
+      },
+      "deterministic_observations": [
+        {
+          "instrument": "PEMAT",
+          "item_no": 8,
+          "verdict": "fail",
+          "rationale": "At least one section between headings exceeds 150 words (max found: 188).",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 9,
+          "verdict": "pass",
+          "rationale": "2 heading(s) present. Informativeness is judged separately by the AI.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 12,
+          "verdict": "pass",
+          "rationale": "Lists or emphasis markup present as visual cues.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 17,
+          "verdict": "fail",
+          "rationale": "At least one image lacks both alt text and a figcaption.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 19,
+          "verdict": "fail",
+          "rationale": "At least one table has no header cells.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 3,
+          "verdict": "fail",
+          "rationale": "No heading or emphasis markup in the first section.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 8,
+          "verdict": "fail",
+          "rationale": "A list runs longer than 7 items without a break (CDC rule).",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 9,
+          "verdict": "pass",
+          "rationale": "2 headings structure the material into chunks.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        }
+      ],
+      "automated_checks_skipped": false,
+      "checks_engine": "cheerio",
+      "content_hash": "670994b1147a2436e60fc03b4c245acfc735d1ff786e5d50893c6aba47bafebb",
+      "content_truncated": false
+    },
+    "09_safety_prescreen": {
+      "source_type": "url",
+      "page_url": "https://example.org/med/bp-meds-poor",
+      "page_title": "Blood pressure medication guide (uncorrected)",
+      "content_language": "en",
+      "audience": "patients and family members, average to low health literacy",
+      "eaa_scope": false,
+      "auditor_note": null,
+      "started_at": "2026-08-01T00:00:00.000Z",
+      "content_text": "Welcome to our award-winning patient portal! Did you know we were voted best regional health website 2024? Follow us on social media and subscribe to our newsletter for exciting updates.\n\n## Pharmacological management of arterial hypertension\n\nAntihypertensive therapy with ACE inhibitors is initiated when lifestyle modification proves insufficient. The medication is to be taken as prescribed. Take 1 tablet (5 mg) BD. The dosage may be titrated upwards by the treating physician if blood pressure targets are not attained. It should be noted that abrupt discontinuation is to be avoided, as rebound hypertension may be precipitated. Renal function and serum electrolytes are to be monitored periodically, since hyperkalaemia and deterioration of renal parameters have been observed in susceptible patients. Concomitant administration of NSAIDs is discouraged owing to attenuation of the antihypertensive effect and potentiation of nephrotoxicity. In the event that a dose is omitted, the omitted dose should be taken as soon as it is remembered, unless the subsequent dose is imminent, in which case the omitted dose should be disregarded and the ordinary schedule resumed. Doubling of doses is contraindicated. An overdose may manifest as pronounced hypotension, in which case medical attention should be sought. Side effects of a transient nature, including dry cough, dizziness and cephalalgia, have been reported in a proportion of patients and generally do not necessitate cessation of therapy.\n\n#### Additional information\n\n- Store below 25 degrees\n- Keep out of reach of children\n- Do not use after the expiry date\n- Protect from moisture\n- Do not transfer to another container\n- Return unused tablets to the pharmacy\n- Do not share your medication with others\n- Consult the package leaflet for excipients\n- Inform your physician if pregnant or breastfeeding\n\nMorning | 1 tablet\nEvening | 1 tablet\n\nFor inquiries utilise the contact form below.",
+      "word_count": 301,
+      "paragraph_count": 5,
+      "is_very_short": false,
+      "automated_findings": [
+        {
+          "finding_key": "auto-1.1.1-img-alt",
+          "wcag_criterion": "1.1.1",
+          "wcag_level": "A",
+          "category": "perceivable",
+          "severity": "high",
+          "confidence": 1,
+          "title": "1 image(s) without alt attribute",
+          "explanation_plain": "Images without an alt attribute are invisible to screen-reader users; assistive technology may read the file name instead.",
+          "recommendation": "Add an alt attribute to every image: descriptive if informative, empty (alt=\"\") if decorative.",
+          "evidence": "<img src=\"bp-chart.png\">",
+          "source": "automated"
+        },
+        {
+          "finding_key": "auto-3.1.1-html-lang",
+          "wcag_criterion": "3.1.1",
+          "wcag_level": "A",
+          "category": "understandable",
+          "severity": "high",
+          "confidence": 1,
+          "title": "Page language not declared",
+          "explanation_plain": "Without a lang attribute, screen readers guess the pronunciation rules and may read the text in the wrong language.",
+          "recommendation": "Add lang=\"de\" or lang=\"en\" to the <html> element.",
+          "evidence": "<html>",
+          "source": "automated"
+        },
+        {
+          "finding_key": "auto-1.3.1-no-h1",
+          "wcag_criterion": "1.3.1",
+          "wcag_level": "A",
+          "category": "perceivable",
+          "severity": "medium",
+          "confidence": 1,
+          "title": "No top-level heading (h1)",
+          "explanation_plain": "Screen-reader users navigate by headings; without an h1 the page has no announced main topic.",
+          "recommendation": "Give the page exactly one h1 stating its main topic.",
+          "evidence": "heading levels found: 2, 4",
+          "source": "automated"
+        },
+        {
+          "finding_key": "auto-1.3.1-heading-skip",
+          "wcag_criterion": "1.3.1",
+          "wcag_level": "A",
+          "category": "perceivable",
+          "severity": "medium",
+          "confidence": 1,
+          "title": "Heading level skipped (h2 → h4)",
+          "explanation_plain": "Skipped heading levels break the outline that assistive technology builds from the page.",
+          "recommendation": "Use consecutive heading levels; do not jump levels for visual effect.",
+          "evidence": "heading sequence: 2 → 4",
+          "source": "automated"
+        },
+        {
+          "finding_key": "auto-2.4.4-link-name",
+          "wcag_criterion": "2.4.4",
+          "wcag_level": "A",
+          "category": "operable",
+          "severity": "high",
+          "confidence": 1,
+          "title": "1 link(s)/button(s) without accessible name",
+          "explanation_plain": "A control with no text and no label is announced only as \"link\" or \"button\" — the user cannot know what it does.",
+          "recommendation": "Give every link and button visible text, or an aria-label if it is icon-only.",
+          "evidence": "<a href=\"/contact\"></a>",
+          "source": "automated"
+        },
+        {
+          "finding_key": "auto-3.3.2-input-label",
+          "wcag_criterion": "3.3.2",
+          "wcag_level": "A",
+          "category": "understandable",
+          "severity": "high",
+          "confidence": 1,
+          "title": "1 form field(s) without a label",
+          "explanation_plain": "Unlabelled form fields leave screen-reader users guessing what to enter.",
+          "recommendation": "Associate every field with a <label for=\"…\">, or add aria-label.",
+          "evidence": "<input type=\"text\" name=\"email\">",
+          "source": "automated"
+        },
+        {
+          "finding_key": "auto-2.4.2-title",
+          "wcag_criterion": "2.4.2",
+          "wcag_level": "A",
+          "category": "operable",
+          "severity": "medium",
+          "confidence": 1,
+          "title": "Page has no title",
+          "explanation_plain": "The title is the first thing a screen reader announces and what appears in tabs and bookmarks.",
+          "recommendation": "Add a descriptive <title> in the <head>.",
+          "evidence": "<head> contains no non-empty <title>",
+          "source": "automated"
+        },
+        {
+          "finding_key": "auto-1.3.1-table-th",
+          "wcag_criterion": "1.3.1",
+          "wcag_level": "A",
+          "category": "perceivable",
+          "severity": "medium",
+          "confidence": 1,
+          "title": "1 data table(s) without header cells",
+          "explanation_plain": "Without <th> header cells a screen reader cannot tell the user what each column or row means.",
+          "recommendation": "Mark header cells with <th> (and scope=\"col\"/\"row\" where needed).",
+          "evidence": "<table> <tbody><tr><td>Morning</td><td>1 tablet</td></tr> <tr><td>Evening</td><td>1 tablet</td></tr> </tbody></table>",
+          "source": "automated"
+        }
+      ],
+      "deterministic_items": {
+        "PEMAT_8": "fail",
+        "PEMAT_9": "pass",
+        "PEMAT_12": "pass",
+        "PEMAT_17": "fail",
+        "PEMAT_19": "fail",
+        "CCI_3": "fail",
+        "CCI_8": "fail",
+        "CCI_9": "pass"
+      },
+      "deterministic_observations": [
+        {
+          "instrument": "PEMAT",
+          "item_no": 8,
+          "verdict": "fail",
+          "rationale": "At least one section between headings exceeds 150 words (max found: 188).",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 9,
+          "verdict": "pass",
+          "rationale": "2 heading(s) present. Informativeness is judged separately by the AI.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 12,
+          "verdict": "pass",
+          "rationale": "Lists or emphasis markup present as visual cues.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 17,
+          "verdict": "fail",
+          "rationale": "At least one image lacks both alt text and a figcaption.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 19,
+          "verdict": "fail",
+          "rationale": "At least one table has no header cells.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 3,
+          "verdict": "fail",
+          "rationale": "No heading or emphasis markup in the first section.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 8,
+          "verdict": "fail",
+          "rationale": "A list runs longer than 7 items without a break (CDC rule).",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 9,
+          "verdict": "pass",
+          "rationale": "2 headings structure the material into chunks.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        }
+      ],
+      "automated_checks_skipped": false,
+      "checks_engine": "cheerio",
+      "content_hash": "670994b1147a2436e60fc03b4c245acfc735d1ff786e5d50893c6aba47bafebb",
+      "content_truncated": false,
+      "safety_terms_found": [
+        "bd",
+        "breastfeed",
+        "contraindicat",
+        "mg",
+        "overdose",
+        "pregnan",
+        "side effect",
+        "tablet"
+      ],
+      "safety_context": true
+    },
+    "A2_build_prompt": {
+      "system_prompt": "You are an accessibility and health-literacy analysis assistant. You\nsupport a human auditor of digital health content. You never make final\ncompliance, legal, or clinical decisions.\n\nYou perform two tasks.\n\nTASK 1 — BARRIER FINDINGS\nIdentify accessibility barriers detectable from text and markup:\n - WCAG 2.2 criteria that require judgment: 3.1.3 (unusual words),\n   3.1.4 (abbreviations), 3.1.5 (reading level), 2.4.6 (headings and\n   labels), 3.3.2 (instructions), 1.3.1 (semantic structure).\n - Comprehension barriers for patients: unexplained jargon, undefined\n   abbreviations, complex sentences, missing or unclear instructions,\n   ambiguous dosing or timing language, unstated action triggers.\nDo NOT report colour contrast, keyboard operation, focus order, media\ncaptions, or anything requiring a rendered page — you cannot observe them.\n\nTASK 2 — INSTRUMENT ASSESSMENT\nScore the items listed below, drawn from PEMAT-P (AHRQ) and the CDC Clear\nCommunication Index. For each: verdict \"pass\", \"fail\" or \"not_applicable\",\nplus a one-sentence rationale citing evidence from the material.\nItems already decided deterministically are given to you in\n`deterministic_items` — do NOT re-judge those; they are fixed.\nJudge every item strictly from the material itself. Do not use outside\nknowledge of the subject. Rate \"pass\" only if the criterion holds\nthroughout the material (AHRQ guidance: 80–100% of the time).\n\nPEMAT understandability items to judge:\n 1 purpose completely evident\n 2 no content that distracts from the purpose\n 3 uses common, everyday language\n 4 medical terms defined when used\n 5 uses active voice\n 6 numbers clear and easy to understand      [not_applicable if no numbers]\n 7 does not expect the user to perform calculations\n 10 information in a logical sequence\n 11 provides a summary                        [not_applicable if very short]\nPEMAT actionability items to judge:\n 20 clearly identifies at least one action the user can take\n 21 addresses the user directly when describing actions\n 22 breaks actions into manageable, explicit steps\n 24 gives instructions or examples for any calculations [n/a if none]\n 25 explains how to use charts/tables to take action    [n/a if none]\n\nCDC Index items to judge:\n 1 contains one main message statement\n 2 main message at the top (first section, visible without scrolling)\n 5 includes at least one call to action for the audience\n 6 main message and call to action both use active voice\n 7 always uses words the audience uses; all specialized terms and\n   abbreviations explained (not merely defined) at first use\n 10 most important information summarized in the first section\n 11 explains what authoritative sources know AND do not know\n 12–14 behavioral recommendation present / why it matters / specific\n   directions how to perform it                [n/a if no recommendation]\n 15–17 numbers familiar and necessary / meaning explained / audience\n   must calculate (item 17: \"yes, must calculate\" = fail)  [n/a if no numbers]\n 18–20 nature of risk explained / risks AND benefits addressed / numeric\n   probability also given in words or visual    [n/a if no risk content]\n\nRULES\n- Evidence must be quoted verbatim from the input, max 300 characters.\n  Never invent content. If you cannot quote it, do not report it.\n- severity: critical = could lead to patient harm or blocks the task;\n  high = major barrier for a user group; medium = significant difficulty;\n  low = minor friction.\n- confidence: your certainty (0.0-1.0) that this is a real barrier.\n- explanation_plain: 1-3 sentences a non-expert understands.\n- recommendation: one concrete, actionable fix.\n- Maximum 25 findings, most severe first.\n- Do NOT assess legal compliance (EAA/BFSG/EN 301 549). That is decided\n  outside this call.\n- Do NOT give clinical advice or judge medical correctness.\n\nRespond with ONLY a JSON object matching this schema exactly — no markdown,\nno code fences, no commentary.\n\n{\n  \"schema_version\": \"2.0\",\n  \"analysis_status\": \"ok\",\n  \"summary\": \"2-4 sentences\",\n  \"findings\": [\n    {\n      \"finding_key\": \"ai-pemat4-abbrev-bd\",\n      \"wcag_criterion\": \"3.1.4\",\n      \"wcag_level\": \"A\",\n      \"category\": \"perceivable|operable|understandable|robust|cognitive\",\n      \"instrument\": \"PEMAT|CCI|null\",\n      \"instrument_item\": 4,\n      \"severity\": \"critical|high|medium|low\",\n      \"confidence\": 0.92,\n      \"title\": \"max 80 chars\",\n      \"explanation_plain\": \"string\",\n      \"recommendation\": \"string\",\n      \"evidence\": \"verbatim quote, max 300 chars\"\n    }\n  ],\n  \"instrument_items\": [\n    { \"instrument\": \"PEMAT\", \"item_no\": 4, \"verdict\": \"fail\",\n      \"rationale\": \"string\", \"evidence\": \"verbatim quote or null\" }\n  ],\n  \"positive_observations\": [\"string\"]\n}",
+      "user_message": "Audience: patients and family members, average to low health literacy | Title: Blood pressure medication guide (uncorrected) | Language: en | Very short: false | Truncated: false\nAlready decided (do not re-judge): {\"PEMAT_8\":\"fail\",\"PEMAT_9\":\"pass\",\"PEMAT_12\":\"pass\",\"PEMAT_17\":\"fail\",\"PEMAT_19\":\"fail\",\"CCI_3\":\"fail\",\"CCI_8\":\"fail\",\"CCI_9\":\"pass\"}\n\nMATERIAL:\nWelcome to our award-winning patient portal! Did you know we were voted best regional health website 2024? Follow us on social media and subscribe to our newsletter for exciting updates.\n\n## Pharmacological management of arterial hypertension\n\nAntihypertensive therapy with ACE inhibitors is initiated when lifestyle modification proves insufficient. The medication is to be taken as prescribed. Take 1 tablet (5 mg) BD. The dosage may be titrated upwards by the treating physician if blood pressure targets are not attained. It should be noted that abrupt discontinuation is to be avoided, as rebound hypertension may be precipitated. Renal function and serum electrolytes are to be monitored periodically, since hyperkalaemia and deterioration of renal parameters have been observed in susceptible patients. Concomitant administration of NSAIDs is discouraged owing to attenuation of the antihypertensive effect and potentiation of nephrotoxicity. In the event that a dose is omitted, the omitted dose should be taken as soon as it is remembered, unless the subsequent dose is imminent, in which case the omitted dose should be disregarded and the ordinary schedule resumed. Doubling of doses is contraindicated. An overdose may manifest as pronounced hypotension, in which case medical attention should be sought. Side effects of a transient nature, including dry cough, dizziness and cephalalgia, have been reported in a proportion of patients and generally do not necessitate cessation of therapy.\n\n#### Additional information\n\n- Store below 25 degrees\n- Keep out of reach of children\n- Do not use after the expiry date\n- Protect from moisture\n- Do not transfer to another container\n- Return unused tablets to the pharmacy\n- Do not share your medication with others\n- Consult the package leaflet for excipients\n- Inform your physician if pregnant or breastfeeding\n\nMorning | 1 tablet\nEvening | 1 tablet\n\nFor inquiries utilise the contact form below.",
+      "attempt": 1,
+      "content_text": "Welcome to our award-winning patient portal! Did you know we were voted best regional health website 2024? Follow us on social media and subscribe to our newsletter for exciting updates.\n\n## Pharmacological management of arterial hypertension\n\nAntihypertensive therapy with ACE inhibitors is initiated when lifestyle modification proves insufficient. The medication is to be taken as prescribed. Take 1 tablet (5 mg) BD. The dosage may be titrated upwards by the treating physician if blood pressure targets are not attained. It should be noted that abrupt discontinuation is to be avoided, as rebound hypertension may be precipitated. Renal function and serum electrolytes are to be monitored periodically, since hyperkalaemia and deterioration of renal parameters have been observed in susceptible patients. Concomitant administration of NSAIDs is discouraged owing to attenuation of the antihypertensive effect and potentiation of nephrotoxicity. In the event that a dose is omitted, the omitted dose should be taken as soon as it is remembered, unless the subsequent dose is imminent, in which case the omitted dose should be disregarded and the ordinary schedule resumed. Doubling of doses is contraindicated. An overdose may manifest as pronounced hypotension, in which case medical attention should be sought. Side effects of a transient nature, including dry cough, dizziness and cephalalgia, have been reported in a proportion of patients and generally do not necessitate cessation of therapy.\n\n#### Additional information\n\n- Store below 25 degrees\n- Keep out of reach of children\n- Do not use after the expiry date\n- Protect from moisture\n- Do not transfer to another container\n- Return unused tablets to the pharmacy\n- Do not share your medication with others\n- Consult the package leaflet for excipients\n- Inform your physician if pregnant or breastfeeding\n\nMorning | 1 tablet\nEvening | 1 tablet\n\nFor inquiries utilise the contact form below.",
+      "content_language": "en",
+      "page_title": "Blood pressure medication guide (uncorrected)",
+      "audience": "patients and family members, average to low health literacy",
+      "is_very_short": false,
+      "content_truncated": false,
+      "deterministic_items": {
+        "PEMAT_8": "fail",
+        "PEMAT_9": "pass",
+        "PEMAT_12": "pass",
+        "PEMAT_17": "fail",
+        "PEMAT_19": "fail",
+        "CCI_3": "fail",
+        "CCI_8": "fail",
+        "CCI_9": "pass"
+      }
+    },
+    "A4_validate_output": {
+      "valid": true,
+      "api_error": false,
+      "attempt": 1,
+      "errors": [],
+      "analysis": {
+        "schema_version": "2.0",
+        "analysis_status": "ok",
+        "summary": "The material explains dosing in clinical language patients are unlikely to understand, buries the missed-dose instruction inside a dense paragraph, and opens with promotional text rather than the instruction itself.",
+        "findings": [
+          {
+            "finding_key": "ai-pemat4-abbrev-bd",
+            "wcag_criterion": "3.1.4",
+            "wcag_level": "A",
+            "category": "understandable",
+            "instrument": "PEMAT",
+            "instrument_item": 4,
+            "severity": "high",
+            "confidence": 0.9,
+            "title": "Dosing abbreviation BD never explained",
+            "explanation_plain": "BD means twice a day but is never defined in the text. A reader could take the wrong dose.",
+            "recommendation": "Write 'twice a day' or define BD at first use.",
+            "evidence": "Take 1 tablet (5 mg) BD.",
+            "evidence_verified": true,
+            "source": "ai"
+          },
+          {
+            "finding_key": "ai-jargon-hyperkalaemia",
+            "wcag_criterion": "3.1.3",
+            "wcag_level": "AAA",
+            "category": "understandable",
+            "instrument": "CCI",
+            "instrument_item": 7,
+            "severity": "medium",
+            "confidence": 0.85,
+            "title": "Unexplained clinical terms",
+            "explanation_plain": "Clinical terms such as hyperkalaemia are used without any plain-language explanation.",
+            "recommendation": "Add a plain-language gloss the first time a clinical term is used.",
+            "evidence": "hyperkalaemia and deterioration of renal parameters",
+            "evidence_verified": true,
+            "source": "ai"
+          },
+          {
+            "finding_key": "ai-cci1-main-message",
+            "wcag_criterion": null,
+            "wcag_level": null,
+            "category": "cognitive",
+            "instrument": "CCI",
+            "instrument_item": 1,
+            "severity": "medium",
+            "confidence": 0.7,
+            "title": "No single clear main message up front",
+            "explanation_plain": "The page opens with promotional text rather than the medication instruction itself.",
+            "recommendation": "Lead with the instruction, not the marketing copy.",
+            "evidence": "The medication is to be taken as prescribed.",
+            "evidence_verified": true,
+            "source": "ai"
+          }
+        ],
+        "instrument_items": [
+          {
+            "instrument": "PEMAT",
+            "item_no": 4,
+            "verdict": "fail",
+            "rationale": "BD is used without definition anywhere in the material.",
+            "evidence": "Take 1 tablet (5 mg) BD.",
+            "decided_by": "ai"
+          },
+          {
+            "instrument": "PEMAT",
+            "item_no": 8,
+            "verdict": "pass",
+            "rationale": "Sections between headings look short enough.",
+            "evidence": null,
+            "decided_by": "ai"
+          },
+          {
+            "instrument": "CCI",
+            "item_no": 7,
+            "verdict": "fail",
+            "rationale": "Specialized clinical terms are not explained at first use.",
+            "evidence": null,
+            "decided_by": "ai"
+          },
+          {
+            "instrument": "PEMAT",
+            "item_no": 1,
+            "verdict": "not_assessed",
+            "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+            "evidence": null,
+            "decided_by": "deterministic"
+          },
+          {
+            "instrument": "PEMAT",
+            "item_no": 2,
+            "verdict": "not_assessed",
+            "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+            "evidence": null,
+            "decided_by": "deterministic"
+          },
+          {
+            "instrument": "PEMAT",
+            "item_no": 3,
+            "verdict": "not_assessed",
+            "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+            "evidence": null,
+            "decided_by": "deterministic"
+          },
+          {
+            "instrument": "PEMAT",
+            "item_no": 5,
+            "verdict": "not_assessed",
+            "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+            "evidence": null,
+            "decided_by": "deterministic"
+          },
+          {
+            "instrument": "PEMAT",
+            "item_no": 6,
+            "verdict": "not_assessed",
+            "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+            "evidence": null,
+            "decided_by": "deterministic"
+          },
+          {
+            "instrument": "PEMAT",
+            "item_no": 7,
+            "verdict": "not_assessed",
+            "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+            "evidence": null,
+            "decided_by": "deterministic"
+          },
+          {
+            "instrument": "PEMAT",
+            "item_no": 10,
+            "verdict": "not_assessed",
+            "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+            "evidence": null,
+            "decided_by": "deterministic"
+          },
+          {
+            "instrument": "PEMAT",
+            "item_no": 11,
+            "verdict": "not_assessed",
+            "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+            "evidence": null,
+            "decided_by": "deterministic"
+          },
+          {
+            "instrument": "PEMAT",
+            "item_no": 20,
+            "verdict": "not_assessed",
+            "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+            "evidence": null,
+            "decided_by": "deterministic"
+          },
+          {
+            "instrument": "PEMAT",
+            "item_no": 21,
+            "verdict": "not_assessed",
+            "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+            "evidence": null,
+            "decided_by": "deterministic"
+          },
+          {
+            "instrument": "PEMAT",
+            "item_no": 22,
+            "verdict": "not_assessed",
+            "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+            "evidence": null,
+            "decided_by": "deterministic"
+          },
+          {
+            "instrument": "PEMAT",
+            "item_no": 24,
+            "verdict": "not_assessed",
+            "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+            "evidence": null,
+            "decided_by": "deterministic"
+          },
+          {
+            "instrument": "PEMAT",
+            "item_no": 25,
+            "verdict": "not_assessed",
+            "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+            "evidence": null,
+            "decided_by": "deterministic"
+          },
+          {
+            "instrument": "CCI",
+            "item_no": 1,
+            "verdict": "not_assessed",
+            "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+            "evidence": null,
+            "decided_by": "deterministic"
+          },
+          {
+            "instrument": "CCI",
+            "item_no": 2,
+            "verdict": "not_assessed",
+            "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+            "evidence": null,
+            "decided_by": "deterministic"
+          },
+          {
+            "instrument": "CCI",
+            "item_no": 5,
+            "verdict": "not_assessed",
+            "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+            "evidence": null,
+            "decided_by": "deterministic"
+          },
+          {
+            "instrument": "CCI",
+            "item_no": 6,
+            "verdict": "not_assessed",
+            "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+            "evidence": null,
+            "decided_by": "deterministic"
+          },
+          {
+            "instrument": "CCI",
+            "item_no": 10,
+            "verdict": "not_assessed",
+            "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+            "evidence": null,
+            "decided_by": "deterministic"
+          },
+          {
+            "instrument": "CCI",
+            "item_no": 11,
+            "verdict": "not_assessed",
+            "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+            "evidence": null,
+            "decided_by": "deterministic"
+          },
+          {
+            "instrument": "CCI",
+            "item_no": 12,
+            "verdict": "not_assessed",
+            "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+            "evidence": null,
+            "decided_by": "deterministic"
+          },
+          {
+            "instrument": "CCI",
+            "item_no": 13,
+            "verdict": "not_assessed",
+            "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+            "evidence": null,
+            "decided_by": "deterministic"
+          },
+          {
+            "instrument": "CCI",
+            "item_no": 14,
+            "verdict": "not_assessed",
+            "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+            "evidence": null,
+            "decided_by": "deterministic"
+          },
+          {
+            "instrument": "CCI",
+            "item_no": 15,
+            "verdict": "not_assessed",
+            "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+            "evidence": null,
+            "decided_by": "deterministic"
+          },
+          {
+            "instrument": "CCI",
+            "item_no": 16,
+            "verdict": "not_assessed",
+            "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+            "evidence": null,
+            "decided_by": "deterministic"
+          },
+          {
+            "instrument": "CCI",
+            "item_no": 17,
+            "verdict": "not_assessed",
+            "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+            "evidence": null,
+            "decided_by": "deterministic"
+          },
+          {
+            "instrument": "CCI",
+            "item_no": 18,
+            "verdict": "not_assessed",
+            "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+            "evidence": null,
+            "decided_by": "deterministic"
+          },
+          {
+            "instrument": "CCI",
+            "item_no": 19,
+            "verdict": "not_assessed",
+            "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+            "evidence": null,
+            "decided_by": "deterministic"
+          },
+          {
+            "instrument": "CCI",
+            "item_no": 20,
+            "verdict": "not_assessed",
+            "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+            "evidence": null,
+            "decided_by": "deterministic"
+          }
+        ],
+        "positive_observations": [
+          "Storage and disposal instructions are itemized clearly."
+        ]
+      },
+      "dropped_unverified": 0,
+      "instrument_evidence_removed": 0,
+      "missing_items": [
+        "PEMAT_1",
+        "PEMAT_2",
+        "PEMAT_3",
+        "PEMAT_5",
+        "PEMAT_6",
+        "PEMAT_7",
+        "PEMAT_10",
+        "PEMAT_11",
+        "PEMAT_20",
+        "PEMAT_21",
+        "PEMAT_22",
+        "PEMAT_24",
+        "PEMAT_25",
+        "CCI_1",
+        "CCI_2",
+        "CCI_5",
+        "CCI_6",
+        "CCI_10",
+        "CCI_11",
+        "CCI_12",
+        "CCI_13",
+        "CCI_14",
+        "CCI_15",
+        "CCI_16",
+        "CCI_17",
+        "CCI_18",
+        "CCI_19",
+        "CCI_20"
+      ],
+      "missing_items_count": 28
+    },
+    "11_merge_findings": {
+      "source_type": "url",
+      "page_url": "https://example.org/med/bp-meds-poor",
+      "page_title": "Blood pressure medication guide (uncorrected)",
+      "content_language": "en",
+      "audience": "patients and family members, average to low health literacy",
+      "eaa_scope": false,
+      "auditor_note": null,
+      "started_at": "2026-08-01T00:00:00.000Z",
+      "content_text": "Welcome to our award-winning patient portal! Did you know we were voted best regional health website 2024? Follow us on social media and subscribe to our newsletter for exciting updates.\n\n## Pharmacological management of arterial hypertension\n\nAntihypertensive therapy with ACE inhibitors is initiated when lifestyle modification proves insufficient. The medication is to be taken as prescribed. Take 1 tablet (5 mg) BD. The dosage may be titrated upwards by the treating physician if blood pressure targets are not attained. It should be noted that abrupt discontinuation is to be avoided, as rebound hypertension may be precipitated. Renal function and serum electrolytes are to be monitored periodically, since hyperkalaemia and deterioration of renal parameters have been observed in susceptible patients. Concomitant administration of NSAIDs is discouraged owing to attenuation of the antihypertensive effect and potentiation of nephrotoxicity. In the event that a dose is omitted, the omitted dose should be taken as soon as it is remembered, unless the subsequent dose is imminent, in which case the omitted dose should be disregarded and the ordinary schedule resumed. Doubling of doses is contraindicated. An overdose may manifest as pronounced hypotension, in which case medical attention should be sought. Side effects of a transient nature, including dry cough, dizziness and cephalalgia, have been reported in a proportion of patients and generally do not necessitate cessation of therapy.\n\n#### Additional information\n\n- Store below 25 degrees\n- Keep out of reach of children\n- Do not use after the expiry date\n- Protect from moisture\n- Do not transfer to another container\n- Return unused tablets to the pharmacy\n- Do not share your medication with others\n- Consult the package leaflet for excipients\n- Inform your physician if pregnant or breastfeeding\n\nMorning | 1 tablet\nEvening | 1 tablet\n\nFor inquiries utilise the contact form below.",
+      "word_count": 301,
+      "paragraph_count": 5,
+      "is_very_short": false,
+      "automated_findings": [
+        {
+          "finding_key": "auto-1.1.1-img-alt",
+          "wcag_criterion": "1.1.1",
+          "wcag_level": "A",
+          "category": "perceivable",
+          "severity": "high",
+          "confidence": 1,
+          "title": "1 image(s) without alt attribute",
+          "explanation_plain": "Images without an alt attribute are invisible to screen-reader users; assistive technology may read the file name instead.",
+          "recommendation": "Add an alt attribute to every image: descriptive if informative, empty (alt=\"\") if decorative.",
+          "evidence": "<img src=\"bp-chart.png\">",
+          "source": "automated"
+        },
+        {
+          "finding_key": "auto-3.1.1-html-lang",
+          "wcag_criterion": "3.1.1",
+          "wcag_level": "A",
+          "category": "understandable",
+          "severity": "high",
+          "confidence": 1,
+          "title": "Page language not declared",
+          "explanation_plain": "Without a lang attribute, screen readers guess the pronunciation rules and may read the text in the wrong language.",
+          "recommendation": "Add lang=\"de\" or lang=\"en\" to the <html> element.",
+          "evidence": "<html>",
+          "source": "automated"
+        },
+        {
+          "finding_key": "auto-1.3.1-no-h1",
+          "wcag_criterion": "1.3.1",
+          "wcag_level": "A",
+          "category": "perceivable",
+          "severity": "medium",
+          "confidence": 1,
+          "title": "No top-level heading (h1)",
+          "explanation_plain": "Screen-reader users navigate by headings; without an h1 the page has no announced main topic.",
+          "recommendation": "Give the page exactly one h1 stating its main topic.",
+          "evidence": "heading levels found: 2, 4",
+          "source": "automated"
+        },
+        {
+          "finding_key": "auto-1.3.1-heading-skip",
+          "wcag_criterion": "1.3.1",
+          "wcag_level": "A",
+          "category": "perceivable",
+          "severity": "medium",
+          "confidence": 1,
+          "title": "Heading level skipped (h2 → h4)",
+          "explanation_plain": "Skipped heading levels break the outline that assistive technology builds from the page.",
+          "recommendation": "Use consecutive heading levels; do not jump levels for visual effect.",
+          "evidence": "heading sequence: 2 → 4",
+          "source": "automated"
+        },
+        {
+          "finding_key": "auto-2.4.4-link-name",
+          "wcag_criterion": "2.4.4",
+          "wcag_level": "A",
+          "category": "operable",
+          "severity": "high",
+          "confidence": 1,
+          "title": "1 link(s)/button(s) without accessible name",
+          "explanation_plain": "A control with no text and no label is announced only as \"link\" or \"button\" — the user cannot know what it does.",
+          "recommendation": "Give every link and button visible text, or an aria-label if it is icon-only.",
+          "evidence": "<a href=\"/contact\"></a>",
+          "source": "automated"
+        },
+        {
+          "finding_key": "auto-3.3.2-input-label",
+          "wcag_criterion": "3.3.2",
+          "wcag_level": "A",
+          "category": "understandable",
+          "severity": "high",
+          "confidence": 1,
+          "title": "1 form field(s) without a label",
+          "explanation_plain": "Unlabelled form fields leave screen-reader users guessing what to enter.",
+          "recommendation": "Associate every field with a <label for=\"…\">, or add aria-label.",
+          "evidence": "<input type=\"text\" name=\"email\">",
+          "source": "automated"
+        },
+        {
+          "finding_key": "auto-2.4.2-title",
+          "wcag_criterion": "2.4.2",
+          "wcag_level": "A",
+          "category": "operable",
+          "severity": "medium",
+          "confidence": 1,
+          "title": "Page has no title",
+          "explanation_plain": "The title is the first thing a screen reader announces and what appears in tabs and bookmarks.",
+          "recommendation": "Add a descriptive <title> in the <head>.",
+          "evidence": "<head> contains no non-empty <title>",
+          "source": "automated"
+        },
+        {
+          "finding_key": "auto-1.3.1-table-th",
+          "wcag_criterion": "1.3.1",
+          "wcag_level": "A",
+          "category": "perceivable",
+          "severity": "medium",
+          "confidence": 1,
+          "title": "1 data table(s) without header cells",
+          "explanation_plain": "Without <th> header cells a screen reader cannot tell the user what each column or row means.",
+          "recommendation": "Mark header cells with <th> (and scope=\"col\"/\"row\" where needed).",
+          "evidence": "<table> <tbody><tr><td>Morning</td><td>1 tablet</td></tr> <tr><td>Evening</td><td>1 tablet</td></tr> </tbody></table>",
+          "source": "automated"
+        }
+      ],
+      "deterministic_items": {
+        "PEMAT_8": "fail",
+        "PEMAT_9": "pass",
+        "PEMAT_12": "pass",
+        "PEMAT_17": "fail",
+        "PEMAT_19": "fail",
+        "CCI_3": "fail",
+        "CCI_8": "fail",
+        "CCI_9": "pass"
+      },
+      "deterministic_observations": [
+        {
+          "instrument": "PEMAT",
+          "item_no": 8,
+          "verdict": "fail",
+          "rationale": "At least one section between headings exceeds 150 words (max found: 188).",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 9,
+          "verdict": "pass",
+          "rationale": "2 heading(s) present. Informativeness is judged separately by the AI.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 12,
+          "verdict": "pass",
+          "rationale": "Lists or emphasis markup present as visual cues.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 17,
+          "verdict": "fail",
+          "rationale": "At least one image lacks both alt text and a figcaption.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 19,
+          "verdict": "fail",
+          "rationale": "At least one table has no header cells.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 3,
+          "verdict": "fail",
+          "rationale": "No heading or emphasis markup in the first section.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 8,
+          "verdict": "fail",
+          "rationale": "A list runs longer than 7 items without a break (CDC rule).",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 9,
+          "verdict": "pass",
+          "rationale": "2 headings structure the material into chunks.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        }
+      ],
+      "automated_checks_skipped": false,
+      "checks_engine": "cheerio",
+      "content_hash": "670994b1147a2436e60fc03b4c245acfc735d1ff786e5d50893c6aba47bafebb",
+      "content_truncated": false,
+      "safety_terms_found": [
+        "bd",
+        "breastfeed",
+        "contraindicat",
+        "mg",
+        "overdose",
+        "pregnan",
+        "side effect",
+        "tablet"
+      ],
+      "safety_context": true,
+      "findings": [
+        {
+          "finding_key": "auto-1.1.1-img-alt",
+          "wcag_criterion": "1.1.1",
+          "wcag_level": "A",
+          "category": "perceivable",
+          "severity": "high",
+          "confidence": 1,
+          "title": "1 image(s) without alt attribute",
+          "explanation_plain": "Images without an alt attribute are invisible to screen-reader users; assistive technology may read the file name instead.",
+          "recommendation": "Add an alt attribute to every image: descriptive if informative, empty (alt=\"\") if decorative.",
+          "evidence": "<img src=\"bp-chart.png\">",
+          "source": "automated"
+        },
+        {
+          "finding_key": "auto-3.1.1-html-lang",
+          "wcag_criterion": "3.1.1",
+          "wcag_level": "A",
+          "category": "understandable",
+          "severity": "high",
+          "confidence": 1,
+          "title": "Page language not declared",
+          "explanation_plain": "Without a lang attribute, screen readers guess the pronunciation rules and may read the text in the wrong language.",
+          "recommendation": "Add lang=\"de\" or lang=\"en\" to the <html> element.",
+          "evidence": "<html>",
+          "source": "automated"
+        },
+        {
+          "finding_key": "auto-2.4.4-link-name",
+          "wcag_criterion": "2.4.4",
+          "wcag_level": "A",
+          "category": "operable",
+          "severity": "high",
+          "confidence": 1,
+          "title": "1 link(s)/button(s) without accessible name",
+          "explanation_plain": "A control with no text and no label is announced only as \"link\" or \"button\" — the user cannot know what it does.",
+          "recommendation": "Give every link and button visible text, or an aria-label if it is icon-only.",
+          "evidence": "<a href=\"/contact\"></a>",
+          "source": "automated"
+        },
+        {
+          "finding_key": "auto-3.3.2-input-label",
+          "wcag_criterion": "3.3.2",
+          "wcag_level": "A",
+          "category": "understandable",
+          "severity": "high",
+          "confidence": 1,
+          "title": "1 form field(s) without a label",
+          "explanation_plain": "Unlabelled form fields leave screen-reader users guessing what to enter.",
+          "recommendation": "Associate every field with a <label for=\"…\">, or add aria-label.",
+          "evidence": "<input type=\"text\" name=\"email\">",
+          "source": "automated"
+        },
+        {
+          "finding_key": "ai-pemat4-abbrev-bd",
+          "wcag_criterion": "3.1.4",
+          "wcag_level": "A",
+          "category": "understandable",
+          "instrument": "PEMAT",
+          "instrument_item": 4,
+          "severity": "high",
+          "confidence": 0.9,
+          "title": "Dosing abbreviation BD never explained",
+          "explanation_plain": "BD means twice a day but is never defined in the text. A reader could take the wrong dose.",
+          "recommendation": "Write 'twice a day' or define BD at first use.",
+          "evidence": "Take 1 tablet (5 mg) BD.",
+          "evidence_verified": true,
+          "source": "ai"
+        },
+        {
+          "finding_key": "auto-1.3.1-no-h1",
+          "wcag_criterion": "1.3.1",
+          "wcag_level": "A",
+          "category": "perceivable",
+          "severity": "medium",
+          "confidence": 1,
+          "title": "No top-level heading (h1)",
+          "explanation_plain": "Screen-reader users navigate by headings; without an h1 the page has no announced main topic.",
+          "recommendation": "Give the page exactly one h1 stating its main topic.",
+          "evidence": "heading levels found: 2, 4",
+          "source": "automated"
+        },
+        {
+          "finding_key": "auto-1.3.1-heading-skip",
+          "wcag_criterion": "1.3.1",
+          "wcag_level": "A",
+          "category": "perceivable",
+          "severity": "medium",
+          "confidence": 1,
+          "title": "Heading level skipped (h2 → h4)",
+          "explanation_plain": "Skipped heading levels break the outline that assistive technology builds from the page.",
+          "recommendation": "Use consecutive heading levels; do not jump levels for visual effect.",
+          "evidence": "heading sequence: 2 → 4",
+          "source": "automated"
+        },
+        {
+          "finding_key": "auto-2.4.2-title",
+          "wcag_criterion": "2.4.2",
+          "wcag_level": "A",
+          "category": "operable",
+          "severity": "medium",
+          "confidence": 1,
+          "title": "Page has no title",
+          "explanation_plain": "The title is the first thing a screen reader announces and what appears in tabs and bookmarks.",
+          "recommendation": "Add a descriptive <title> in the <head>.",
+          "evidence": "<head> contains no non-empty <title>",
+          "source": "automated"
+        },
+        {
+          "finding_key": "auto-1.3.1-table-th",
+          "wcag_criterion": "1.3.1",
+          "wcag_level": "A",
+          "category": "perceivable",
+          "severity": "medium",
+          "confidence": 1,
+          "title": "1 data table(s) without header cells",
+          "explanation_plain": "Without <th> header cells a screen reader cannot tell the user what each column or row means.",
+          "recommendation": "Mark header cells with <th> (and scope=\"col\"/\"row\" where needed).",
+          "evidence": "<table> <tbody><tr><td>Morning</td><td>1 tablet</td></tr> <tr><td>Evening</td><td>1 tablet</td></tr> </tbody></table>",
+          "source": "automated"
+        },
+        {
+          "finding_key": "ai-jargon-hyperkalaemia",
+          "wcag_criterion": "3.1.3",
+          "wcag_level": "AAA",
+          "category": "understandable",
+          "instrument": "CCI",
+          "instrument_item": 7,
+          "severity": "medium",
+          "confidence": 0.85,
+          "title": "Unexplained clinical terms",
+          "explanation_plain": "Clinical terms such as hyperkalaemia are used without any plain-language explanation.",
+          "recommendation": "Add a plain-language gloss the first time a clinical term is used.",
+          "evidence": "hyperkalaemia and deterioration of renal parameters",
+          "evidence_verified": true,
+          "source": "ai"
+        },
+        {
+          "finding_key": "ai-cci1-main-message",
+          "wcag_criterion": null,
+          "wcag_level": null,
+          "category": "cognitive",
+          "instrument": "CCI",
+          "instrument_item": 1,
+          "severity": "medium",
+          "confidence": 0.7,
+          "title": "No single clear main message up front",
+          "explanation_plain": "The page opens with promotional text rather than the medication instruction itself.",
+          "recommendation": "Lead with the instruction, not the marketing copy.",
+          "evidence": "The medication is to be taken as prescribed.",
+          "evidence_verified": true,
+          "source": "ai"
+        }
+      ],
+      "instrument_items": [
+        {
+          "instrument": "CCI",
+          "item_no": 1,
+          "verdict": "not_assessed",
+          "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 2,
+          "verdict": "not_assessed",
+          "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 3,
+          "verdict": "fail",
+          "rationale": "No heading or emphasis markup in the first section.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 5,
+          "verdict": "not_assessed",
+          "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 6,
+          "verdict": "not_assessed",
+          "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 7,
+          "verdict": "fail",
+          "rationale": "Specialized clinical terms are not explained at first use.",
+          "evidence": null,
+          "decided_by": "ai"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 8,
+          "verdict": "fail",
+          "rationale": "A list runs longer than 7 items without a break (CDC rule).",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 9,
+          "verdict": "pass",
+          "rationale": "2 headings structure the material into chunks.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 10,
+          "verdict": "not_assessed",
+          "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 11,
+          "verdict": "not_assessed",
+          "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 12,
+          "verdict": "not_assessed",
+          "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 13,
+          "verdict": "not_assessed",
+          "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 14,
+          "verdict": "not_assessed",
+          "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 15,
+          "verdict": "not_assessed",
+          "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 16,
+          "verdict": "not_assessed",
+          "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 17,
+          "verdict": "not_assessed",
+          "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 18,
+          "verdict": "not_assessed",
+          "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 19,
+          "verdict": "not_assessed",
+          "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 20,
+          "verdict": "not_assessed",
+          "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 1,
+          "verdict": "not_assessed",
+          "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 2,
+          "verdict": "not_assessed",
+          "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 3,
+          "verdict": "not_assessed",
+          "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 4,
+          "verdict": "fail",
+          "rationale": "BD is used without definition anywhere in the material.",
+          "evidence": "Take 1 tablet (5 mg) BD.",
+          "decided_by": "ai"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 5,
+          "verdict": "not_assessed",
+          "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 6,
+          "verdict": "not_assessed",
+          "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 7,
+          "verdict": "not_assessed",
+          "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 8,
+          "verdict": "fail",
+          "rationale": "At least one section between headings exceeds 150 words (max found: 188).",
+          "evidence": null,
+          "decided_by": "deterministic",
+          "ai_contradiction": "AI judged \"pass\": Sections between headings look short enough."
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 9,
+          "verdict": "pass",
+          "rationale": "2 heading(s) present. Informativeness is judged separately by the AI.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 10,
+          "verdict": "not_assessed",
+          "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 11,
+          "verdict": "not_assessed",
+          "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 12,
+          "verdict": "pass",
+          "rationale": "Lists or emphasis markup present as visual cues.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 17,
+          "verdict": "fail",
+          "rationale": "At least one image lacks both alt text and a figcaption.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 19,
+          "verdict": "fail",
+          "rationale": "At least one table has no header cells.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 20,
+          "verdict": "not_assessed",
+          "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 21,
+          "verdict": "not_assessed",
+          "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 22,
+          "verdict": "not_assessed",
+          "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 24,
+          "verdict": "not_assessed",
+          "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 25,
+          "verdict": "not_assessed",
+          "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        }
+      ],
+      "ai_disagreement": true,
+      "ai_fallback_used": false,
+      "ai_status": "ok",
+      "fallback_reason": null,
+      "ai_summary": "The material explains dosing in clinical language patients are unlikely to understand, buries the missed-dose instruction inside a dense paragraph, and opens with promotional text rather than the instruction itself.",
+      "positive_observations": [
+        "Storage and disposal instructions are itemized clearly."
+      ],
+      "dropped_unverified": 0,
+      "missing_items_count": 28
+    },
+    "12_decision_engine": {
+      "source_type": "url",
+      "page_url": "https://example.org/med/bp-meds-poor",
+      "page_title": "Blood pressure medication guide (uncorrected)",
+      "content_language": "en",
+      "audience": "patients and family members, average to low health literacy",
+      "eaa_scope": false,
+      "auditor_note": null,
+      "started_at": "2026-08-01T00:00:00.000Z",
+      "content_text": "Welcome to our award-winning patient portal! Did you know we were voted best regional health website 2024? Follow us on social media and subscribe to our newsletter for exciting updates.\n\n## Pharmacological management of arterial hypertension\n\nAntihypertensive therapy with ACE inhibitors is initiated when lifestyle modification proves insufficient. The medication is to be taken as prescribed. Take 1 tablet (5 mg) BD. The dosage may be titrated upwards by the treating physician if blood pressure targets are not attained. It should be noted that abrupt discontinuation is to be avoided, as rebound hypertension may be precipitated. Renal function and serum electrolytes are to be monitored periodically, since hyperkalaemia and deterioration of renal parameters have been observed in susceptible patients. Concomitant administration of NSAIDs is discouraged owing to attenuation of the antihypertensive effect and potentiation of nephrotoxicity. In the event that a dose is omitted, the omitted dose should be taken as soon as it is remembered, unless the subsequent dose is imminent, in which case the omitted dose should be disregarded and the ordinary schedule resumed. Doubling of doses is contraindicated. An overdose may manifest as pronounced hypotension, in which case medical attention should be sought. Side effects of a transient nature, including dry cough, dizziness and cephalalgia, have been reported in a proportion of patients and generally do not necessitate cessation of therapy.\n\n#### Additional information\n\n- Store below 25 degrees\n- Keep out of reach of children\n- Do not use after the expiry date\n- Protect from moisture\n- Do not transfer to another container\n- Return unused tablets to the pharmacy\n- Do not share your medication with others\n- Consult the package leaflet for excipients\n- Inform your physician if pregnant or breastfeeding\n\nMorning | 1 tablet\nEvening | 1 tablet\n\nFor inquiries utilise the contact form below.",
+      "word_count": 301,
+      "paragraph_count": 5,
+      "is_very_short": false,
+      "automated_findings": [
+        {
+          "finding_key": "auto-1.1.1-img-alt",
+          "wcag_criterion": "1.1.1",
+          "wcag_level": "A",
+          "category": "perceivable",
+          "severity": "high",
+          "confidence": 1,
+          "title": "1 image(s) without alt attribute",
+          "explanation_plain": "Images without an alt attribute are invisible to screen-reader users; assistive technology may read the file name instead.",
+          "recommendation": "Add an alt attribute to every image: descriptive if informative, empty (alt=\"\") if decorative.",
+          "evidence": "<img src=\"bp-chart.png\">",
+          "source": "automated"
+        },
+        {
+          "finding_key": "auto-3.1.1-html-lang",
+          "wcag_criterion": "3.1.1",
+          "wcag_level": "A",
+          "category": "understandable",
+          "severity": "high",
+          "confidence": 1,
+          "title": "Page language not declared",
+          "explanation_plain": "Without a lang attribute, screen readers guess the pronunciation rules and may read the text in the wrong language.",
+          "recommendation": "Add lang=\"de\" or lang=\"en\" to the <html> element.",
+          "evidence": "<html>",
+          "source": "automated"
+        },
+        {
+          "finding_key": "auto-1.3.1-no-h1",
+          "wcag_criterion": "1.3.1",
+          "wcag_level": "A",
+          "category": "perceivable",
+          "severity": "medium",
+          "confidence": 1,
+          "title": "No top-level heading (h1)",
+          "explanation_plain": "Screen-reader users navigate by headings; without an h1 the page has no announced main topic.",
+          "recommendation": "Give the page exactly one h1 stating its main topic.",
+          "evidence": "heading levels found: 2, 4",
+          "source": "automated"
+        },
+        {
+          "finding_key": "auto-1.3.1-heading-skip",
+          "wcag_criterion": "1.3.1",
+          "wcag_level": "A",
+          "category": "perceivable",
+          "severity": "medium",
+          "confidence": 1,
+          "title": "Heading level skipped (h2 → h4)",
+          "explanation_plain": "Skipped heading levels break the outline that assistive technology builds from the page.",
+          "recommendation": "Use consecutive heading levels; do not jump levels for visual effect.",
+          "evidence": "heading sequence: 2 → 4",
+          "source": "automated"
+        },
+        {
+          "finding_key": "auto-2.4.4-link-name",
+          "wcag_criterion": "2.4.4",
+          "wcag_level": "A",
+          "category": "operable",
+          "severity": "high",
+          "confidence": 1,
+          "title": "1 link(s)/button(s) without accessible name",
+          "explanation_plain": "A control with no text and no label is announced only as \"link\" or \"button\" — the user cannot know what it does.",
+          "recommendation": "Give every link and button visible text, or an aria-label if it is icon-only.",
+          "evidence": "<a href=\"/contact\"></a>",
+          "source": "automated"
+        },
+        {
+          "finding_key": "auto-3.3.2-input-label",
+          "wcag_criterion": "3.3.2",
+          "wcag_level": "A",
+          "category": "understandable",
+          "severity": "high",
+          "confidence": 1,
+          "title": "1 form field(s) without a label",
+          "explanation_plain": "Unlabelled form fields leave screen-reader users guessing what to enter.",
+          "recommendation": "Associate every field with a <label for=\"…\">, or add aria-label.",
+          "evidence": "<input type=\"text\" name=\"email\">",
+          "source": "automated"
+        },
+        {
+          "finding_key": "auto-2.4.2-title",
+          "wcag_criterion": "2.4.2",
+          "wcag_level": "A",
+          "category": "operable",
+          "severity": "medium",
+          "confidence": 1,
+          "title": "Page has no title",
+          "explanation_plain": "The title is the first thing a screen reader announces and what appears in tabs and bookmarks.",
+          "recommendation": "Add a descriptive <title> in the <head>.",
+          "evidence": "<head> contains no non-empty <title>",
+          "source": "automated"
+        },
+        {
+          "finding_key": "auto-1.3.1-table-th",
+          "wcag_criterion": "1.3.1",
+          "wcag_level": "A",
+          "category": "perceivable",
+          "severity": "medium",
+          "confidence": 1,
+          "title": "1 data table(s) without header cells",
+          "explanation_plain": "Without <th> header cells a screen reader cannot tell the user what each column or row means.",
+          "recommendation": "Mark header cells with <th> (and scope=\"col\"/\"row\" where needed).",
+          "evidence": "<table> <tbody><tr><td>Morning</td><td>1 tablet</td></tr> <tr><td>Evening</td><td>1 tablet</td></tr> </tbody></table>",
+          "source": "automated"
+        }
+      ],
+      "deterministic_items": {
+        "PEMAT_8": "fail",
+        "PEMAT_9": "pass",
+        "PEMAT_12": "pass",
+        "PEMAT_17": "fail",
+        "PEMAT_19": "fail",
+        "CCI_3": "fail",
+        "CCI_8": "fail",
+        "CCI_9": "pass"
+      },
+      "deterministic_observations": [
+        {
+          "instrument": "PEMAT",
+          "item_no": 8,
+          "verdict": "fail",
+          "rationale": "At least one section between headings exceeds 150 words (max found: 188).",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 9,
+          "verdict": "pass",
+          "rationale": "2 heading(s) present. Informativeness is judged separately by the AI.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 12,
+          "verdict": "pass",
+          "rationale": "Lists or emphasis markup present as visual cues.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 17,
+          "verdict": "fail",
+          "rationale": "At least one image lacks both alt text and a figcaption.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 19,
+          "verdict": "fail",
+          "rationale": "At least one table has no header cells.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 3,
+          "verdict": "fail",
+          "rationale": "No heading or emphasis markup in the first section.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 8,
+          "verdict": "fail",
+          "rationale": "A list runs longer than 7 items without a break (CDC rule).",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 9,
+          "verdict": "pass",
+          "rationale": "2 headings structure the material into chunks.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        }
+      ],
+      "automated_checks_skipped": false,
+      "checks_engine": "cheerio",
+      "content_hash": "670994b1147a2436e60fc03b4c245acfc735d1ff786e5d50893c6aba47bafebb",
+      "content_truncated": false,
+      "safety_terms_found": [
+        "bd",
+        "breastfeed",
+        "contraindicat",
+        "mg",
+        "overdose",
+        "pregnan",
+        "side effect",
+        "tablet"
+      ],
+      "safety_context": true,
+      "findings": [
+        {
+          "finding_key": "auto-1.1.1-img-alt",
+          "wcag_criterion": "1.1.1",
+          "wcag_level": "A",
+          "category": "perceivable",
+          "severity": "high",
+          "confidence": 1,
+          "title": "1 image(s) without alt attribute",
+          "explanation_plain": "Images without an alt attribute are invisible to screen-reader users; assistive technology may read the file name instead.",
+          "recommendation": "Add an alt attribute to every image: descriptive if informative, empty (alt=\"\") if decorative.",
+          "evidence": "<img src=\"bp-chart.png\">",
+          "source": "automated"
+        },
+        {
+          "finding_key": "auto-3.1.1-html-lang",
+          "wcag_criterion": "3.1.1",
+          "wcag_level": "A",
+          "category": "understandable",
+          "severity": "high",
+          "confidence": 1,
+          "title": "Page language not declared",
+          "explanation_plain": "Without a lang attribute, screen readers guess the pronunciation rules and may read the text in the wrong language.",
+          "recommendation": "Add lang=\"de\" or lang=\"en\" to the <html> element.",
+          "evidence": "<html>",
+          "source": "automated"
+        },
+        {
+          "finding_key": "auto-2.4.4-link-name",
+          "wcag_criterion": "2.4.4",
+          "wcag_level": "A",
+          "category": "operable",
+          "severity": "high",
+          "confidence": 1,
+          "title": "1 link(s)/button(s) without accessible name",
+          "explanation_plain": "A control with no text and no label is announced only as \"link\" or \"button\" — the user cannot know what it does.",
+          "recommendation": "Give every link and button visible text, or an aria-label if it is icon-only.",
+          "evidence": "<a href=\"/contact\"></a>",
+          "source": "automated"
+        },
+        {
+          "finding_key": "auto-3.3.2-input-label",
+          "wcag_criterion": "3.3.2",
+          "wcag_level": "A",
+          "category": "understandable",
+          "severity": "high",
+          "confidence": 1,
+          "title": "1 form field(s) without a label",
+          "explanation_plain": "Unlabelled form fields leave screen-reader users guessing what to enter.",
+          "recommendation": "Associate every field with a <label for=\"…\">, or add aria-label.",
+          "evidence": "<input type=\"text\" name=\"email\">",
+          "source": "automated"
+        },
+        {
+          "finding_key": "ai-pemat4-abbrev-bd",
+          "wcag_criterion": "3.1.4",
+          "wcag_level": "A",
+          "category": "understandable",
+          "instrument": "PEMAT",
+          "instrument_item": 4,
+          "severity": "critical",
+          "confidence": 0.9,
+          "title": "Dosing abbreviation BD never explained",
+          "explanation_plain": "BD means twice a day but is never defined in the text. A reader could take the wrong dose.",
+          "recommendation": "Write 'twice a day' or define BD at first use.",
+          "evidence": "Take 1 tablet (5 mg) BD.",
+          "evidence_verified": true,
+          "source": "ai",
+          "original_severity": "high",
+          "severity_upgraded_by": "R9"
+        },
+        {
+          "finding_key": "auto-1.3.1-no-h1",
+          "wcag_criterion": "1.3.1",
+          "wcag_level": "A",
+          "category": "perceivable",
+          "severity": "medium",
+          "confidence": 1,
+          "title": "No top-level heading (h1)",
+          "explanation_plain": "Screen-reader users navigate by headings; without an h1 the page has no announced main topic.",
+          "recommendation": "Give the page exactly one h1 stating its main topic.",
+          "evidence": "heading levels found: 2, 4",
+          "source": "automated"
+        },
+        {
+          "finding_key": "auto-1.3.1-heading-skip",
+          "wcag_criterion": "1.3.1",
+          "wcag_level": "A",
+          "category": "perceivable",
+          "severity": "medium",
+          "confidence": 1,
+          "title": "Heading level skipped (h2 → h4)",
+          "explanation_plain": "Skipped heading levels break the outline that assistive technology builds from the page.",
+          "recommendation": "Use consecutive heading levels; do not jump levels for visual effect.",
+          "evidence": "heading sequence: 2 → 4",
+          "source": "automated"
+        },
+        {
+          "finding_key": "auto-2.4.2-title",
+          "wcag_criterion": "2.4.2",
+          "wcag_level": "A",
+          "category": "operable",
+          "severity": "medium",
+          "confidence": 1,
+          "title": "Page has no title",
+          "explanation_plain": "The title is the first thing a screen reader announces and what appears in tabs and bookmarks.",
+          "recommendation": "Add a descriptive <title> in the <head>.",
+          "evidence": "<head> contains no non-empty <title>",
+          "source": "automated"
+        },
+        {
+          "finding_key": "auto-1.3.1-table-th",
+          "wcag_criterion": "1.3.1",
+          "wcag_level": "A",
+          "category": "perceivable",
+          "severity": "medium",
+          "confidence": 1,
+          "title": "1 data table(s) without header cells",
+          "explanation_plain": "Without <th> header cells a screen reader cannot tell the user what each column or row means.",
+          "recommendation": "Mark header cells with <th> (and scope=\"col\"/\"row\" where needed).",
+          "evidence": "<table> <tbody><tr><td>Morning</td><td>1 tablet</td></tr> <tr><td>Evening</td><td>1 tablet</td></tr> </tbody></table>",
+          "source": "automated"
+        },
+        {
+          "finding_key": "ai-jargon-hyperkalaemia",
+          "wcag_criterion": "3.1.3",
+          "wcag_level": "AAA",
+          "category": "understandable",
+          "instrument": "CCI",
+          "instrument_item": 7,
+          "severity": "critical",
+          "confidence": 0.85,
+          "title": "Unexplained clinical terms",
+          "explanation_plain": "Clinical terms such as hyperkalaemia are used without any plain-language explanation.",
+          "recommendation": "Add a plain-language gloss the first time a clinical term is used.",
+          "evidence": "hyperkalaemia and deterioration of renal parameters",
+          "evidence_verified": true,
+          "source": "ai",
+          "original_severity": "medium",
+          "severity_upgraded_by": "R9"
+        },
+        {
+          "finding_key": "ai-cci1-main-message",
+          "wcag_criterion": null,
+          "wcag_level": null,
+          "category": "cognitive",
+          "instrument": "CCI",
+          "instrument_item": 1,
+          "severity": "medium",
+          "confidence": 0.7,
+          "title": "No single clear main message up front",
+          "explanation_plain": "The page opens with promotional text rather than the medication instruction itself.",
+          "recommendation": "Lead with the instruction, not the marketing copy.",
+          "evidence": "The medication is to be taken as prescribed.",
+          "evidence_verified": true,
+          "source": "ai"
+        }
+      ],
+      "instrument_items": [
+        {
+          "instrument": "CCI",
+          "item_no": 1,
+          "verdict": "not_assessed",
+          "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 2,
+          "verdict": "not_assessed",
+          "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 3,
+          "verdict": "fail",
+          "rationale": "No heading or emphasis markup in the first section.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 5,
+          "verdict": "not_assessed",
+          "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 6,
+          "verdict": "not_assessed",
+          "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 7,
+          "verdict": "fail",
+          "rationale": "Specialized clinical terms are not explained at first use.",
+          "evidence": null,
+          "decided_by": "ai"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 8,
+          "verdict": "fail",
+          "rationale": "A list runs longer than 7 items without a break (CDC rule).",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 9,
+          "verdict": "pass",
+          "rationale": "2 headings structure the material into chunks.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 10,
+          "verdict": "not_assessed",
+          "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 11,
+          "verdict": "not_assessed",
+          "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 12,
+          "verdict": "not_assessed",
+          "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 13,
+          "verdict": "not_assessed",
+          "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 14,
+          "verdict": "not_assessed",
+          "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 15,
+          "verdict": "not_assessed",
+          "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 16,
+          "verdict": "not_assessed",
+          "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 17,
+          "verdict": "not_assessed",
+          "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 18,
+          "verdict": "not_assessed",
+          "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 19,
+          "verdict": "not_assessed",
+          "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 20,
+          "verdict": "not_assessed",
+          "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 1,
+          "verdict": "not_assessed",
+          "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 2,
+          "verdict": "not_assessed",
+          "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 3,
+          "verdict": "not_assessed",
+          "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 4,
+          "verdict": "fail",
+          "rationale": "BD is used without definition anywhere in the material.",
+          "evidence": "Take 1 tablet (5 mg) BD.",
+          "decided_by": "ai"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 5,
+          "verdict": "not_assessed",
+          "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 6,
+          "verdict": "not_assessed",
+          "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 7,
+          "verdict": "not_assessed",
+          "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 8,
+          "verdict": "fail",
+          "rationale": "At least one section between headings exceeds 150 words (max found: 188).",
+          "evidence": null,
+          "decided_by": "deterministic",
+          "ai_contradiction": "AI judged \"pass\": Sections between headings look short enough."
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 9,
+          "verdict": "pass",
+          "rationale": "2 heading(s) present. Informativeness is judged separately by the AI.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 10,
+          "verdict": "not_assessed",
+          "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 11,
+          "verdict": "not_assessed",
+          "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 12,
+          "verdict": "pass",
+          "rationale": "Lists or emphasis markup present as visual cues.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 17,
+          "verdict": "fail",
+          "rationale": "At least one image lacks both alt text and a figcaption.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 19,
+          "verdict": "fail",
+          "rationale": "At least one table has no header cells.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 20,
+          "verdict": "not_assessed",
+          "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 21,
+          "verdict": "not_assessed",
+          "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 22,
+          "verdict": "not_assessed",
+          "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 24,
+          "verdict": "not_assessed",
+          "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 25,
+          "verdict": "not_assessed",
+          "rationale": "Not returned by the AI; excluded from the subscore denominator.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        }
+      ],
+      "ai_disagreement": true,
+      "ai_fallback_used": false,
+      "ai_status": "ok",
+      "fallback_reason": null,
+      "ai_summary": "The material explains dosing in clinical language patients are unlikely to understand, buries the missed-dose instruction inside a dense paragraph, and opens with promotional text rather than the instruction itself.",
+      "positive_observations": [
+        "Storage and disposal instructions are itemized clearly."
+      ],
+      "dropped_unverified": 0,
+      "missing_items_count": 28,
+      "screening_score": 22,
+      "screening_label": "severe issues found",
+      "screening_score_deterministic": 52,
+      "screening_label_deterministic": "severe issues found",
+      "pemat_understandability": 33.3,
+      "pemat_actionability": null,
+      "cci_score": 25,
+      "not_assessed_count": 34,
+      "not_assessed_items": [
+        "PEMAT 1",
+        "PEMAT 2",
+        "PEMAT 3",
+        "PEMAT 5",
+        "PEMAT 6",
+        "PEMAT 7",
+        "PEMAT 10",
+        "PEMAT 11",
+        "PEMAT 15",
+        "PEMAT 16",
+        "PEMAT 18",
+        "PEMAT 20",
+        "PEMAT 21",
+        "PEMAT 22",
+        "PEMAT 23",
+        "PEMAT 24",
+        "PEMAT 25",
+        "PEMAT 26",
+        "CCI 1",
+        "CCI 2",
+        "CCI 4",
+        "CCI 5",
+        "CCI 6",
+        "CCI 10",
+        "CCI 11",
+        "CCI 12",
+        "CCI 13",
+        "CCI 14",
+        "CCI 15",
+        "CCI 16",
+        "CCI 17",
+        "CCI 18",
+        "CCI 19",
+        "CCI 20"
+      ],
+      "human_review_required": true,
+      "triggered_rules": [
+        "R1",
+        "R4",
+        "R6",
+        "R7",
+        "R8",
+        "R9"
+      ],
+      "legally_relevant": true
+    },
+    "18_generate_report": {
+      "audit_id": "(pending)",
+      "report_md": "# Accessibility & Health-Literacy Screening Report\n\n**Audit:** (pending) · **Date:** 2026-08-01 · **Status:** NEEDS HUMAN REVIEW\n\n| | |\n|---|---|\n| Source | https://example.org/med/bp-meds-poor |\n| Title | Blood pressure medication guide (uncorrected) |\n| Language | en |\n| Primary audience | patients and family members, average to low health literacy |\n| EAA/BFSG scope (auditor's declaration) | no |\n| Words analyzed | 301 |\n\n## Scores\n\nThese numbers measure different things on different scales and are deliberately never combined into one figure. The first is computed from the deterministic checks alone and re-runs to the same value; the second includes AI-proposed findings and varies between runs.\n\n| Measure | Score | Reading |\n|---|---|---|\n| WCAG screening score — deterministic checks only (reproducible) | 52 | severe issues found |\n| WCAG screening score — including AI-proposed findings (varies between runs) | 22 | severe issues found |\n| PEMAT-informed understandability | 33.3 | of applicable items passed (%) |\n| PEMAT-informed actionability | not computable | of applicable items passed (%) |\n| CCI-informed score | 25 | CDC interpretation: ≥90 good, ≤89 revise |\n\n## Human review required\n\nTriggered rules: **R1, R4, R6, R7, R8, R9** · flagged legally relevant\n\n- Safety-relevant terms found by deterministic prescreen: bd, breastfeed, contraindicat, mg, overdose, pregnan, side effect, tablet.\n- The AI contradicted at least one deterministic verdict; the deterministic verdict stands.\n\n## Summary (AI-generated, validated)\n\nThe material explains dosing in clinical language patients are unlikely to understand, buries the missed-dose instruction inside a dense paragraph, and opens with promotional text rather than the instruction itself.\n\n## Findings (11)\n\n| # | Severity | Title | Criterion / item | Confidence | Source |\n|---|---|---|---|---|---|\n| 1 | critical (upgraded from high by R9) | Dosing abbreviation BD never explained | WCAG 3.1.4 (A) · PEMAT 4 | 0.9 | ai |\n| 2 | critical (upgraded from medium by R9) | Unexplained clinical terms | WCAG 3.1.3 (AAA) · CCI 7 | 0.85 | ai |\n| 3 | high | 1 image(s) without alt attribute | WCAG 1.1.1 (A) | 1 | automated |\n| 4 | high | Page language not declared | WCAG 3.1.1 (A) | 1 | automated |\n| 5 | high | 1 link(s)/button(s) without accessible name | WCAG 2.4.4 (A) | 1 | automated |\n| 6 | high | 1 form field(s) without a label | WCAG 3.3.2 (A) | 1 | automated |\n| 7 | medium | No top-level heading (h1) | WCAG 1.3.1 (A) | 1 | automated |\n| 8 | medium | Heading level skipped (h2 → h4) | WCAG 1.3.1 (A) | 1 | automated |\n| 9 | medium | Page has no title | WCAG 2.4.2 (A) | 1 | automated |\n| 10 | medium | 1 data table(s) without header cells | WCAG 1.3.1 (A) | 1 | automated |\n| 11 | medium | No single clear main message up front | CCI 1 | 0.7 | ai |\n\n### 1. Dosing abbreviation BD never explained\n\nBD means twice a day but is never defined in the text. A reader could take the wrong dose.\n\n**Recommendation:** Write 'twice a day' or define BD at first use.\n\n> Take 1 tablet (5 mg) BD.\n\n### 2. Unexplained clinical terms\n\nClinical terms such as hyperkalaemia are used without any plain-language explanation.\n\n**Recommendation:** Add a plain-language gloss the first time a clinical term is used.\n\n> hyperkalaemia and deterioration of renal parameters\n\n### 3. 1 image(s) without alt attribute\n\nImages without an alt attribute are invisible to screen-reader users; assistive technology may read the file name instead.\n\n**Recommendation:** Add an alt attribute to every image: descriptive if informative, empty (alt=\"\") if decorative.\n\n> <img src=\"bp-chart.png\">\n\n### 4. Page language not declared\n\nWithout a lang attribute, screen readers guess the pronunciation rules and may read the text in the wrong language.\n\n**Recommendation:** Add lang=\"de\" or lang=\"en\" to the <html> element.\n\n> <html>\n\n### 5. 1 link(s)/button(s) without accessible name\n\nA control with no text and no label is announced only as \"link\" or \"button\" — the user cannot know what it does.\n\n**Recommendation:** Give every link and button visible text, or an aria-label if it is icon-only.\n\n> <a href=\"/contact\"></a>\n\n### 6. 1 form field(s) without a label\n\nUnlabelled form fields leave screen-reader users guessing what to enter.\n\n**Recommendation:** Associate every field with a <label for=\"…\">, or add aria-label.\n\n> <input type=\"text\" name=\"email\">\n\n### 7. No top-level heading (h1)\n\nScreen-reader users navigate by headings; without an h1 the page has no announced main topic.\n\n**Recommendation:** Give the page exactly one h1 stating its main topic.\n\n> heading levels found: 2, 4\n\n### 8. Heading level skipped (h2 → h4)\n\nSkipped heading levels break the outline that assistive technology builds from the page.\n\n**Recommendation:** Use consecutive heading levels; do not jump levels for visual effect.\n\n> heading sequence: 2 → 4\n\n### 9. Page has no title\n\nThe title is the first thing a screen reader announces and what appears in tabs and bookmarks.\n\n**Recommendation:** Add a descriptive <title> in the <head>.\n\n> <head> contains no non-empty <title>\n\n### 10. 1 data table(s) without header cells\n\nWithout <th> header cells a screen reader cannot tell the user what each column or row means.\n\n**Recommendation:** Mark header cells with <th> (and scope=\"col\"/\"row\" where needed).\n\n> <table> <tbody><tr><td>Morning</td><td>1 tablet</td></tr> <tr><td>Evening</td><td>1 tablet</td></tr> </tbody></table>\n\n### 11. No single clear main message up front\n\nThe page opens with promotional text rather than the medication instruction itself.\n\n**Recommendation:** Lead with the instruction, not the marketing copy.\n\n> The medication is to be taken as prescribed.\n\n## Instrument items\n\nAssessment is informed by PEMAT-P (AHRQ) and the CDC Clear Communication Index. It is an automated adaptation and is not an official or validated application of either instrument.\n\n| Instrument | Item | Verdict | Decided by | Rationale |\n|---|---|---|---|---|\n| CCI | 1 | not_assessed | deterministic | Not returned by the AI; excluded from the subscore denominator. |\n| CCI | 2 | not_assessed | deterministic | Not returned by the AI; excluded from the subscore denominator. |\n| CCI | 3 | fail | deterministic | No heading or emphasis markup in the first section. |\n| CCI | 5 | not_assessed | deterministic | Not returned by the AI; excluded from the subscore denominator. |\n| CCI | 6 | not_assessed | deterministic | Not returned by the AI; excluded from the subscore denominator. |\n| CCI | 7 | fail | ai | Specialized clinical terms are not explained at first use. |\n| CCI | 8 | fail | deterministic | A list runs longer than 7 items without a break (CDC rule). |\n| CCI | 9 | pass | deterministic | 2 headings structure the material into chunks. |\n| CCI | 10 | not_assessed | deterministic | Not returned by the AI; excluded from the subscore denominator. |\n| CCI | 11 | not_assessed | deterministic | Not returned by the AI; excluded from the subscore denominator. |\n| CCI | 12 | not_assessed | deterministic | Not returned by the AI; excluded from the subscore denominator. |\n| CCI | 13 | not_assessed | deterministic | Not returned by the AI; excluded from the subscore denominator. |\n| CCI | 14 | not_assessed | deterministic | Not returned by the AI; excluded from the subscore denominator. |\n| CCI | 15 | not_assessed | deterministic | Not returned by the AI; excluded from the subscore denominator. |\n| CCI | 16 | not_assessed | deterministic | Not returned by the AI; excluded from the subscore denominator. |\n| CCI | 17 | not_assessed | deterministic | Not returned by the AI; excluded from the subscore denominator. |\n| CCI | 18 | not_assessed | deterministic | Not returned by the AI; excluded from the subscore denominator. |\n| CCI | 19 | not_assessed | deterministic | Not returned by the AI; excluded from the subscore denominator. |\n| CCI | 20 | not_assessed | deterministic | Not returned by the AI; excluded from the subscore denominator. |\n| PEMAT | 1 | not_assessed | deterministic | Not returned by the AI; excluded from the subscore denominator. |\n| PEMAT | 2 | not_assessed | deterministic | Not returned by the AI; excluded from the subscore denominator. |\n| PEMAT | 3 | not_assessed | deterministic | Not returned by the AI; excluded from the subscore denominator. |\n| PEMAT | 4 | fail | ai | BD is used without definition anywhere in the material. |\n| PEMAT | 5 | not_assessed | deterministic | Not returned by the AI; excluded from the subscore denominator. |\n| PEMAT | 6 | not_assessed | deterministic | Not returned by the AI; excluded from the subscore denominator. |\n| PEMAT | 7 | not_assessed | deterministic | Not returned by the AI; excluded from the subscore denominator. |\n| PEMAT | 8 | fail | deterministic | At least one section between headings exceeds 150 words (max found: 188). ⚠ AI judged \"pass\": Sections between headings look short enough. |\n| PEMAT | 9 | pass | deterministic | 2 heading(s) present. Informativeness is judged separately by the AI. |\n| PEMAT | 10 | not_assessed | deterministic | Not returned by the AI; excluded from the subscore denominator. |\n| PEMAT | 11 | not_assessed | deterministic | Not returned by the AI; excluded from the subscore denominator. |\n| PEMAT | 12 | pass | deterministic | Lists or emphasis markup present as visual cues. |\n| PEMAT | 17 | fail | deterministic | At least one image lacks both alt text and a figcaption. |\n| PEMAT | 19 | fail | deterministic | At least one table has no header cells. |\n| PEMAT | 20 | not_assessed | deterministic | Not returned by the AI; excluded from the subscore denominator. |\n| PEMAT | 21 | not_assessed | deterministic | Not returned by the AI; excluded from the subscore denominator. |\n| PEMAT | 22 | not_assessed | deterministic | Not returned by the AI; excluded from the subscore denominator. |\n| PEMAT | 24 | not_assessed | deterministic | Not returned by the AI; excluded from the subscore denominator. |\n| PEMAT | 25 | not_assessed | deterministic | Not returned by the AI; excluded from the subscore denominator. |\n\n## Positive observations\n\n- Storage and disposal instructions are itemized clearly.\n\n## Limitations of this screening\n\n- This tool produces a report about the material; it does not produce accessible content, and it measures the material's literacy demand, not any person's health literacy.\n- WCAG coverage is limited to the listed subset. Out of scope: Colour contrast (1.4.3, 1.4.11 — requires rendered CSS) · keyboard operability (2.1.x) · focus order and visibility beyond markup-level tabindex (2.4.3, 2.4.7, 2.4.11) · time-based media (1.2.x) · reflow and zoom (1.4.4, 1.4.10) · pointer and motion input (2.5.x) · status messages (4.1.3) · anything rendered by JavaScript after page load (raw HTML is fetched).\n- 34 instrument item(s) were not assessed and are excluded from all score denominators.\n- The AI did not return 28 requested instrument item(s); they are counted as not assessed.\n- Accuracy of the AI-assisted findings is unmeasured; confirmed/dismissed review decisions accumulate an empirical false-positive rate over time.\n\n---\n*Assessment is informed by PEMAT-P (AHRQ) and the CDC Clear Communication Index. It is an automated adaptation and is not an official or validated application of either instrument.*",
+      "statement_draft": "# Accessibility Statement — DRAFT\n\n> **DRAFT — requires human legal review and a full accessibility audit before publication. No conformance claim is made or implied.**\n\nThis draft is based on an automated screening of the page https://example.org/med/bp-meds-poor on 2026-08-01.\n\n## What was evaluated\n\nThe screening covered the following WCAG 2.2 success criteria only: 1.1.1, 1.3.1, 2.2.1, 2.4.2, 2.4.3 (markup-level tabindex only), 2.4.4 / 4.1.2, 3.1.1, 3.3.2, 1.3.1 (structure quality), 2.4.6, 3.1.3, 3.1.4, 3.1.5 (AAA), 3.3.2 (instruction quality).\n\n## What was NOT evaluated\n\nColour contrast (1.4.3, 1.4.11 — requires rendered CSS) · keyboard operability (2.1.x) · focus order and visibility beyond markup-level tabindex (2.4.3, 2.4.7, 2.4.11) · time-based media (1.2.x) · reflow and zoom (1.4.4, 1.4.10) · pointer and motion input (2.5.x) · status messages (4.1.3) · anything rendered by JavaScript after page load (raw HTML is fetched).\n\nBecause the evaluation covers only this subset, this statement cannot and does not claim WCAG 2.2 conformance at any level.\n\n## Screening result\n\nWithin the screened subset: **severe issues found** (screening score 22 of 100, including AI-proposed findings; 52 of 100 from the deterministic checks alone).\n\n## Known issues\n\n- Dosing abbreviation BD never explained (critical)\n- Unexplained clinical terms (critical)\n- 1 image(s) without alt attribute (high)\n- Page language not declared (high)\n- 1 link(s)/button(s) without accessible name (high)\n- 1 form field(s) without a label (high)\n- No top-level heading (h1) (medium)\n- Heading level skipped (h2 → h4) (medium)\n- Page has no title (medium)\n- 1 data table(s) without header cells (medium)\n- No single clear main message up front (medium)\n\n## Feedback\n\nIf you encounter barriers using this content, contact: **[CONTACT DETAILS — TO BE COMPLETED]**\n\n---\n*Generated by A11yAudit (automated screening). Assessment is informed by PEMAT-P (AHRQ) and the CDC Clear Communication Index. It is an automated adaptation and is not an official or validated application of either instrument.*",
+      "completed_at": null,
+      "status": "needs_review"
+    }
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "schema_version": "2.0",
+  "analysis_status": "ok",
+  "summary": "The material is clearly written with a strong action-first structure and defined terms; one minor gap remains in the emergency-escalation guidance.",
+  "findings": [
+    {
+      "finding_key": "ai-cci12-behaviour",
+      "wcag_criterion": null,
+      "wcag_level": null,
+      "category": "cognitive",
+      "instrument": "CCI",
+      "instrument_item": 12,
+      "severity": "low",
+      "confidence": 0.6,
+      "title": "Emergency escalation path could be clearer",
+      "explanation_plain": "The material gives a number to call but not a simple rule for choosing which one to use.",
+      "recommendation": "Add one sentence distinguishing when to call the doctor versus 112.",
+      "evidence": "Call your doctor right away, or call 112 if you feel very unwell."
+    },
+    {
+      "finding_key": "ai-fabricated-support-hours",
+      "wcag_criterion": null,
+      "wcag_level": null,
+      "category": "understandable",
+      "instrument": null,
+      "instrument_item": null,
+      "severity": "medium",
+      "confidence": 0.8,
+      "title": "Support contact hours not given",
+      "explanation_plain": "The material does not say when the support line is staffed.",
+      "recommendation": "State the support line's opening hours.",
+      "evidence": "Our support line is open Monday to Friday, 9am to 5pm."
+    }
+  ],
+  "instrument_items": [
+    {
+      "instrument": "PEMAT",
+      "item_no": 4,
+      "verdict": "pass",
+      "rationale": "NSAID is explained with an example on first use.",
+      "evidence": "Painkillers like ibuprofen (a \"NSAID\") can stop your tablets from working well."
+    },
+    {
+      "instrument": "CCI",
+      "item_no": 7,
+      "verdict": "pass",
+      "rationale": "Specialized terms are explained at first use.",
+      "evidence": null
+    }
+  ],
+  "positive_observations": [
+    "Leads with the single most important instruction, in bold, before anything else."
+  ]
+}

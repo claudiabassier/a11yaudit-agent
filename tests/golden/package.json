@@ -1,0 +1,8 @@
+{
+  "name": "a11yaudit-golden-tests",
+  "private": true,
+  "description": "Regression harness for the A11yAudit Code-node chain. Not published, not a dependency of the pipeline itself — see tests/golden/README.md.",
+  "dependencies": {
+    "cheerio": "1.2.0"
+  }
+}

@@ -1,0 +1,768 @@
+{
+  "fixture": "bp-meds-short",
+  "fixed_now": "2026-08-01T00:00:00.000Z",
+  "nodes": {
+    "02_normalize_input": {
+      "source_type": "url",
+      "page_url": "https://example.org/med/bp-meds-short",
+      "pasted_content": null,
+      "page_title": "Water tablet (furosemide) leaflet",
+      "content_language": "en",
+      "audience": "patients and family members, average to low health literacy",
+      "eaa_scope": false,
+      "auditor_note": null,
+      "normalize_note": null,
+      "started_at": "2026-08-01T00:00:00.000Z"
+    },
+    "05_automated_checks": {
+      "source_type": "url",
+      "page_url": "https://example.org/med/bp-meds-short",
+      "page_title": "Water tablet (furosemide) leaflet",
+      "content_language": "en",
+      "audience": "patients and family members, average to low health literacy",
+      "eaa_scope": false,
+      "auditor_note": null,
+      "started_at": "2026-08-01T00:00:00.000Z",
+      "content_text": "# Taking your water tablet\n\nYour doctor has prescribed furosemide, sometimes called a water tablet. It helps your body get rid of extra fluid, so you may notice that you pass urine more often for a few hours after taking it. Take one tablet each morning with a glass of water. Taking it in the morning rather than at night means you are less likely to be woken up during the night.\n\nTell your practice nurse if you feel dizzy when you stand up, if you become very thirsty, or if your ankles are still swollen after a week. If you feel faint or your heartbeat does not feel normal, this needs to be checked the same day. Call 111 for advice, or 999 if you feel very unwell.",
+      "word_count": 128,
+      "paragraph_count": 2,
+      "is_very_short": true,
+      "automated_findings": [],
+      "deterministic_items": {
+        "PEMAT_8": "not_applicable",
+        "PEMAT_9": "not_applicable",
+        "PEMAT_12": "fail",
+        "PEMAT_17": "not_applicable",
+        "PEMAT_19": "not_applicable",
+        "CCI_3": "pass",
+        "CCI_8": "fail",
+        "CCI_9": "fail"
+      },
+      "deterministic_observations": [
+        {
+          "instrument": "PEMAT",
+          "item_no": 8,
+          "verdict": "not_applicable",
+          "rationale": "Material is very short (≤2 paragraphs); chunking not applicable per AHRQ.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 9,
+          "verdict": "not_applicable",
+          "rationale": "Material is very short; headers not applicable per AHRQ.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 12,
+          "verdict": "fail",
+          "rationale": "No lists or emphasis markup found.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 17,
+          "verdict": "not_applicable",
+          "rationale": "No images in the material.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 19,
+          "verdict": "not_applicable",
+          "rationale": "No tables in the material.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 3,
+          "verdict": "pass",
+          "rationale": "First section starts with a heading or contains emphasis markup.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 8,
+          "verdict": "fail",
+          "rationale": "No bulleted or numbered lists in the material.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 9,
+          "verdict": "fail",
+          "rationale": "Fewer than 2 headings; material is not chunked with headings.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        }
+      ],
+      "automated_checks_skipped": false,
+      "checks_engine": "cheerio"
+    },
+    "08_hash_guard": {
+      "source_type": "url",
+      "page_url": "https://example.org/med/bp-meds-short",
+      "page_title": "Water tablet (furosemide) leaflet",
+      "content_language": "en",
+      "audience": "patients and family members, average to low health literacy",
+      "eaa_scope": false,
+      "auditor_note": null,
+      "started_at": "2026-08-01T00:00:00.000Z",
+      "content_text": "# Taking your water tablet\n\nYour doctor has prescribed furosemide, sometimes called a water tablet. It helps your body get rid of extra fluid, so you may notice that you pass urine more often for a few hours after taking it. Take one tablet each morning with a glass of water. Taking it in the morning rather than at night means you are less likely to be woken up during the night.\n\nTell your practice nurse if you feel dizzy when you stand up, if you become very thirsty, or if your ankles are still swollen after a week. If you feel faint or your heartbeat does not feel normal, this needs to be checked the same day. Call 111 for advice, or 999 if you feel very unwell.",
+      "word_count": 128,
+      "paragraph_count": 2,
+      "is_very_short": true,
+      "automated_findings": [],
+      "deterministic_items": {
+        "PEMAT_8": "not_applicable",
+        "PEMAT_9": "not_applicable",
+        "PEMAT_12": "fail",
+        "PEMAT_17": "not_applicable",
+        "PEMAT_19": "not_applicable",
+        "CCI_3": "pass",
+        "CCI_8": "fail",
+        "CCI_9": "fail"
+      },
+      "deterministic_observations": [
+        {
+          "instrument": "PEMAT",
+          "item_no": 8,
+          "verdict": "not_applicable",
+          "rationale": "Material is very short (≤2 paragraphs); chunking not applicable per AHRQ.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 9,
+          "verdict": "not_applicable",
+          "rationale": "Material is very short; headers not applicable per AHRQ.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 12,
+          "verdict": "fail",
+          "rationale": "No lists or emphasis markup found.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 17,
+          "verdict": "not_applicable",
+          "rationale": "No images in the material.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 19,
+          "verdict": "not_applicable",
+          "rationale": "No tables in the material.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 3,
+          "verdict": "pass",
+          "rationale": "First section starts with a heading or contains emphasis markup.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 8,
+          "verdict": "fail",
+          "rationale": "No bulleted or numbered lists in the material.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 9,
+          "verdict": "fail",
+          "rationale": "Fewer than 2 headings; material is not chunked with headings.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        }
+      ],
+      "automated_checks_skipped": false,
+      "checks_engine": "cheerio",
+      "content_hash": "b2d1beb270bba10e67c259f96f8a903dcefa6cdcf71198f73af59c8017bcb10f",
+      "content_truncated": false
+    },
+    "09_safety_prescreen": {
+      "source_type": "url",
+      "page_url": "https://example.org/med/bp-meds-short",
+      "page_title": "Water tablet (furosemide) leaflet",
+      "content_language": "en",
+      "audience": "patients and family members, average to low health literacy",
+      "eaa_scope": false,
+      "auditor_note": null,
+      "started_at": "2026-08-01T00:00:00.000Z",
+      "content_text": "# Taking your water tablet\n\nYour doctor has prescribed furosemide, sometimes called a water tablet. It helps your body get rid of extra fluid, so you may notice that you pass urine more often for a few hours after taking it. Take one tablet each morning with a glass of water. Taking it in the morning rather than at night means you are less likely to be woken up during the night.\n\nTell your practice nurse if you feel dizzy when you stand up, if you become very thirsty, or if your ankles are still swollen after a week. If you feel faint or your heartbeat does not feel normal, this needs to be checked the same day. Call 111 for advice, or 999 if you feel very unwell.",
+      "word_count": 128,
+      "paragraph_count": 2,
+      "is_very_short": true,
+      "automated_findings": [],
+      "deterministic_items": {
+        "PEMAT_8": "not_applicable",
+        "PEMAT_9": "not_applicable",
+        "PEMAT_12": "fail",
+        "PEMAT_17": "not_applicable",
+        "PEMAT_19": "not_applicable",
+        "CCI_3": "pass",
+        "CCI_8": "fail",
+        "CCI_9": "fail"
+      },
+      "deterministic_observations": [
+        {
+          "instrument": "PEMAT",
+          "item_no": 8,
+          "verdict": "not_applicable",
+          "rationale": "Material is very short (≤2 paragraphs); chunking not applicable per AHRQ.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 9,
+          "verdict": "not_applicable",
+          "rationale": "Material is very short; headers not applicable per AHRQ.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 12,
+          "verdict": "fail",
+          "rationale": "No lists or emphasis markup found.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 17,
+          "verdict": "not_applicable",
+          "rationale": "No images in the material.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 19,
+          "verdict": "not_applicable",
+          "rationale": "No tables in the material.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 3,
+          "verdict": "pass",
+          "rationale": "First section starts with a heading or contains emphasis markup.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 8,
+          "verdict": "fail",
+          "rationale": "No bulleted or numbered lists in the material.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 9,
+          "verdict": "fail",
+          "rationale": "Fewer than 2 headings; material is not chunked with headings.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        }
+      ],
+      "automated_checks_skipped": false,
+      "checks_engine": "cheerio",
+      "content_hash": "b2d1beb270bba10e67c259f96f8a903dcefa6cdcf71198f73af59c8017bcb10f",
+      "content_truncated": false,
+      "safety_terms_found": [
+        "111",
+        "999",
+        "tablet"
+      ],
+      "safety_context": true
+    },
+    "A2_build_prompt": {
+      "system_prompt": "You are an accessibility and health-literacy analysis assistant. You\nsupport a human auditor of digital health content. You never make final\ncompliance, legal, or clinical decisions.\n\nYou perform two tasks.\n\nTASK 1 — BARRIER FINDINGS\nIdentify accessibility barriers detectable from text and markup:\n - WCAG 2.2 criteria that require judgment: 3.1.3 (unusual words),\n   3.1.4 (abbreviations), 3.1.5 (reading level), 2.4.6 (headings and\n   labels), 3.3.2 (instructions), 1.3.1 (semantic structure).\n - Comprehension barriers for patients: unexplained jargon, undefined\n   abbreviations, complex sentences, missing or unclear instructions,\n   ambiguous dosing or timing language, unstated action triggers.\nDo NOT report colour contrast, keyboard operation, focus order, media\ncaptions, or anything requiring a rendered page — you cannot observe them.\n\nTASK 2 — INSTRUMENT ASSESSMENT\nScore the items listed below, drawn from PEMAT-P (AHRQ) and the CDC Clear\nCommunication Index. For each: verdict \"pass\", \"fail\" or \"not_applicable\",\nplus a one-sentence rationale citing evidence from the material.\nItems already decided deterministically are given to you in\n`deterministic_items` — do NOT re-judge those; they are fixed.\nJudge every item strictly from the material itself. Do not use outside\nknowledge of the subject. Rate \"pass\" only if the criterion holds\nthroughout the material (AHRQ guidance: 80–100% of the time).\n\nPEMAT understandability items to judge:\n 1 purpose completely evident\n 2 no content that distracts from the purpose\n 3 uses common, everyday language\n 4 medical terms defined when used\n 5 uses active voice\n 6 numbers clear and easy to understand      [not_applicable if no numbers]\n 7 does not expect the user to perform calculations\n 10 information in a logical sequence\n 11 provides a summary                        [not_applicable if very short]\nPEMAT actionability items to judge:\n 20 clearly identifies at least one action the user can take\n 21 addresses the user directly when describing actions\n 22 breaks actions into manageable, explicit steps\n 24 gives instructions or examples for any calculations [n/a if none]\n 25 explains how to use charts/tables to take action    [n/a if none]\n\nCDC Index items to judge:\n 1 contains one main message statement\n 2 main message at the top (first section, visible without scrolling)\n 5 includes at least one call to action for the audience\n 6 main message and call to action both use active voice\n 7 always uses words the audience uses; all specialized terms and\n   abbreviations explained (not merely defined) at first use\n 10 most important information summarized in the first section\n 11 explains what authoritative sources know AND do not know\n 12–14 behavioral recommendation present / why it matters / specific\n   directions how to perform it                [n/a if no recommendation]\n 15–17 numbers familiar and necessary / meaning explained / audience\n   must calculate (item 17: \"yes, must calculate\" = fail)  [n/a if no numbers]\n 18–20 nature of risk explained / risks AND benefits addressed / numeric\n   probability also given in words or visual    [n/a if no risk content]\n\nRULES\n- Evidence must be quoted verbatim from the input, max 300 characters.\n  Never invent content. If you cannot quote it, do not report it.\n- severity: critical = could lead to patient harm or blocks the task;\n  high = major barrier for a user group; medium = significant difficulty;\n  low = minor friction.\n- confidence: your certainty (0.0-1.0) that this is a real barrier.\n- explanation_plain: 1-3 sentences a non-expert understands.\n- recommendation: one concrete, actionable fix.\n- Maximum 25 findings, most severe first.\n- Do NOT assess legal compliance (EAA/BFSG/EN 301 549). That is decided\n  outside this call.\n- Do NOT give clinical advice or judge medical correctness.\n\nRespond with ONLY a JSON object matching this schema exactly — no markdown,\nno code fences, no commentary.\n\n{\n  \"schema_version\": \"2.0\",\n  \"analysis_status\": \"ok\",\n  \"summary\": \"2-4 sentences\",\n  \"findings\": [\n    {\n      \"finding_key\": \"ai-pemat4-abbrev-bd\",\n      \"wcag_criterion\": \"3.1.4\",\n      \"wcag_level\": \"A\",\n      \"category\": \"perceivable|operable|understandable|robust|cognitive\",\n      \"instrument\": \"PEMAT|CCI|null\",\n      \"instrument_item\": 4,\n      \"severity\": \"critical|high|medium|low\",\n      \"confidence\": 0.92,\n      \"title\": \"max 80 chars\",\n      \"explanation_plain\": \"string\",\n      \"recommendation\": \"string\",\n      \"evidence\": \"verbatim quote, max 300 chars\"\n    }\n  ],\n  \"instrument_items\": [\n    { \"instrument\": \"PEMAT\", \"item_no\": 4, \"verdict\": \"fail\",\n      \"rationale\": \"string\", \"evidence\": \"verbatim quote or null\" }\n  ],\n  \"positive_observations\": [\"string\"]\n}",
+      "user_message": "Audience: patients and family members, average to low health literacy | Title: Water tablet (furosemide) leaflet | Language: en | Very short: true | Truncated: false\nAlready decided (do not re-judge): {\"PEMAT_8\":\"not_applicable\",\"PEMAT_9\":\"not_applicable\",\"PEMAT_12\":\"fail\",\"PEMAT_17\":\"not_applicable\",\"PEMAT_19\":\"not_applicable\",\"CCI_3\":\"pass\",\"CCI_8\":\"fail\",\"CCI_9\":\"fail\"}\n\nMATERIAL:\n# Taking your water tablet\n\nYour doctor has prescribed furosemide, sometimes called a water tablet. It helps your body get rid of extra fluid, so you may notice that you pass urine more often for a few hours after taking it. Take one tablet each morning with a glass of water. Taking it in the morning rather than at night means you are less likely to be woken up during the night.\n\nTell your practice nurse if you feel dizzy when you stand up, if you become very thirsty, or if your ankles are still swollen after a week. If you feel faint or your heartbeat does not feel normal, this needs to be checked the same day. Call 111 for advice, or 999 if you feel very unwell.",
+      "attempt": 1,
+      "content_text": "# Taking your water tablet\n\nYour doctor has prescribed furosemide, sometimes called a water tablet. It helps your body get rid of extra fluid, so you may notice that you pass urine more often for a few hours after taking it. Take one tablet each morning with a glass of water. Taking it in the morning rather than at night means you are less likely to be woken up during the night.\n\nTell your practice nurse if you feel dizzy when you stand up, if you become very thirsty, or if your ankles are still swollen after a week. If you feel faint or your heartbeat does not feel normal, this needs to be checked the same day. Call 111 for advice, or 999 if you feel very unwell.",
+      "content_language": "en",
+      "page_title": "Water tablet (furosemide) leaflet",
+      "audience": "patients and family members, average to low health literacy",
+      "is_very_short": true,
+      "content_truncated": false,
+      "deterministic_items": {
+        "PEMAT_8": "not_applicable",
+        "PEMAT_9": "not_applicable",
+        "PEMAT_12": "fail",
+        "PEMAT_17": "not_applicable",
+        "PEMAT_19": "not_applicable",
+        "CCI_3": "pass",
+        "CCI_8": "fail",
+        "CCI_9": "fail"
+      }
+    },
+    "A4_validate_output": {
+      "valid": false,
+      "api_error": false,
+      "attempt": 1,
+      "errors": [
+        "Response is not parseable as a JSON object. Respond with ONLY the JSON object, no commentary."
+      ],
+      "analysis": null,
+      "dropped_unverified": 0,
+      "instrument_evidence_removed": 0,
+      "missing_items": [],
+      "missing_items_count": 0
+    },
+    "A5_fallback": {
+      "schema_version": "2.0",
+      "analysis_status": "fallback",
+      "summary": "AI analysis unavailable or invalid after retry. Full human audit required.",
+      "findings": [],
+      "instrument_items": [],
+      "positive_observations": [],
+      "fallback_reason": "validation_failed",
+      "attempt": 1,
+      "errors": [
+        "Response is not parseable as a JSON object. Respond with ONLY the JSON object, no commentary."
+      ],
+      "dropped_unverified": 0,
+      "missing_items_count": 0
+    },
+    "11_merge_findings": {
+      "source_type": "url",
+      "page_url": "https://example.org/med/bp-meds-short",
+      "page_title": "Water tablet (furosemide) leaflet",
+      "content_language": "en",
+      "audience": "patients and family members, average to low health literacy",
+      "eaa_scope": false,
+      "auditor_note": null,
+      "started_at": "2026-08-01T00:00:00.000Z",
+      "content_text": "# Taking your water tablet\n\nYour doctor has prescribed furosemide, sometimes called a water tablet. It helps your body get rid of extra fluid, so you may notice that you pass urine more often for a few hours after taking it. Take one tablet each morning with a glass of water. Taking it in the morning rather than at night means you are less likely to be woken up during the night.\n\nTell your practice nurse if you feel dizzy when you stand up, if you become very thirsty, or if your ankles are still swollen after a week. If you feel faint or your heartbeat does not feel normal, this needs to be checked the same day. Call 111 for advice, or 999 if you feel very unwell.",
+      "word_count": 128,
+      "paragraph_count": 2,
+      "is_very_short": true,
+      "automated_findings": [],
+      "deterministic_items": {
+        "PEMAT_8": "not_applicable",
+        "PEMAT_9": "not_applicable",
+        "PEMAT_12": "fail",
+        "PEMAT_17": "not_applicable",
+        "PEMAT_19": "not_applicable",
+        "CCI_3": "pass",
+        "CCI_8": "fail",
+        "CCI_9": "fail"
+      },
+      "deterministic_observations": [
+        {
+          "instrument": "PEMAT",
+          "item_no": 8,
+          "verdict": "not_applicable",
+          "rationale": "Material is very short (≤2 paragraphs); chunking not applicable per AHRQ.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 9,
+          "verdict": "not_applicable",
+          "rationale": "Material is very short; headers not applicable per AHRQ.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 12,
+          "verdict": "fail",
+          "rationale": "No lists or emphasis markup found.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 17,
+          "verdict": "not_applicable",
+          "rationale": "No images in the material.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 19,
+          "verdict": "not_applicable",
+          "rationale": "No tables in the material.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 3,
+          "verdict": "pass",
+          "rationale": "First section starts with a heading or contains emphasis markup.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 8,
+          "verdict": "fail",
+          "rationale": "No bulleted or numbered lists in the material.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 9,
+          "verdict": "fail",
+          "rationale": "Fewer than 2 headings; material is not chunked with headings.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        }
+      ],
+      "automated_checks_skipped": false,
+      "checks_engine": "cheerio",
+      "content_hash": "b2d1beb270bba10e67c259f96f8a903dcefa6cdcf71198f73af59c8017bcb10f",
+      "content_truncated": false,
+      "safety_terms_found": [
+        "111",
+        "999",
+        "tablet"
+      ],
+      "safety_context": true,
+      "findings": [],
+      "instrument_items": [
+        {
+          "instrument": "CCI",
+          "item_no": 3,
+          "verdict": "pass",
+          "rationale": "First section starts with a heading or contains emphasis markup.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 8,
+          "verdict": "fail",
+          "rationale": "No bulleted or numbered lists in the material.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 9,
+          "verdict": "fail",
+          "rationale": "Fewer than 2 headings; material is not chunked with headings.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 8,
+          "verdict": "not_applicable",
+          "rationale": "Material is very short (≤2 paragraphs); chunking not applicable per AHRQ.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 9,
+          "verdict": "not_applicable",
+          "rationale": "Material is very short; headers not applicable per AHRQ.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 12,
+          "verdict": "fail",
+          "rationale": "No lists or emphasis markup found.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 17,
+          "verdict": "not_applicable",
+          "rationale": "No images in the material.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 19,
+          "verdict": "not_applicable",
+          "rationale": "No tables in the material.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        }
+      ],
+      "ai_disagreement": false,
+      "ai_fallback_used": true,
+      "ai_status": "fallback",
+      "fallback_reason": "validation_failed",
+      "ai_summary": null,
+      "positive_observations": [],
+      "dropped_unverified": 0,
+      "missing_items_count": 0
+    },
+    "12_decision_engine": {
+      "source_type": "url",
+      "page_url": "https://example.org/med/bp-meds-short",
+      "page_title": "Water tablet (furosemide) leaflet",
+      "content_language": "en",
+      "audience": "patients and family members, average to low health literacy",
+      "eaa_scope": false,
+      "auditor_note": null,
+      "started_at": "2026-08-01T00:00:00.000Z",
+      "content_text": "# Taking your water tablet\n\nYour doctor has prescribed furosemide, sometimes called a water tablet. It helps your body get rid of extra fluid, so you may notice that you pass urine more often for a few hours after taking it. Take one tablet each morning with a glass of water. Taking it in the morning rather than at night means you are less likely to be woken up during the night.\n\nTell your practice nurse if you feel dizzy when you stand up, if you become very thirsty, or if your ankles are still swollen after a week. If you feel faint or your heartbeat does not feel normal, this needs to be checked the same day. Call 111 for advice, or 999 if you feel very unwell.",
+      "word_count": 128,
+      "paragraph_count": 2,
+      "is_very_short": true,
+      "automated_findings": [],
+      "deterministic_items": {
+        "PEMAT_8": "not_applicable",
+        "PEMAT_9": "not_applicable",
+        "PEMAT_12": "fail",
+        "PEMAT_17": "not_applicable",
+        "PEMAT_19": "not_applicable",
+        "CCI_3": "pass",
+        "CCI_8": "fail",
+        "CCI_9": "fail"
+      },
+      "deterministic_observations": [
+        {
+          "instrument": "PEMAT",
+          "item_no": 8,
+          "verdict": "not_applicable",
+          "rationale": "Material is very short (≤2 paragraphs); chunking not applicable per AHRQ.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 9,
+          "verdict": "not_applicable",
+          "rationale": "Material is very short; headers not applicable per AHRQ.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 12,
+          "verdict": "fail",
+          "rationale": "No lists or emphasis markup found.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 17,
+          "verdict": "not_applicable",
+          "rationale": "No images in the material.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 19,
+          "verdict": "not_applicable",
+          "rationale": "No tables in the material.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 3,
+          "verdict": "pass",
+          "rationale": "First section starts with a heading or contains emphasis markup.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 8,
+          "verdict": "fail",
+          "rationale": "No bulleted or numbered lists in the material.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 9,
+          "verdict": "fail",
+          "rationale": "Fewer than 2 headings; material is not chunked with headings.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        }
+      ],
+      "automated_checks_skipped": false,
+      "checks_engine": "cheerio",
+      "content_hash": "b2d1beb270bba10e67c259f96f8a903dcefa6cdcf71198f73af59c8017bcb10f",
+      "content_truncated": false,
+      "safety_terms_found": [
+        "111",
+        "999",
+        "tablet"
+      ],
+      "safety_context": true,
+      "findings": [],
+      "instrument_items": [
+        {
+          "instrument": "CCI",
+          "item_no": 3,
+          "verdict": "pass",
+          "rationale": "First section starts with a heading or contains emphasis markup.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 8,
+          "verdict": "fail",
+          "rationale": "No bulleted or numbered lists in the material.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "CCI",
+          "item_no": 9,
+          "verdict": "fail",
+          "rationale": "Fewer than 2 headings; material is not chunked with headings.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 8,
+          "verdict": "not_applicable",
+          "rationale": "Material is very short (≤2 paragraphs); chunking not applicable per AHRQ.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 9,
+          "verdict": "not_applicable",
+          "rationale": "Material is very short; headers not applicable per AHRQ.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 12,
+          "verdict": "fail",
+          "rationale": "No lists or emphasis markup found.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 17,
+          "verdict": "not_applicable",
+          "rationale": "No images in the material.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        },
+        {
+          "instrument": "PEMAT",
+          "item_no": 19,
+          "verdict": "not_applicable",
+          "rationale": "No tables in the material.",
+          "evidence": null,
+          "decided_by": "deterministic"
+        }
+      ],
+      "ai_disagreement": false,
+      "ai_fallback_used": true,
+      "ai_status": "fallback",
+      "fallback_reason": "validation_failed",
+      "ai_summary": null,
+      "positive_observations": [],
+      "dropped_unverified": 0,
+      "missing_items_count": 0,
+      "screening_score": 100,
+      "screening_label": "no issues in screened subset",
+      "screening_score_deterministic": 100,
+      "screening_label_deterministic": "no issues in screened subset",
+      "pemat_understandability": 0,
+      "pemat_actionability": null,
+      "cci_score": 33.3,
+      "not_assessed_count": 36,
+      "not_assessed_items": [
+        "PEMAT 1",
+        "PEMAT 2",
+        "PEMAT 3",
+        "PEMAT 4",
+        "PEMAT 5",
+        "PEMAT 6",
+        "PEMAT 7",
+        "PEMAT 10",
+        "PEMAT 11",
+        "PEMAT 15",
+        "PEMAT 16",
+        "PEMAT 18",
+        "PEMAT 20",
+        "PEMAT 21",
+        "PEMAT 22",
+        "PEMAT 23",
+        "PEMAT 24",
+        "PEMAT 25",
+        "PEMAT 26",
+        "CCI 1",
+        "CCI 2",
+        "CCI 4",
+        "CCI 5",
+        "CCI 6",
+        "CCI 7",
+        "CCI 10",
+        "CCI 11",
+        "CCI 12",
+        "CCI 13",
+        "CCI 14",
+        "CCI 15",
+        "CCI 16",
+        "CCI 17",
+        "CCI 18",
+        "CCI 19",
+        "CCI 20"
+      ],
+      "human_review_required": true,
+      "triggered_rules": [
+        "R2",
+        "R7",
+        "R8"
+      ],
+      "legally_relevant": false
+    },
+    "18_generate_report": {
+      "audit_id": "(pending)",
+      "report_md": "# Accessibility & Health-Literacy Screening Report\n\n**Audit:** (pending) · **Date:** 2026-08-01 · **Status:** NEEDS HUMAN REVIEW\n\n| | |\n|---|---|\n| Source | https://example.org/med/bp-meds-short |\n| Title | Water tablet (furosemide) leaflet |\n| Language | en |\n| Primary audience | patients and family members, average to low health literacy |\n| EAA/BFSG scope (auditor's declaration) | no |\n| Words analyzed | 128 |\n\n## Scores\n\nThese numbers measure different things on different scales and are deliberately never combined into one figure. The first is computed from the deterministic checks alone and re-runs to the same value; the second includes AI-proposed findings and varies between runs.\n\n| Measure | Score | Reading |\n|---|---|---|\n| WCAG screening score — deterministic checks only (reproducible) | 100 | no issues in screened subset |\n| WCAG screening score — including AI-proposed findings (varies between runs) | 100 | no issues in screened subset |\n| PEMAT-informed understandability | 0 | of applicable items passed (%) |\n| PEMAT-informed actionability | not computable | of applicable items passed (%) |\n| CCI-informed score | 33.3 | CDC interpretation: ≥90 good, ≤89 revise |\n\n## Human review required\n\nTriggered rules: **R2, R7, R8**\n\n- R2: AI analysis was unavailable or invalid (validation_failed); this report contains deterministic results only. A full human audit is required.\n- Safety-relevant terms found by deterministic prescreen: 111, 999, tablet.\n\n## Findings (0)\n\nNo findings in the screened subset.\n## Instrument items\n\nAssessment is informed by PEMAT-P (AHRQ) and the CDC Clear Communication Index. It is an automated adaptation and is not an official or validated application of either instrument.\n\n| Instrument | Item | Verdict | Decided by | Rationale |\n|---|---|---|---|---|\n| CCI | 3 | pass | deterministic | First section starts with a heading or contains emphasis markup. |\n| CCI | 8 | fail | deterministic | No bulleted or numbered lists in the material. |\n| CCI | 9 | fail | deterministic | Fewer than 2 headings; material is not chunked with headings. |\n| PEMAT | 8 | not_applicable | deterministic | Material is very short (≤2 paragraphs); chunking not applicable per AHRQ. |\n| PEMAT | 9 | not_applicable | deterministic | Material is very short; headers not applicable per AHRQ. |\n| PEMAT | 12 | fail | deterministic | No lists or emphasis markup found. |\n| PEMAT | 17 | not_applicable | deterministic | No images in the material. |\n| PEMAT | 19 | not_applicable | deterministic | No tables in the material. |\n\n## Limitations of this screening\n\n- This tool produces a report about the material; it does not produce accessible content, and it measures the material's literacy demand, not any person's health literacy.\n- WCAG coverage is limited to the listed subset. Out of scope: Colour contrast (1.4.3, 1.4.11 — requires rendered CSS) · keyboard operability (2.1.x) · focus order and visibility beyond markup-level tabindex (2.4.3, 2.4.7, 2.4.11) · time-based media (1.2.x) · reflow and zoom (1.4.4, 1.4.10) · pointer and motion input (2.5.x) · status messages (4.1.3) · anything rendered by JavaScript after page load (raw HTML is fetched).\n- 36 instrument item(s) were not assessed and are excluded from all score denominators.\n- AI analysis unavailable/invalid (validation_failed): findings and instrument verdicts above are deterministic-only.\n- Accuracy of the AI-assisted findings is unmeasured; confirmed/dismissed review decisions accumulate an empirical false-positive rate over time.\n\n---\n*Assessment is informed by PEMAT-P (AHRQ) and the CDC Clear Communication Index. It is an automated adaptation and is not an official or validated application of either instrument.*",
+      "statement_draft": "# Accessibility Statement — DRAFT\n\n> **DRAFT — requires human legal review and a full accessibility audit before publication. No conformance claim is made or implied.**\n\nThis draft is based on an automated screening of the page https://example.org/med/bp-meds-short on 2026-08-01.\n\n## What was evaluated\n\nThe screening covered the following WCAG 2.2 success criteria only: 1.1.1, 1.3.1, 2.2.1, 2.4.2, 2.4.3 (markup-level tabindex only), 2.4.4 / 4.1.2, 3.1.1, 3.3.2, 1.3.1 (structure quality), 2.4.6, 3.1.3, 3.1.4, 3.1.5 (AAA), 3.3.2 (instruction quality).\n\n## What was NOT evaluated\n\nColour contrast (1.4.3, 1.4.11 — requires rendered CSS) · keyboard operability (2.1.x) · focus order and visibility beyond markup-level tabindex (2.4.3, 2.4.7, 2.4.11) · time-based media (1.2.x) · reflow and zoom (1.4.4, 1.4.10) · pointer and motion input (2.5.x) · status messages (4.1.3) · anything rendered by JavaScript after page load (raw HTML is fetched).\n\nBecause the evaluation covers only this subset, this statement cannot and does not claim WCAG 2.2 conformance at any level.\n\n## Screening result\n\nWithin the screened subset: **no issues in screened subset** (screening score 100 of 100, including AI-proposed findings; 100 of 100 from the deterministic checks alone).\n\n## Known issues\n\nNo issues of medium or higher severity were found within the screened subset.\n\n## Feedback\n\nIf you encounter barriers using this content, contact: **[CONTACT DETAILS — TO BE COMPLETED]**\n\n---\n*Generated by A11yAudit (automated screening). Assessment is informed by PEMAT-P (AHRQ) and the CDC Clear Communication Index. It is an automated adaptation and is not an official or validated application of either instrument.*",
+      "completed_at": null,
+      "status": "needs_review"
+    }
+  }
+}

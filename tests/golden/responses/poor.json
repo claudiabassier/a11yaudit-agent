@@ -1,0 +1,75 @@
+{
+  "schema_version": "2.0",
+  "analysis_status": "ok",
+  "summary": "The material explains dosing in clinical language patients are unlikely to understand, buries the missed-dose instruction inside a dense paragraph, and opens with promotional text rather than the instruction itself.",
+  "findings": [
+    {
+      "finding_key": "ai-pemat4-abbrev-bd",
+      "wcag_criterion": "3.1.4",
+      "wcag_level": "A",
+      "category": "understandable",
+      "instrument": "PEMAT",
+      "instrument_item": 4,
+      "severity": "high",
+      "confidence": 0.9,
+      "title": "Dosing abbreviation BD never explained",
+      "explanation_plain": "BD means twice a day but is never defined in the text. A reader could take the wrong dose.",
+      "recommendation": "Write 'twice a day' or define BD at first use.",
+      "evidence": "Take 1 tablet (5 mg) BD."
+    },
+    {
+      "finding_key": "ai-jargon-hyperkalaemia",
+      "wcag_criterion": "3.1.3",
+      "wcag_level": "AAA",
+      "category": "understandable",
+      "instrument": "CCI",
+      "instrument_item": 7,
+      "severity": "medium",
+      "confidence": 0.85,
+      "title": "Unexplained clinical terms",
+      "explanation_plain": "Clinical terms such as hyperkalaemia are used without any plain-language explanation.",
+      "recommendation": "Add a plain-language gloss the first time a clinical term is used.",
+      "evidence": "hyperkalaemia and deterioration of renal parameters"
+    },
+    {
+      "finding_key": "ai-cci1-main-message",
+      "wcag_criterion": null,
+      "wcag_level": null,
+      "category": "cognitive",
+      "instrument": "CCI",
+      "instrument_item": 1,
+      "severity": "medium",
+      "confidence": 0.7,
+      "title": "No single clear main message up front",
+      "explanation_plain": "The page opens with promotional text rather than the medication instruction itself.",
+      "recommendation": "Lead with the instruction, not the marketing copy.",
+      "evidence": "The medication is to be taken as prescribed."
+    }
+  ],
+  "instrument_items": [
+    {
+      "instrument": "PEMAT",
+      "item_no": 4,
+      "verdict": "fail",
+      "rationale": "BD is used without definition anywhere in the material.",
+      "evidence": "Take 1 tablet (5 mg) BD."
+    },
+    {
+      "instrument": "PEMAT",
+      "item_no": 8,
+      "verdict": "pass",
+      "rationale": "Sections between headings look short enough.",
+      "evidence": null
+    },
+    {
+      "instrument": "CCI",
+      "item_no": 7,
+      "verdict": "fail",
+      "rationale": "Specialized clinical terms are not explained at first use.",
+      "evidence": null
+    }
+  ],
+  "positive_observations": [
+    "Storage and disposal instructions are itemized clearly."
+  ]
+}
