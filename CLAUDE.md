@@ -121,7 +121,7 @@ Wenn eine Änderung ansteht, immer zuerst prüfen: Läuft sie auf der Dev-Varian
 
 Bewusst dokumentiert, nicht vergessen. Beim Arbeiten berücksichtigen.
 
-- **D-36:** Wird Text eingefügt (kein Markup) *und* ist die AI nicht verfügbar, wird kein Kriterium geprüft — der Score wird trotzdem als 100 ausgegeben. Die Instrument-Subscores geben in dem Fall korrekt „not computable" aus. Die Sicherheit hing nie daran: der Prescreen feuert trotzdem.
+- ~~**D-36:** Wird Text eingefügt (kein Markup) *und* ist die AI nicht verfügbar, wird kein Kriterium geprüft — der Score wird trotzdem als 100 ausgegeben.~~ Erledigt 13. August, `decision_log.md` D-59 — `screening_score`/`screening_score_deterministic` sind jetzt `null` (Report zeigt „not computable", wie die Instrument-Subscores schon immer). Die Sicherheit hing nie daran: der Prescreen feuert trotzdem.
 - **Regel R4** (Score unter 70) feuert auf dem *kombinierten* Score. Bei drei Läufen mit identischem Input ergab er 42, 72, 65 — R4 feuerte, feuerte nicht, feuerte. Der deterministische Score blieb konstant bei 100.
 - **`instrument_items`** wurde entworfen und aus Zeitgründen gestrichen (Node 15; siehe `decision_log.md` D-14, D-20, D-34). Item-Verdicts stehen im Report, sind aber nicht abfragbar.
 - **`screening_score_deterministic`** wird berechnet und ausgegeben, hat aber keine Datenbankspalte.
@@ -147,7 +147,7 @@ Sprint zur Aufarbeitung der Review-Punkte. Reihenfolge:
 3. Regressionsbasis unter `tests/golden/` aus den bestehenden Fixtures
 4. **Geteilte Validierungs-Subworkflow** — `Validate Output` und `Validate Output2` enthalten dieselbe Logik doppelt. *Erledigt auf `-dev` (12. August, `decision_log.md` D-55): eine Subworkflow `SUB-A_Validate-dev`, zwei Aufrufstellen, D-A und D-H strukturell mit geschlossen. Reparaturpfad-Aufruf im Live-Editor nicht beobachtbar (n8n-Pin-Einschränkung wie D-38) — Lücke offen benannt, nicht verschwiegen. `workflows_export/*.json` (Original) unverändert.*
 5. Fetch-Failure-Pfad nachweisen, im Format der bestehenden Failure-Path-Records. *Erledigt (13. August, `decision_log.md` D-57): vier Fälle im Production-Modus gegen `WF1-dev` bewiesen — unroutbare Adresse, nicht auflösbarer Host, HTTP 500, kein verwertbarer Inhalt. Geplanter öffentlicher Testendpunkt zweimal unzuverlässig, auf lokalen Docker-Stub umgestellt, Abweichung dokumentiert statt verschwiegen. `readme.md` aktualisiert.*
-6. D-36 beheben
+6. D-36 beheben. *Erledigt (13. August, `decision_log.md` D-59): `screening_score`/`screening_score_deterministic` sind `null` statt 100, wenn nichts geprüft wurde; R4 explizit gegen `null` abgesichert (analog R8). Isoliert getestet (Docker/Node, 5 Szenarien inkl. Regressionscheck gegen den ursprünglichen Day-4-Handrechnungsfall), `tests/golden` erneut PASS.*
 7. Konzeptnotiz `docs/scoring-stability.md`
 
 Danach (Phase 2): `instrument_items` persistieren, Auswertungskorpus, Scoring-Stabilität umsetzen, Kalibrierung.

@@ -40,7 +40,7 @@
 - **`ss02` shows `instrument_items` as a table** — it exists in the schema and is never written to. Node 15 was cut for time; the documents described it as working until 4 August, when the gap was found (D-34).
 - **`ss10` and `ss14` show low combined screening scores** on pages with high instrument subscores. The verbal label is not calibrated for content findings (D-33). Quote the deterministic score.
 - **`ss13` line 17 reads "These four numbers"** above a five-row table. The sentence predates the two-score split and was corrected in the code *after* these reports were generated; the reports were deliberately not edited (D-39).
-- **`ss17` shows `screening_score: 100`** on a page where nothing was examined — no HTML checks, AI failed. Known defect (D-36). Safety did not depend on it: the page still routed to a human.
+- **`ss17` shows `screening_score: 100`** on a page where nothing was examined — no HTML checks, AI failed. Known defect (D-36), fixed 13 August (D-59) — this screenshot is kept as historical evidence of the bug, unregenerated; a new run today would show "not computable". Safety did not depend on it: the page still routed to a human.
 
 ## Capture notes
 
