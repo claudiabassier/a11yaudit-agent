@@ -43,6 +43,8 @@ Two controls make the AI's output usable:
 1. **Evidence verification** — every finding must quote the source verbatim, and the quote is checked in code against the actual text after whitespace normalisation. A finding whose evidence cannot be located is discarded before it reaches the database, silently and without a retry: the model is given no opportunity to justify a quote it invented. Tested two ways — a controlled injection (a fabricated `critical` finding was dropped while a legitimate one survived) and observation in production, where this discarded between 0 and 4 findings per run on real model output.
 2. **Deterministic precedence** — where a machine check and the AI disagree, the machine check wins, and the disagreement itself triggers human review.
 
+**Validation is a shared subworkflow, called from both the first attempt and the one retry.** This logic used to be pasted twice as byte-identical Code nodes, because n8n Code nodes cannot import a sibling node — a real duplication a review caught. Extracted into its own subworkflow, `SUB-A_Validate`, taking its inputs explicitly rather than reaching for a specific upstream node by name, which also closed a real defect: the old version silently returned "valid, zero findings" — a clean-looking report — if that upstream node was ever renamed. The new contract makes a third repair attempt structurally impossible rather than just unlikely to wire wrong.
+
 **Grounding.** The language analysis is not a generic "find unclear writing" prompt. It scores specific, named items from PEMAT-P (AHRQ) and the CDC Clear Communication Index, with item lists taken from the primary sources. Every finding traces to a published criterion, which makes it checkable — and disputable — rather than a matter of opinion.
 
 ### Two screening scores, and why
@@ -90,7 +92,7 @@ Both score tables, extracted from the generated reports with the caveats that be
 
 What did not move: the deterministic screening score stayed at 100 across all three runs, the safety prescreen returned the same terms, and the page routed to human review every time. The escalation path is anchored to the deterministic checks and the prescreen, neither of which involves the AI.
 
-This is reported rather than smoothed over — it is the measurement that justifies splitting the score in two, and the reason the combined score is never quoted as a property of a page.
+This is reported rather than smoothed over — it is the measurement that justifies splitting the score in two, and the reason the combined score is never quoted as a property of a page. What remains open — rule R4 still reads this non-reproducible combined score, which is how it fired, didn't, then did on the identical input above — is written up as three weighed options, no decision made yet, in `docs/scoring-stability.md`.
 
 ## What it is not
 
@@ -147,6 +149,7 @@ The Code nodes need `NODE_FUNCTION_ALLOW_EXTERNAL=cheerio` and `NODE_FUNCTION_AL
 | `decision_log.md` | design decisions, rejected alternatives, and every claim I had to correct |
 | `build_runbook.md` | reproducible build and test procedure, scope tiers, test matrix |
 | `PROJECT_STATUS.md` | build state and handover notes |
+| `docs/scoring-stability.md` | three options weighed for R4's remaining instability, impact/cost/runtime/drawbacks for each, no decision made yet |
 | `meta/` | build-session scaffolding, including the system prompt given to the AI assistant — included deliberately, since applying AI tools is part of what this project is about |
 | `LICENSE` | MIT, with a note on scope: this tool makes no conformance claim and must not be used as the basis for one |
 
@@ -166,11 +169,12 @@ This is a deliberate evolution of the an earlier project [project name] (n8n). I
 
 ## Future work, in priority order
 
-1. Persist per-item instrument verdicts (the cut Node 15), which unlocks cross-audit analysis and an empirical false-positive rate.
-2. Add a `screening_score_deterministic` column.
-3. Recalibrate the combined score's verbal labels against a corpus, or drop the label entirely.
-4. Replace the hand-written checks with axe-core in a headless browser — the technically superior option, rejected here only on time risk. It would bring colour contrast and keyboard operation into scope.
-5. Measure accuracy against expert human audits.
+1. Decide and implement one of the three options in `docs/scoring-stability.md` for R4's remaining instability.
+2. Persist per-item instrument verdicts (the cut Node 15), which unlocks cross-audit analysis and an empirical false-positive rate.
+3. Add a `screening_score_deterministic` column.
+4. Recalibrate the combined score's verbal labels against a corpus, or drop the label entirely.
+5. Replace the hand-written checks with axe-core in a headless browser — the technically superior option, rejected here only on time risk. It would bring colour contrast and keyboard operation into scope.
+6. Measure accuracy against expert human audits.
 
 ## Sources
 
