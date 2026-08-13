@@ -16,7 +16,7 @@
  * OUTPUT (one item — input passed through, plus:)
  *   { json: { ...input,
  *       findings,                  // R9 may have upgraded severities
- *       screening_score, screening_label,
+ *       screening_score, screening_label,               // null if nothing was screened (D-36)
  *       pemat_understandability, pemat_actionability, cci_score, // null if no applicable items
  *       not_assessed_count,
  *       human_review_required, triggered_rules: ["R1","R7",...],
@@ -38,6 +38,20 @@
  *   - not_applicable and not_assessed are both excluded from denominators;
  *     a subscore with zero applicable items is null, and null never fires
  *     a threshold rule (R8).
+ *   - FIX (D-36, 13 Aug): screening_score/screening_score_deterministic used
+ *     to be pure 100 − penalty, with no concept of "how much was actually
+ *     screened" — so pasted text (checks_engine "none") with the AI
+ *     unavailable produced a penalty of 0 from zero checks, not zero
+ *     problems, and printed 100/"no issues in screened subset" for a page
+ *     nobody assessed. Now null in that exact case, mirroring the
+ *     instrument-subscore pattern above (18_generate_report.js's existing
+ *     score() formatter already renders null as "not computable" — no
+ *     report-layer change needed). R4 guards against null explicitly,
+ *     mirroring R8's guard on pemat_understandability, rather than relying
+ *     on JS's `null < 70 === true` coercion (which happened to already be
+ *     conservative here, but implicitly — the file's own R3 comment already
+ *     warns against relying on that kind of coercion for anything
+ *     safety-relevant).
  *   - All nine rules are implemented. Tiering (build_runbook §0) concerns
  *     build time, not this file — if R3/R5/R6/R8/R9 are descoped, they are
  *     simply already present; nothing to remove.
@@ -94,13 +108,18 @@ for (const f of findings) {
   // that exists precisely to be AI-independent. Added 4 Aug — see D-32.
   if (f.source === 'automated') penalty_deterministic += PENALTY[f.original_severity || f.severity] || 0;
 }
-const screening_score = Math.max(0, 100 - penalty);
+// D-36 guard: nothing was actually screened when the deterministic checks
+// were skipped (pasted text, no markup) AND the AI produced nothing usable.
+// Same two fields R2 already tests, so no new field is introduced.
+const nothingScreened = j.checks_engine === 'none'
+  && (j.ai_fallback_used === true || j.ai_status === 'fallback');
 const label = (s) => (s >= 90 ? 'no issues in screened subset' : s >= 70 ? 'issues found' : 'severe issues found');
-const screening_label = label(screening_score);
+const screening_score = nothingScreened ? null : Math.max(0, 100 - penalty);
+const screening_label = nothingScreened ? null : label(screening_score);
 // Reproducible half of the screening result: identical input gives an
 // identical number, because no AI output contributes to it (D-30, D-32).
-const screening_score_deterministic = Math.max(0, 100 - penalty_deterministic);
-const screening_label_deterministic = label(screening_score_deterministic);
+const screening_score_deterministic = nothingScreened ? null : Math.max(0, 100 - penalty_deterministic);
+const screening_label_deterministic = nothingScreened ? null : label(screening_score_deterministic);
 // This is a SCREENING score over the listed subset — never a conformance
 // score, and the labels deliberately avoid ACR/VPAT language (fix #3).
 
@@ -155,7 +174,7 @@ R('R3', findings.some((f) => {
   const c = Number(f.confidence);
   return (isFinite(c) ? c : 0) < 0.6;
 }));
-R('R4', screening_score < 70);
+R('R4', screening_score !== null && screening_score < 70);
 R('R5', j.eaa_scope === true);
 R('R6', j.ai_disagreement === true);
 R('R7', safety);
@@ -203,11 +222,18 @@ return [{
  * Also try: set safety_context false → R9/R7 gone, finding stays "high",
  *   penalty 8+8=16 → score 84; rules ["R8"] only.
  * Also try: set eaa_scope true → R5 joins, legally_relevant true.
+ * Also try (D-36): set checks_engine "none", ai_fallback_used true,
+ *   findings [], instrument_items [] → screening_score, screening_label,
+ *   screening_score_deterministic and screening_label_deterministic all
+ *   null ("not computable" once rendered by 18_generate_report.js), R4
+ *   does NOT fire (guarded against null), R2/R7 still fire on their own
+ *   conditions so human_review_required stays true regardless.
 
 [
   {
     "json": {
       "content_text": "Take 1 tablet BD with food. If you miss a dose, contact your GP surgery.",
+      "checks_engine": "cheerio",
       "safety_context": true,
       "safety_terms_found": ["bd", "tablet"],
       "eaa_scope": false,
