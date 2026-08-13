@@ -125,7 +125,7 @@ Bewusst dokumentiert, nicht vergessen. Beim Arbeiten berücksichtigen.
 - **Regel R4** (Score unter 70) feuert auf dem *kombinierten* Score. Bei drei Läufen mit identischem Input ergab er 42, 72, 65 — R4 feuerte, feuerte nicht, feuerte. Der deterministische Score blieb konstant bei 100.
 - **`instrument_items`** wurde entworfen und aus Zeitgründen gestrichen (Node 15; siehe `decision_log.md` D-14, D-20, D-34). Item-Verdicts stehen im Report, sind aber nicht abfragbar.
 - **`screening_score_deterministic`** wird berechnet und ausgegeben, hat aber keine Datenbankspalte.
-- **Fetch-Failure-Pfad** ist verdrahtet, aber nie als Test ausgeführt.
+- ~~**Fetch-Failure-Pfad** ist verdrahtet, aber nie als Test ausgeführt.~~ Erledigt 13. August, `decision_log.md` D-57 — vier Fälle im Production-Modus gegen `WF1-dev` bewiesen.
 - **Das Intake-Formular** bestätigt Empfang, nicht Erfolg — n8n antwortet „Form Submitted", bevor der Workflow läuft.
 - **Genauigkeit ist ungemessen.** Kein Vergleich gegen menschliche Auditoren.
 - **Keine Lauf-Ebene.** `audits` hält eine Zeile pro Inhalt; beim Re-Run werden `dropped_unverified`, `screening_score` und die Subscores überschrieben. Die schlechte Fixture hat `run_count` 6 und genau einen Messwert. Für Phase 2 ist eine Tabelle `audit_runs` beschlossen — eine Zeile pro Ausführung.
@@ -146,7 +146,7 @@ Sprint zur Aufarbeitung der Review-Punkte. Reihenfolge:
 2. Entwicklungsumgebung aufsetzen: Tag `v1.3-capstone`, Arbeitszweig, Workflows in n8n duplizieren, Datentrennung entscheiden
 3. Regressionsbasis unter `tests/golden/` aus den bestehenden Fixtures
 4. **Geteilte Validierungs-Subworkflow** — `Validate Output` und `Validate Output2` enthalten dieselbe Logik doppelt. *Erledigt auf `-dev` (12. August, `decision_log.md` D-55): eine Subworkflow `SUB-A_Validate-dev`, zwei Aufrufstellen, D-A und D-H strukturell mit geschlossen. Reparaturpfad-Aufruf im Live-Editor nicht beobachtbar (n8n-Pin-Einschränkung wie D-38) — Lücke offen benannt, nicht verschwiegen. `workflows_export/*.json` (Original) unverändert.*
-5. Fetch-Failure-Pfad nachweisen, im Format der bestehenden Failure-Path-Records
+5. Fetch-Failure-Pfad nachweisen, im Format der bestehenden Failure-Path-Records. *Erledigt (13. August, `decision_log.md` D-57): vier Fälle im Production-Modus gegen `WF1-dev` bewiesen — unroutbare Adresse, nicht auflösbarer Host, HTTP 500, kein verwertbarer Inhalt. Geplanter öffentlicher Testendpunkt zweimal unzuverlässig, auf lokalen Docker-Stub umgestellt, Abweichung dokumentiert statt verschwiegen. `readme.md` aktualisiert.*
 6. D-36 beheben
 7. Konzeptnotiz `docs/scoring-stability.md`
 
