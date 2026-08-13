@@ -165,7 +165,7 @@ The Code nodes need `NODE_FUNCTION_ALLOW_EXTERNAL=cheerio` and `NODE_FUNCTION_AL
 
 ## Relationship to my previous project
 
-This is a deliberate evolution of the an earlier project [project name] (n8n). It keeps the proven pattern — central AI call with validation and fallback, deterministic decision engine, error handler — and closes the two weaknesses identified in that project's retrospective: Google Sheets replaced by a relational database with constraints and cross-record querying, and manual/screenshot testing replaced by automated deterministic checks. It adds what that project lacked: a published standard against which the AI's output can be judged.
+This was designed fresh — no code or workflow carried over — but deliberately applies the same architectural pattern as my earlier an earlier project [project name] (n8n): central AI call with validation and fallback, deterministic decision engine, error handler. It closes two things that project's own roadmap notes named as the next step to production use: Google Sheets replaced by a relational database with constraints and cross-record querying, and manual, pinned-execution testing replaced by automated deterministic checks. It adds what that project lacked: a published standard against which the AI's output can be judged.
 
 ## Future work, in priority order
 
