@@ -148,9 +148,12 @@ Sprint zur Aufarbeitung der Review-Punkte. Reihenfolge:
 4. **Geteilte Validierungs-Subworkflow** — `Validate Output` und `Validate Output2` enthalten dieselbe Logik doppelt. *Erledigt auf `-dev` (12. August, `decision_log.md` D-55): eine Subworkflow `SUB-A_Validate-dev`, zwei Aufrufstellen, D-A und D-H strukturell mit geschlossen. Reparaturpfad-Aufruf im Live-Editor nicht beobachtbar (n8n-Pin-Einschränkung wie D-38) — Lücke offen benannt, nicht verschwiegen. `workflows_export/*.json` (Original) unverändert.*
 5. Fetch-Failure-Pfad nachweisen, im Format der bestehenden Failure-Path-Records. *Erledigt (13. August, `decision_log.md` D-57): vier Fälle im Production-Modus gegen `WF1-dev` bewiesen — unroutbare Adresse, nicht auflösbarer Host, HTTP 500, kein verwertbarer Inhalt. Geplanter öffentlicher Testendpunkt zweimal unzuverlässig, auf lokalen Docker-Stub umgestellt, Abweichung dokumentiert statt verschwiegen. `readme.md` aktualisiert.*
 6. D-36 beheben. *Erledigt (13. August, `decision_log.md` D-59): `screening_score`/`screening_score_deterministic` sind `null` statt 100, wenn nichts geprüft wurde; R4 explizit gegen `null` abgesichert (analog R8). Isoliert getestet (Docker/Node, 5 Szenarien inkl. Regressionscheck gegen den ursprünglichen Day-4-Handrechnungsfall), `tests/golden` erneut PASS.*
-7. Konzeptnotiz `docs/scoring-stability.md`
+7. Konzeptnotiz `docs/scoring-stability.md`. *Erledigt (13. August, `decision_log.md` D-60): drei Optionen für R4s verbleibende Instabilität gegeneinander abgewogen (Mechanismus, Wirkung, Kosten, Laufzeit, Nachteil, Erfolgsmessung je Option), mit echten Zahlen unterlegt (D-37s 42/72/65-Streuung, echte Node-Timing-Messung: AI-Call = 75s von 75,2s Gesamtlaufzeit). Bewusst keine Empfehlung — Entscheidung offen. `readme.md` synchronisiert (Architekturabschnitt, Future-work-Liste), Autorenzeile bewusst unangetastet.*
+8. Onepager als PDF. *Erledigt (13. August): `~/Desktop/a11yaudit-agent/A11yAudit_Onepager.pdf`, aus README destilliert, 1 Seite, außerhalb des Git-Repos (kein technisches Artefakt).*
 
-Danach (Phase 2): `instrument_items` persistieren, Auswertungskorpus, Scoring-Stabilität umsetzen, Kalibrierung.
+**Sprint Phase 1 (Sprintplan Tag 1–8) damit vollständig abgeschlossen, `main` und `subworkflow-refactor` gleichauf und beide auf GitHub gepusht (13. August).** Zusätzlich am 13. August behoben, unabhängig von der Sprint-Reihenfolge: `decision_log.md` D-61 — „a deliberate evolution of an earlier project" in `readme.md`/`capstone_proposal.md` korrigiert (kein Code übernommen, nur das Architekturmuster).
+
+Als Nächstes laut Sprintplan: direkt Phase 2 (Portfolio, 3 Wochen, Enddatum selbst setzen): `instrument_items` persistieren, Auswertungskorpus, Scoring-Stabilität umsetzen (Entscheidung aus `docs/scoring-stability.md` noch offen), Kalibrierung — **Repo bleibt privat, bis Phase 2 fertig ist.**
 
 ---
 
