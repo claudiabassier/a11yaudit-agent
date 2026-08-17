@@ -10,7 +10,15 @@
  *   (`json_populate_recordset`) rather than a per-row loop.
  *
  * EXPECTED INPUT
- *   input item  — Node 13's RETURNING row: { audit_id, … }
+ *   audit_id    — read via $('Upsert Audit') lookup, NOT the direct input
+ *     item. UPDATE (16 Aug, Phase 2 Woche 1a): this node's direct predecessor
+ *     used to be Node 13 (Upsert Audit) itself, so reading $input.all()[0]
+ *     worked. Since audit_runs, Build Audit Run Payload + Insert Audit Run
+ *     now sit between them on the canvas, and Insert Audit Run's own output
+ *     (run_id only) is what actually reaches $input here — audit_id must be
+ *     looked up explicitly instead, same $() pattern this file already uses
+ *     for findings below, and the same pattern 13b_build_audit_run_payload.js
+ *     uses for values that are no longer on the same item.
  *   findings    — read from $('Decision Engine') (R9 severity upgrades applied)
  *
  * OUTPUT (one item)
@@ -27,9 +35,9 @@
  * ============================================================================
  */
 
-const row = $input.all()[0].json || {};
-const audit_id = row.audit_id;
-if (!audit_id) throw new Error('Build Findings Payload: no audit_id returned by Node 13.');
+let audit_id;
+try { audit_id = $('Upsert Audit').first().json.audit_id; } catch (e) { audit_id = undefined; }
+if (!audit_id) throw new Error('Build Findings Payload: no audit_id returned by Upsert Audit (Node 13).');
 
 let findings = [];
 try { findings = $('Decision Engine').first().json.findings || []; } catch (e) { findings = []; }

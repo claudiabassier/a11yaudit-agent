@@ -101,7 +101,7 @@ Wenn eine Änderung ansteht, immer zuerst prüfen: Läuft sie auf der Dev-Varian
 | Pfad | Inhalt |
 |---|---|
 | `workflows_export/` | vier Dateien: die drei Pipeline-Workflows — Hauptworkflow (`WF1_Audit_Intake.json`), AI-Subworkflow (`SUB-A_AI_Analysis.json`), Fehlerhandler (`WF-Error.json`) — plus `_cheerio_test.json`, Testschrott aus Tag 1, kein Teil der Pipeline |
-| `postgres_schema.sql`, `postgres_schema_addendum.sql` | Schema — 4 Tabellen, 2 Views |
+| `postgres_schema.sql`, `postgres_schema_addendum.sql` | Schema — 5 Tabellen (v2.1: `audit_runs` neu, Phase 2 Woche 1a, D-63), 2 Views |
 | `code/` | JavaScript und SQL je Node, eine Datei pro Node, mit Ein-/Ausgabevertrag und Testeingabe |
 | `code/_DAY0_REVIEW.md` | Code-Review vor dem Bau; acht selbst gefundene Defekte |
 | `code/_S4_evidence_check_harness.js` | Harness für den Anti-Fabrication-Test |
@@ -128,13 +128,13 @@ Bewusst dokumentiert, nicht vergessen. Beim Arbeiten berücksichtigen.
 - ~~**Fetch-Failure-Pfad** ist verdrahtet, aber nie als Test ausgeführt.~~ Erledigt 13. August, `decision_log.md` D-57 — vier Fälle im Production-Modus gegen `WF1-dev` bewiesen.
 - **Das Intake-Formular** bestätigt Empfang, nicht Erfolg — n8n antwortet „Form Submitted", bevor der Workflow läuft.
 - **Genauigkeit ist ungemessen.** Kein Vergleich gegen menschliche Auditoren.
-- **Keine Lauf-Ebene.** `audits` hält eine Zeile pro Inhalt; beim Re-Run werden `dropped_unverified`, `screening_score` und die Subscores überschrieben. Die schlechte Fixture hat `run_count` 6 und genau einen Messwert. Für Phase 2 ist eine Tabelle `audit_runs` beschlossen — eine Zeile pro Ausführung.
+- ~~**Keine Lauf-Ebene.** `audits` hält eine Zeile pro Inhalt; beim Re-Run werden `dropped_unverified`, `screening_score` und die Subscores überschrieben.~~ Erledigt 16. August, `decision_log.md` D-63 — `audit_runs` gebaut, verdrahtet, per echtem Testlauf verifiziert (`run_no: 5`, plausible Scores, `triggered_rules: {R1,R4,R7,R8,R9}`). `ai_input_tokens`/`ai_output_tokens`/`ai_cost_usd` bleiben `NULL` — separate, größere Lücke (SUB-As Output-Contract fehlt dafür ein Feld), bewusst nicht mit dieser Aufgabe geschlossen.
 
 **Bestätigter Stand der Datenbank** (geprüft): `postgres_schema_addendum.sql` ist vollständig eingespielt, alle fünf Zusatzspalten existieren. 6 Audits, alle mit `checks_engine` befüllt, 3 davon mit `dropped_unverified > 0`.
 
 **Beobachtung aus den Daten:** Der korrigierte Zwilling steht bei kombiniertem Score 38 (deterministisch 100), die schlechte Fixture bei 0. Der E11-Testlauf steht bei 100, obwohl kein Kriterium geprüft wurde — das ist D-36 in der Praxis.
 
-**Veraltete Dokumentation:** Die Referenz-Upsert-Query am Ende von `postgres_schema.sql` listet 26 Spalten und kennt weder `dropped_unverified` noch `checks_engine` noch `status`. Node 13a schreibt alle drei (D-26). Beim nächsten Anfassen mitziehen.
+~~**Veraltete Dokumentation:** Die Referenz-Upsert-Query am Ende von `postgres_schema.sql` listet 26 Spalten und kennt weder `dropped_unverified` noch `checks_engine` noch `status`. Node 13a schreibt alle drei (D-26). Beim nächsten Anfassen mitziehen.~~ Erledigt 16. August, `decision_log.md` D-63 — beim „nächsten Anfassen" (genau die `audit_runs`-Arbeit) tatsächlich mitgezogen: Referenz-Query korrigiert, jetzt `json_populate_record`-Mechanismus statt der falschen `$1..$26`-Positionsliste, direkt gegen `workflows_export/WF1_Audit_Intake.json` verifiziert statt nochmal geraten.
 
 ---
 

@@ -1,7 +1,12 @@
 -- ================================================================
 -- A11yAudit — Postgres schema
--- Version 2.0 · 31 July 2026 · Postgres 16
+-- Version 2.1 · 15 August 2026 · Postgres 16
 --
+-- v2.1 changes: added audit_runs table (one row per execution, not per
+--   content — audits itself only ever holds the latest run's values, so
+--   repeat audits of the same page lose every prior observation. Enables
+--   the Phase 2 scoring-stability measurement and per-run LLM cost
+--   tracking. Phase 2, Woche 1a — see A11yAudit_Fahrplan.md.
 -- v2.0 changes: added instrument_items table (per-item audit trail),
 --   PEMAT/CCI subscores on audits, instrument reference on findings,
 --   safety_terms_found, not_assessed_count, v_audit_summary view.
@@ -10,7 +15,7 @@
 -- Run once:
 --   docker compose exec -T postgres psql -U <user> -d <db> < postgres_schema.sql
 -- Verify:
---   \dt   and   \dv     (expect 4 tables, 2 views)
+--   \dt   and   \dv     (expect 5 tables, 2 views)
 -- ================================================================
 
 CREATE EXTENSION IF NOT EXISTS pgcrypto;   -- gen_random_uuid()
@@ -144,6 +149,66 @@ CREATE INDEX IF NOT EXISTS idx_items_fail  ON instrument_items (instrument, item
     WHERE verdict = 'fail';
 
 -- ----------------------------------------------------------------
+-- audit_runs — one row per execution (added v2.1, Phase 2 Woche 1a).
+-- `audits` holds one row per content item and is upserted on repeat runs,
+-- so only the latest run's values survive. This table keeps every run,
+-- which is what the scoring-stability measurement (Woche 2) and the
+-- LLM-cost tracking below both need.
+--
+-- DELIBERATE OMISSION: no screening_label / screening_label_deterministic
+-- columns, unlike `audits`. Both are a pure function of the corresponding
+-- score (see label() in 12_decision_engine.js) — storing them here would
+-- duplicate data that any query can derive from the score column already
+-- present. `audits` keeps them because reports read directly off that row;
+-- audit_runs is read for analysis, where re-deriving the label is trivial.
+-- ----------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS audit_runs (
+    run_id                  uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    audit_id                uuid NOT NULL REFERENCES audits(audit_id) ON DELETE CASCADE,
+    run_no                  integer NOT NULL,
+    execution_id            text,
+    executed_at             timestamptz NOT NULL DEFAULT now(),
+
+    checks_engine                  text NOT NULL DEFAULT 'none'
+                                     CHECK (checks_engine IN ('cheerio', 'regex', 'none')),
+    screening_score                integer CHECK (screening_score BETWEEN 0 AND 100),
+    screening_score_deterministic  integer CHECK (screening_score_deterministic BETWEEN 0 AND 100),
+    pemat_understandability        numeric(5,2) CHECK (pemat_understandability BETWEEN 0 AND 100),
+    pemat_actionability            numeric(5,2) CHECK (pemat_actionability     BETWEEN 0 AND 100),
+    cci_score                      numeric(5,2) CHECK (cci_score               BETWEEN 0 AND 100),
+    -- NOT NULL here, unlike audits.dropped_unverified (postgres_schema_addendum.sql,
+    -- nullable) — deliberate tightening, not an oversight: this count is always
+    -- computed, never genuinely unknown, so NOT NULL DEFAULT 0 is the more
+    -- correct constraint. Noted here so the divergence from `audits` reads as
+    -- intentional if anyone compares the two.
+    dropped_unverified             integer NOT NULL DEFAULT 0,
+    not_assessed_count             integer NOT NULL DEFAULT 0,
+
+    ai_model                text,
+    ai_fallback_used        boolean NOT NULL DEFAULT false,
+    ai_disagreement         boolean NOT NULL DEFAULT false,
+    ai_input_tokens          integer,
+    ai_output_tokens         integer,
+    ai_cost_usd              numeric(10,6),
+    triggered_rules          text[] NOT NULL DEFAULT '{}',
+
+    UNIQUE (audit_id, run_no)
+);
+
+CREATE INDEX IF NOT EXISTS idx_runs_audit ON audit_runs (audit_id);
+
+COMMENT ON COLUMN audit_runs.execution_id IS
+  'n8n execution_entity id for this run, so a specific run can be traced back to its raw execution data (same technique used for the Tag 6 fetch-failure proof and D-36/E11).';
+COMMENT ON COLUMN audit_runs.screening_score_deterministic IS
+  'The deterministic-only component of the combined screening_score, at run granularity. Comparing this against screening_score across repeat runs of the same page is the scoring-stability measurement (docs/scoring-stability.md) — this column stays constant across runs while the combined score should not.';
+COMMENT ON COLUMN audit_runs.ai_input_tokens IS
+  'Input tokens for this run, summed across both AI attempts if a repair attempt occurred — reflects what the run actually cost, not just the first call. Requires verifying that the n8n Anthropic node surfaces usage in its output; not yet confirmed against a real execution.';
+COMMENT ON COLUMN audit_runs.ai_output_tokens IS
+  'Output tokens for this run, same summing rule as ai_input_tokens.';
+COMMENT ON COLUMN audit_runs.ai_cost_usd IS
+  'Cost computed at write time from the Anthropic price per token in effect for ai_model on executed_at, not recomputed from current pricing on read — so historical costs stay accurate if Anthropic changes prices later.';
+
+-- ----------------------------------------------------------------
 -- error_log — metadata only, never content (GDPR data minimisation)
 -- ----------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS error_log (
@@ -233,28 +298,77 @@ CREATE TRIGGER trg_audits_updated
 -- ================================================================
 
 -- Node 13 — Upsert Audit
--- INSERT INTO audits (content_hash, source_type, page_url, page_title,
---                     content_language, audience, content_excerpt, word_count,
---                     is_very_short, eaa_scope, auditor_note,
---                     screening_score, screening_label,
---                     pemat_understandability, pemat_actionability, cci_score,
---                     not_assessed_count, human_review_required, legally_relevant,
---                     triggered_rules, safety_terms_found, ai_model,
---                     ai_fallback_used, ai_disagreement,
---                     automated_checks_skipped, content_truncated)
--- VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26)
+-- CORRECTED (16 Aug, D-63): the $1..$26 positional form previously shown
+-- here never matched the real node. The actual mechanism, confirmed by
+-- reading it straight out of workflows_export/WF1_Audit_Intake.json rather
+-- than assumed a second time: Postgres node, operation "Execute Query",
+-- with a SINGLE Query Parameter ({{ $json.audit_payload }}, the whole JSON
+-- string from 13a) bound to $1, unpacked via json_populate_record. The
+-- stale version below cost two failed publish/test cycles before this fix.
+-- INSERT INTO audits (
+--   content_hash, source_type, page_url, page_title, content_language, audience,
+--   content_excerpt, word_count, is_very_short, eaa_scope, auditor_note,
+--   screening_score, screening_label,
+--   pemat_understandability, pemat_actionability, cci_score, not_assessed_count,
+--   human_review_required, legally_relevant, triggered_rules, safety_terms_found,
+--   ai_model, ai_fallback_used, ai_disagreement,
+--   automated_checks_skipped, content_truncated,
+--   dropped_unverified, checks_engine, status
+-- )
+-- SELECT
+--   content_hash, source_type, page_url, page_title, content_language, audience,
+--   content_excerpt, word_count, is_very_short, eaa_scope, auditor_note,
+--   screening_score, screening_label,
+--   pemat_understandability, pemat_actionability, cci_score, not_assessed_count,
+--   human_review_required, legally_relevant, triggered_rules, safety_terms_found,
+--   ai_model, ai_fallback_used, ai_disagreement,
+--   automated_checks_skipped, content_truncated,
+--   dropped_unverified, checks_engine, status
+-- FROM json_populate_record(NULL::audits, $1::json)
 -- ON CONFLICT (content_hash) DO UPDATE SET
---     run_count = audits.run_count + 1,
---     status    = 'in_progress',
---     screening_score = EXCLUDED.screening_score,
---     screening_label = EXCLUDED.screening_label,
---     pemat_understandability = EXCLUDED.pemat_understandability,
---     pemat_actionability     = EXCLUDED.pemat_actionability,
---     cci_score               = EXCLUDED.cci_score,
---     human_review_required   = EXCLUDED.human_review_required,
---     legally_relevant        = EXCLUDED.legally_relevant,
---     triggered_rules         = EXCLUDED.triggered_rules
--- RETURNING audit_id;
+--   page_url = EXCLUDED.page_url, page_title = EXCLUDED.page_title,
+--   content_language = EXCLUDED.content_language, audience = EXCLUDED.audience,
+--   content_excerpt = EXCLUDED.content_excerpt, word_count = EXCLUDED.word_count,
+--   is_very_short = EXCLUDED.is_very_short, eaa_scope = EXCLUDED.eaa_scope,
+--   auditor_note = EXCLUDED.auditor_note, screening_score = EXCLUDED.screening_score,
+--   screening_label = EXCLUDED.screening_label,
+--   pemat_understandability = EXCLUDED.pemat_understandability,
+--   pemat_actionability = EXCLUDED.pemat_actionability, cci_score = EXCLUDED.cci_score,
+--   not_assessed_count = EXCLUDED.not_assessed_count,
+--   human_review_required = EXCLUDED.human_review_required,
+--   legally_relevant = EXCLUDED.legally_relevant, triggered_rules = EXCLUDED.triggered_rules,
+--   safety_terms_found = EXCLUDED.safety_terms_found, ai_model = EXCLUDED.ai_model,
+--   ai_fallback_used = EXCLUDED.ai_fallback_used, ai_disagreement = EXCLUDED.ai_disagreement,
+--   automated_checks_skipped = EXCLUDED.automated_checks_skipped,
+--   content_truncated = EXCLUDED.content_truncated,
+--   dropped_unverified = EXCLUDED.dropped_unverified, checks_engine = EXCLUDED.checks_engine,
+--   status = EXCLUDED.status, run_count = audits.run_count + 1, updated_at = now()
+-- RETURNING audit_id, content_hash, run_count, status, screening_score,
+--           human_review_required, triggered_rules;
+-- run_count has always been in this RETURNING clause — the v2.1 note that
+-- used to be here, claiming it needed to be added, was itself wrong (D-63).
+
+-- Node 13b — Insert Audit Run (new v2.1, one row per execution, never upserted)
+-- Same mechanism as Node 13 above: Query Parameters = {{ $json.audit_run_payload }}
+-- bound to $1, json_populate_record (singular — one row, not a set, unlike
+-- Node 14's json_populate_recordset below).
+-- INSERT INTO audit_runs (
+--   audit_id, run_no, execution_id,
+--   checks_engine, screening_score, screening_score_deterministic,
+--   pemat_understandability, pemat_actionability, cci_score,
+--   dropped_unverified, not_assessed_count,
+--   ai_model, ai_fallback_used, ai_disagreement,
+--   ai_input_tokens, ai_output_tokens, ai_cost_usd, triggered_rules
+-- )
+-- SELECT
+--   audit_id, run_no, execution_id,
+--   checks_engine, screening_score, screening_score_deterministic,
+--   pemat_understandability, pemat_actionability, cci_score,
+--   dropped_unverified, not_assessed_count,
+--   ai_model, ai_fallback_used, ai_disagreement,
+--   ai_input_tokens, ai_output_tokens, ai_cost_usd, triggered_rules
+-- FROM json_populate_record(NULL::audit_runs, $1::json)
+-- RETURNING run_id;
 
 -- Node 14 — Insert Findings (idempotent)
 -- INSERT INTO findings (...) VALUES (...)
