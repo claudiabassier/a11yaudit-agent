@@ -6,6 +6,23 @@
 
 **Verdikt-Werte:** `pass` / `fail` / `not_applicable` (nur wenn im Kriterium ausdrücklich vermerkt) — kein `not_assessed`, das ist hier nicht vorgesehen, du bewertest alles selbst.
 
+## Wie scoren, wenn ein Item unklar ist
+
+**Wichtig zuerst — kein Nachteil gegenüber der AI:** Der System-Prompt, den die AI beim echten Lauf bekommen hat (`code/A2_build_prompt.js`), enthält **exakt dieselben knappen Item-Texte**, die unten in den Tabellen stehen — keine erweiterte Scoring-Anleitung, keine Beispiele. Die AI musste mit demselben knappen Text urteilen wie du gleich. Ein Vergleich unter denselben Bedingungen ist methodisch sauberer als einer, bei dem du mehr Kontext hättest als sie — du bist also nicht im Nachteil, nur weil du „nicht alle Regeln" kennst.
+
+**Allgemeines Rater-Prinzip (AHRQ, verifiziert):** Immer aus Patientenperspektive fragen — „Wenn ich mit dem Thema nicht vertraut wäre, würde ich das sofort verstehen?" Du darfst das Material jederzeit erneut ansehen, musst nicht aus dem Gedächtnis urteilen.
+
+**Vier Item-Beispiele, direkt von AHRQ bestätigt** (Rest der 38 Items: Item-Text + gesunder Menschenverstand, wie bei der AI):
+
+| Item | Agree-Beispiel | Disagree-Beispiel |
+|---|---|---|
+| PEMAT 1 (Zweck evident) | Überschrift wie „Was während Ihrer Mammographie passiert" — sofort klar | Vage Überschrift wie „Mammographie und Sie" |
+| PEMAT 2 (keine Ablenkung) | — | Zählt als Ablenkung: „übermäßige Details zu Geräten, Verfahren oder Hintergrund einer Erkrankung", die nichts mit dem Patienten-Zweck zu tun haben |
+| PEMAT 3 (common everyday language) | „doctor" statt „physician", „pain killer" statt „analgesic" — für fast alle Patient:innen sofort verständlich | Fachjargon ohne Not |
+| PEMAT 4 (Fachbegriffe definiert) | Begriff wird bei erster Nennung erklärt | Begriff steht unerklärt im Text |
+
+**Bei einem konkreten Item unsicher?** Offizielle AHRQ-Anleitung selbst im Browser öffnen (nur für automatisierte Abrufe blockiert, nicht für dich): [pemat_guide.pdf](https://www.ahrq.gov/sites/default/files/publications/files/pemat_guide.pdf) — gezielt das eine Item nachschlagen, nicht das ganze Dokument vorab lesen.
+
 ---
 
 ## Fixture 1 — `bp-meds-poor.html` (die absichtlich schlechte Seite)
