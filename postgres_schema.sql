@@ -1,7 +1,13 @@
 -- ================================================================
 -- A11yAudit — Postgres schema
--- Version 2.1 · 15 August 2026 · Postgres 16
+-- Version 2.2 · 17 August 2026 · Postgres 16
 --
+-- v2.2 changes: Node 15 (Insert Instrument Items) reference query written
+--   for the first time — the table has existed since v2.0, but the write
+--   path was cut for time (decision_log.md D-14/D-20/D-34) and never had
+--   one. No DDL change; `domain` (existing, nullable column) is now
+--   actually populated, derived from knowledge_base.md's item ranges.
+--   Phase 2, Woche 1b — see A11yAudit_Fahrplan.md.
 -- v2.1 changes: added audit_runs table (one row per execution, not per
 --   content — audits itself only ever holds the latest run's values, so
 --   repeat audits of the same page lose every prior observation. Enables
@@ -377,9 +383,27 @@ CREATE TRIGGER trg_audits_updated
 --     explanation_plain = EXCLUDED.explanation_plain,
 --     recommendation = EXCLUDED.recommendation;
 
--- Node 15 — Insert Instrument Items (idempotent)
--- INSERT INTO instrument_items (...) VALUES (...)
+-- Node 15 — Insert Instrument Items (new v2.2, Phase 2 Woche 1b, idempotent)
+-- Written 17 Aug against code/15a_build_instrument_items_payload.js, same
+-- json_populate_recordset mechanism as Node 14 above (a set of rows, not a
+-- single one — unlike Node 13b's json_populate_record). Query Parameters
+-- (Options): {{ $json.instrument_items_payload }}
+-- INSERT INTO instrument_items (
+--   audit_id, instrument, item_no, domain, verdict, decided_by,
+--   rationale, evidence, overridden_by_human, ai_contradiction
+-- )
+-- SELECT
+--   audit_id, instrument, item_no, domain, verdict, decided_by,
+--   rationale, evidence, overridden_by_human, ai_contradiction
+-- FROM json_populate_recordset(NULL::instrument_items, $1::json)
 -- ON CONFLICT (audit_id, instrument, item_no) DO UPDATE SET
---     verdict = EXCLUDED.verdict, decided_by = EXCLUDED.decided_by,
---     rationale = EXCLUDED.rationale
--- WHERE instrument_items.overridden_by_human = false;   -- never overwrite a human
+--     domain            = EXCLUDED.domain,
+--     verdict           = EXCLUDED.verdict,
+--     decided_by        = EXCLUDED.decided_by,
+--     rationale         = EXCLUDED.rationale,
+--     evidence          = EXCLUDED.evidence,
+--     ai_contradiction  = EXCLUDED.ai_contradiction
+--     -- overridden_by_human deliberately NOT in this SET list: once true,
+--     -- a re-audit's upsert can never flip it back to false by omission.
+-- WHERE instrument_items.overridden_by_human = false   -- never overwrite a human
+-- RETURNING item_row_id, instrument, item_no, verdict;
