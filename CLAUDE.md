@@ -71,10 +71,10 @@ Der begutachtete Stand (Version 1.3, 5. August 2026) bleibt unversehrt. Weiteren
 
 **Im Repo**
 
-*Ursprünglich als Zielzustand von Sprint-Schritt 1/2 formuliert (unmittelbar nach dem Kopieren des Repos, vor dem ersten Commit) — inzwischen umgesetzt, dieser Absatz war seither nicht mehr aktualisiert worden (dieselbe Art Drift, die diese Datei selbst an anderer Stelle als Fehlerklasse benennt). Tatsächlicher Stand: Tag `v1.3-capstone` gesetzt, Arbeit läuft auf dem Branch `subworkflow-refactor` (nicht auf `main`), mehrere Commits vorhanden — siehe `git log` oder `A11yAudit_Fahrplan.md` für den aktuellen Stand, nicht diesen Absatz.*
+*Ursprünglich als Zielzustand von Sprint-Schritt 1/2 formuliert (unmittelbar nach dem Kopieren des Repos, vor dem ersten Commit) — inzwischen umgesetzt, dieser Absatz war seither nicht mehr aktualisiert worden (dieselbe Art Drift, die diese Datei selbst an anderer Stelle als Fehlerklasse benennt). **Erneut gedriftet, jetzt zum zweiten Mal korrigiert (16. August):** dieser Absatz nannte noch `subworkflow-refactor` als aktiven Branch — der wurde an Tag 8 in `main` gemerged, `main` markiert seither den fertigen Phase-1-Stand. Aktuelle Arbeit (Phase 2) läuft auf `phase-2-portfolio`, von `main` abgezweigt — siehe `git log`/`git branch --show-current` oder `A11yAudit_Fahrplan.md` für den echten aktuellen Stand, nicht diesen Absatz.*
 
 - ~~Tag `v1.3-capstone` soll den eingereichten Stand markieren, sobald der erste Commit steht.~~ Erledigt.
-- ~~Arbeit soll auf Zweigen laufen, nicht direkt auf `main`.~~ Erledigt (`subworkflow-refactor`).
+- ~~Arbeit soll auf Zweigen laufen, nicht direkt auf `main`.~~ Erledigt (`subworkflow-refactor` für Phase 1, inzwischen in `main` gemerged; `phase-2-portfolio` für Phase 2, aktiv).
 - `workflows_export/v1.3-as-submitted/` als eingefrorenes Unterverzeichnis war so geplant, existiert aber nicht — die Exporte liegen weiterhin direkt in `workflows_export/`; laut „Verifizierte Referenz" unten (10.08.) unverändert original, das genügt bisher als Schutz.
 
 **In n8n**
@@ -124,7 +124,7 @@ Bewusst dokumentiert, nicht vergessen. Beim Arbeiten berücksichtigen.
 - ~~**D-36:** Wird Text eingefügt (kein Markup) *und* ist die AI nicht verfügbar, wird kein Kriterium geprüft — der Score wird trotzdem als 100 ausgegeben.~~ Erledigt 13. August, `decision_log.md` D-59 — `screening_score`/`screening_score_deterministic` sind jetzt `null` (Report zeigt „not computable", wie die Instrument-Subscores schon immer). Die Sicherheit hing nie daran: der Prescreen feuert trotzdem.
 - **Regel R4** (Score unter 70) feuert auf dem *kombinierten* Score. Bei drei Läufen mit identischem Input ergab er 42, 72, 65 — R4 feuerte, feuerte nicht, feuerte. Der deterministische Score blieb konstant bei 100.
 - **`instrument_items`** wurde entworfen und aus Zeitgründen gestrichen (Node 15; siehe `decision_log.md` D-14, D-20, D-34). Item-Verdicts stehen im Report, sind aber nicht abfragbar.
-- **`screening_score_deterministic`** wird berechnet und ausgegeben, hat aber keine Datenbankspalte.
+- ~~**`screening_score_deterministic`** wird berechnet und ausgegeben, hat aber keine Datenbankspalte.~~ Teilweise erledigt 16. August, `decision_log.md` D-63 — Spalte existiert jetzt auf `audit_runs` (genau die Lösung, die `02_Sprintplan.md` für dieses „Future work #3" vorgesehen hatte). `audits` selbst hat sie weiterhin nicht — bewusst so, `audit_runs` ist die richtige Ebene dafür (Lauf-für-Lauf-Vergleich, nicht der aktuelle Stand).
 - ~~**Fetch-Failure-Pfad** ist verdrahtet, aber nie als Test ausgeführt.~~ Erledigt 13. August, `decision_log.md` D-57 — vier Fälle im Production-Modus gegen `WF1-dev` bewiesen.
 - **Das Intake-Formular** bestätigt Empfang, nicht Erfolg — n8n antwortet „Form Submitted", bevor der Workflow läuft.
 - **Genauigkeit ist ungemessen.** Kein Vergleich gegen menschliche Auditoren.
@@ -153,7 +153,12 @@ Sprint zur Aufarbeitung der Review-Punkte. Reihenfolge:
 
 **Sprint Phase 1 (Sprintplan Tag 1–8) damit vollständig abgeschlossen, `main` und `subworkflow-refactor` gleichauf und beide auf GitHub gepusht (13. August).** Zusätzlich am 13. August behoben, unabhängig von der Sprint-Reihenfolge: `decision_log.md` D-61 — „a deliberate evolution of an earlier project" in `readme.md`/`capstone_proposal.md` korrigiert (kein Code übernommen, nur das Architekturmuster).
 
-Als Nächstes laut Sprintplan: direkt Phase 2 (Portfolio, 3 Wochen, Enddatum selbst setzen): `instrument_items` persistieren, Auswertungskorpus, Scoring-Stabilität umsetzen (Entscheidung aus `docs/scoring-stability.md` noch offen), Kalibrierung — **Repo bleibt privat, bis Phase 2 fertig ist.**
+**Phase 2 stattdessen gewählt und läuft aktiv, auf `phase-2-portfolio` (von `main` abgezweigt, 15. August):**
+
+- Prompt-Injection-Mitigation + adversarialer Test. *Erledigt (15./16. August, `decision_log.md` D-62): `<material>`-Tags + explizite System-Prompt-Anweisung in `A2_build_prompt.js`, plus `code/_prompt_injection_harness.js` — echter Docker-Lauf bestätigt `human_review_required: true` trotz simulierter perfekter AI-Antwort.*
+- `audit_runs` — eine Zeile pro Ausführung statt nur pro Inhalt. *Erledigt (16./17. August, `decision_log.md` D-63): Schema, Payload-Builder, Least-Privilege-Postgres-Rolle (`a11yaudit_app`), Canvas-Verdrahtung, Ende-zu-Ende mit echtem Formular-Lauf verifiziert (`run_no: 5`, `triggered_rules: {R1,R4,R7,R8,R9}`). `ai_input_tokens`/`ai_output_tokens`/`ai_cost_usd` bewusst noch `NULL` — separates, größeres Follow-up (SUB-As Output-Contract fehlt dafür ein Feld).*
+
+Als Nächstes laut Fahrplan: Woche 1b — `instrument_items` persistieren (Node 15, Payload-Builder analog `14a`), Hand-Scoring der zwei Fixtures gegen AI-Verdikt, 5–10 reale Seiten, Auswertungskorpus. **Repo bleibt privat, bis Phase 2 fertig ist.**
 
 ---
 
