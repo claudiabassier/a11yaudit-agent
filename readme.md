@@ -165,7 +165,7 @@ The Code nodes need `NODE_FUNCTION_ALLOW_EXTERNAL=cheerio` and `NODE_FUNCTION_AL
 
 ## Relationship to my previous project
 
-This was designed fresh — no code or workflow carried over — but deliberately applies the same architectural pattern as my earlier an earlier project [project name] (n8n): central AI call with validation and fallback, deterministic decision engine, error handler. It closes two things that project's own roadmap notes named as the next step to production use: Google Sheets replaced by a relational database with constraints and cross-record querying, and manual, pinned-execution testing replaced by automated deterministic checks. It adds what that project lacked: a published standard against which the AI's output can be judged.
+None, beyond both being built in n8n. An earlier version of this section claimed A11yAudit deliberately applied the same architectural pattern as my an earlier project [project name] and closed gaps named in that project's own roadmap — none of that is true; the two are unrelated projects, corrected here rather than left to stand (`decision_log.md` D-61, and a further correction after D-61 itself didn't go far enough).
 
 ## Future work, in priority order
 
