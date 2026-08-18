@@ -2,9 +2,9 @@
 
 **Zweck:** Woche 1b, Review-Punkt „erste Accuracy-Messung". Du scorst die zwei Day-5-Demo-Fixtures (`fixtures/bp-meds-poor.html`, `fixtures/bp-meds-good.html`) selbst, unabhängig von der AI, nach den echten AHRQ/CDC-Kriterien. Danach — **nicht vorher** — vergleichst du gegen `docs/hand-scoring-ai-verdicts.md`.
 
-**Wichtig, damit die Messung etwas wert ist:** Diese Datei öffnen und ausfüllen, **bevor** du `hand-scoring-ai-verdicts.md` auch nur ansiehst. Kennst du die AI-Antwort schon, wird dein eigenes Urteil unbewusst davon gefärbt — die ganze Übung wäre dann wertlos.
+**Status: ausgefüllt (17. August).** Vergleich gegen die AI-Verdikte in `docs/hand-scoring-comparison.md`.
 
-**Verdikt-Werte:** `pass` / `fail` / `not_applicable` (nur wenn im Kriterium ausdrücklich vermerkt) — kein `not_assessed`, das ist hier nicht vorgesehen, du bewertest alles selbst.
+**Verdikt-Werte, wie tatsächlich benutzt:** `yes`/`ja`, `no`/`nein`, `n/a`/`N/A` — plus `teilweise`/`depends` an einigen Stellen, wo die Autorin ein binäres pass/fail als unpassend empfand. Im Vergleich werden diese Fälle einzeln benannt, nicht stillschweigend zu pass/fail gezwungen — siehe `docs/hand-scoring-comparison.md`.
 
 ## Wie scoren, wenn ein Item unklar ist
 
@@ -60,69 +60,69 @@
 
 | # | Kriterium (verbatim AHRQ) | Dein Verdikt | Deine Begründung (1 Satz) |
 |---|---|---|---|
-| 1 | The material makes its purpose completely evident. | | |
-| 2 | The material does not include information or content that distracts from its purpose. | | |
-| 3 | The material uses common, everyday language. | | |
-| 4 | Medical terms are used only to familiarize audience with the terms. When used, medical terms are defined. | | |
-| 5 | The material uses the active voice. | | |
-| 6 | Numbers appearing in the material are clear and easy to understand. *(N/A wenn keine Zahlen)* | | |
-| 7 | The material does not expect the user to perform calculations. | | |
-| 8 | The material breaks or "chunks" information into short sections. | | |
-| 9 | The material's sections have informative headers. | | |
-| 10 | The material presents information in a logical sequence. | | |
-| 11 | The material provides a summary. | | |
-| 12 | The material uses visual cues (arrows, boxes, bullets, bold, larger font, highlighting) to draw attention to key points. | | |
-| 17 | The material's visual aids have clear titles or captions. | | |
-| 19 | The material uses simple tables with short and clear row and column headings. | | |
+| 1 | The material makes its purpose completely evident. | no | Abkürzungen unklar und zu viele Fremdwörter |
+| 2 | The material does not include information or content that distracts from its purpose. | no | info wirkt wie wissenschaftliches paper, nicht wie für patienten |
+| 3 | The material uses common, everyday language. | no | Abkürzungen nicht definiert, Fachsprache |
+| 4 | Medical terms are used only to familiarize audience with the terms. When used, medical terms are defined. | no | weder noch |
+| 5 | The material uses the active voice. | no | |
+| 6 | Numbers appearing in the material are clear and easy to understand. *(N/A wenn keine Zahlen)* | no | BD völlig unklar |
+| 7 | The material does not expect the user to perform calculations. | no | Mengenangabe unklar |
+| 8 | The material breaks or "chunks" information into short sections. | no | ein großer Absatz, keine sections |
+| 9 | The material's sections have informative headers. | no | ein großer Absatz, keine sections |
+| 10 | The material presents information in a logical sequence. | no | ein großer Absatz, keine sections |
+| 11 | The material provides a summary. | no | |
+| 12 | The material uses visual cues (arrows, boxes, bullets, bold, larger font, highlighting) to draw attention to key points. | no | |
+| 17 | The material's visual aids have clear titles or captions. | no | keine sections oder Überschriften |
+| 19 | The material uses simple tables with short and clear row and column headings. | no | |
 
 ### PEMAT-P — Actionability (Items 20–22, 24–25)
 
 | # | Kriterium (verbatim AHRQ) | Dein Verdikt | Deine Begründung |
 |---|---|---|---|
-| 20 | The material clearly identifies at least one action the user can take. | | |
-| 21 | The material addresses the user directly when describing actions. | | |
-| 22 | The material breaks down any action into manageable, explicit steps. | | |
-| 24 | The material provides simple instructions or examples of how to perform calculations. *(N/A wenn keine Berechnungen)* | | |
-| 25 | The material explains how to use the charts, graphs, tables, or diagrams to take actions. *(N/A wenn keine)* | | |
+| 20 | The material clearly identifies at least one action the user can take. | yes | nur morgens und abends eine Tablette |
+| 21 | The material addresses the user directly when describing actions. | nein | text ist allgemein geschrieben |
+| 22 | The material breaks down any action into manageable, explicit steps. | teilweise | in additional information |
+| 24 | The material provides simple instructions or examples of how to perform calculations. *(N/A wenn keine Berechnungen)* | N/A | |
+| 25 | The material explains how to use the charts, graphs, tables, or diagrams to take actions. *(N/A wenn keine)* | N/A | |
 
 ### CDC Clear Communication Index — Part A: Core (Items 1–3, 5–11)
 
 | # | Frage (verbatim CDC) | Dein Verdikt | Deine Begründung |
 |---|---|---|---|
-| 1 | Does the material contain one main message statement? | | |
-| 2 | Is the main message at the top, beginning, or front of the material? | | |
-| 3 | Is the main message emphasized with visual cues? | | |
-| 5 | Does the material include one or more calls to action for the primary audience? | | |
-| 6 | Do both the main message and the call to action use the active voice? | | |
-| 7 | Does the material always use words the primary audience uses? *(alle Fachbegriffe/Abkürzungen bei Erstnennung erklärt)* | | |
-| 8 | Does the material use bulleted or numbered lists? *(>7 Punkte ohne Unterbrechung → nein)* | | |
-| 9 | Is the material organized in chunks with headings? | | |
-| 10 | Is the most important information summarized in the first paragraph or section? | | |
-| 11 | Does the material explain what authoritative sources know and don't know about the topic? | | |
+| 1 | Does the material contain one main message statement? | teilweise | anwendung wie vom Arzt verschrieben |
+| 2 | Is the main message at the top, beginning, or front of the material? | ja | relative am Anfang |
+| 3 | Is the main message emphasized with visual cues? | N/A | |
+| 5 | Does the material include one or more calls to action for the primary audience? | n/A | |
+| 6 | Do both the main message and the call to action use the active voice? | n/A | |
+| 7 | Does the material always use words the primary audience uses? *(alle Fachbegriffe/Abkürzungen bei Erstnennung erklärt)* | nein | ausschließlich Fachsprache |
+| 8 | Does the material use bulleted or numbered lists? *(>7 Punkte ohne Unterbrechung → nein)* | teilweise | additional Information |
+| 9 | Is the material organized in chunks with headings? | no | |
+| 10 | Is the most important information summarized in the first paragraph or section? | teilweise | nur die Mengenangabe zum Schluss, was mit der Verschreibung des Arztes kollidieren könnte |
+| 11 | Does the material explain what authoritative sources know and don't know about the topic? | yes | Fachsprache |
 
 ### CDC — Part B: Behavioral Recommendations (12–14)
 
 | # | Frage | Dein Verdikt | Deine Begründung |
 |---|---|---|---|
-| 12 | Is a behavioral recommendation present? | | |
-| 13 | Does it explain **why** it matters to the audience? | | |
-| 14 | Does it give **specific directions** how to perform it? | | |
+| 12 | Is a behavioral recommendation present? | n/a | |
+| 13 | Does it explain **why** it matters to the audience? | teilweise | im ersten abschnitt, aber nicht ausführlich |
+| 14 | Does it give **specific directions** how to perform it? | teilweise | |
 
 ### CDC — Part C: Numbers (15–17)
 
 | # | Frage | Dein Verdikt | Deine Begründung |
 |---|---|---|---|
-| 15 | Are the numbers familiar and necessary? | | |
-| 16 | Does it explain what the numbers mean? | | |
-| 17 | Must the audience calculate? *(reverse-scored: Ja = 0/fail)* | | |
+| 15 | Are the numbers familiar and necessary? | teilweise | BD unklar |
+| 16 | Does it explain what the numbers mean? | teilweise | 1 Tablette morgens und abends |
+| 17 | Must the audience calculate? *(reverse-scored: Ja = 0/fail)* | ja | je nach individueller Verordnung des arztes |
 
 ### CDC — Part D: Risk (18–20)
 
 | # | Frage | Dein Verdikt | Deine Begründung |
 |---|---|---|---|
-| 18 | Does it explain the nature of the risk? | | |
-| 19 | Does it address risks **and** benefits? | | |
-| 20 | Is numeric probability also explained in words or visually? *(N/A wenn keine Zahl)* | | |
+| 18 | Does it explain the nature of the risk? | teilweise | "do not double the dose" |
+| 19 | Does it address risks **and** benefits? | *(nicht ausgefüllt)* | |
+| 20 | Is numeric probability also explained in words or visually? *(N/A wenn keine Zahl)* | n7a *(vermutlich n/a)* | |
 
 ---
 
@@ -168,80 +168,76 @@
 
 </details>
 
-*(Gleiche Tabellenstruktur wie oben — Item-Text ist identisch, nur die Seite ändert sich. Kopier dir die sieben Tabellen von oben, oder füll direkt hier weiter aus.)*
-
 ### PEMAT-P — Understandability (1–12, 17, 19)
 
 | # | Kriterium | Dein Verdikt | Deine Begründung |
 |---|---|---|---|
-| 1 | The material makes its purpose completely evident. | | |
-| 2 | The material does not include information or content that distracts from its purpose. | | |
-| 3 | The material uses common, everyday language. | | |
-| 4 | Medical terms are used only to familiarize audience with the terms. When used, medical terms are defined. | | |
-| 5 | The material uses the active voice. | | |
-| 6 | Numbers appearing in the material are clear and easy to understand. | | |
-| 7 | The material does not expect the user to perform calculations. | | |
-| 8 | The material breaks or "chunks" information into short sections. | | |
-| 9 | The material's sections have informative headers. | | |
-| 10 | The material presents information in a logical sequence. | | |
-| 11 | The material provides a summary. | | |
-| 12 | The material uses visual cues to draw attention to key points. | | |
-| 17 | The material's visual aids have clear titles or captions. | | |
-| 19 | The material uses simple tables with short and clear row and column headings. | | |
+| 1 | The material makes its purpose completely evident. | yes | anweisungen in bezug auf sicherheit der einnahme |
+| 2 | The material does not include information or content that distracts from its purpose. | yes | anwenderbezogenheit durchgehend |
+| 3 | The material uses common, everyday language. | yes | plain language |
+| 4 | Medical terms are used only to familiarize audience with the terms. When used, medical terms are defined. | teilweise | Ibu - NSAD |
+| 5 | The material uses the active voice. | yes | |
+| 6 | Numbers appearing in the material are clear and easy to understand. | yes | mit zeit und mengenangabe |
+| 7 | The material does not expect the user to perform calculations. | yes | |
+| 8 | The material breaks or "chunks" information into short sections. | yes | insbesondere die art der Einnahmen |
+| 9 | The material's sections have informative headers. | yes | |
+| 10 | The material presents information in a logical sequence. | yes | |
+| 11 | The material provides a summary. | ja | "in short" |
+| 12 | The material uses visual cues to draw attention to key points. | teilweise | |
+| 17 | The material's visual aids have clear titles or captions. | yes | |
+| 19 | The material uses simple tables with short and clear row and column headings. | ja | daily schedule |
 
 ### PEMAT-P — Actionability (20–22, 24–25)
 
 | # | Kriterium | Dein Verdikt | Deine Begründung |
 |---|---|---|---|
-| 20 | The material clearly identifies at least one action the user can take. | | |
-| 21 | The material addresses the user directly when describing actions. | | |
-| 22 | The material breaks down any action into manageable, explicit steps. | | |
-| 24 | Simple instructions/examples for calculations. *(N/A)* | | |
-| 25 | Explains how to use charts/tables to take action. *(N/A)* | | |
+| 20 | The material clearly identifies at least one action the user can take. | yes | einnahmehinweise ausführlich |
+| 21 | The material addresses the user directly when describing actions. | yes | |
+| 22 | The material breaks down any action into manageable, explicit steps. | yes | |
+| 24 | Simple instructions/examples for calculations. *(N/A)* | n/a | |
+| 25 | Explains how to use charts/tables to take action. *(N/A)* | teilweise | daily schedule |
 
 ### CDC — Part A: Core (1–3, 5–11)
 
 | # | Frage | Dein Verdikt | Deine Begründung |
 |---|---|---|---|
-| 1 | One main message statement? | | |
-| 2 | Main message at the top? | | |
-| 3 | Emphasized with visual cues? | | |
-| 5 | One or more calls to action? | | |
-| 6 | Active voice throughout? | | |
-| 7 | All specialised terms explained at first use? | | |
-| 8 | Bulleted/numbered lists, none >7 unbroken? | | |
-| 9 | Organized in chunks with headings? | | |
-| 10 | Most important info summarised first? | | |
-| 11 | Explains what's known and unknown? | | |
+| 1 | One main message statement? | yes | safety statement |
+| 2 | Main message at the top? | yes | |
+| 3 | Emphasized with visual cues? | yes | |
+| 5 | One or more calls to action? | yes | ask doctor/ pharmacy |
+| 6 | Active voice throughout? | yes | |
+| 7 | All specialised terms explained at first use? | yes | |
+| 8 | Bulleted/numbered lists, none >7 unbroken? | yes | |
+| 9 | Organized in chunks with headings? | yes | |
+| 10 | Most important info summarised first? | yes | dosage |
+| 11 | Explains what's known and unknown? | n/a | |
 
 ### CDC — Part B: Behavioral Recommendations (12–14)
 
 | # | Frage | Dein Verdikt | Deine Begründung |
 |---|---|---|---|
-| 12 | Recommendation present? | | |
-| 13 | Explains why it matters? | | |
-| 14 | Specific directions given? | | |
+| 12 | Recommendation present? | yes | |
+| 13 | Explains why it matters? | yes | |
+| 14 | Specific directions given? | yes | |
 
 ### CDC — Part C: Numbers (15–17)
 
 | # | Frage | Dein Verdikt | Deine Begründung |
 |---|---|---|---|
-| 15 | Numbers familiar/necessary? | | |
-| 16 | Meaning of numbers explained? | | |
-| 17 | Must audience calculate? *(reverse)* | | |
+| 15 | Numbers familiar/necessary? | yes | |
+| 16 | Meaning of numbers explained? | no | |
+| 17 | Must audience calculate? *(reverse)* | depends | user has to obey prescription |
 
 ### CDC — Part D: Risk (18–20)
 
 | # | Frage | Dein Verdikt | Deine Begründung |
 |---|---|---|---|
-| 18 | Nature of risk explained? | | |
-| 19 | Risks **and** benefits addressed? | | |
-| 20 | Numeric probability explained? *(N/A)* | | |
+| 18 | Nature of risk explained? | teilweise | prinzipiell ja, konkret folgen und was dann zu tun wäre nicht |
+| 19 | Risks **and** benefits addressed? | yes | |
+| 20 | Numeric probability explained? *(N/A)* | n/a | |
 
 ---
 
 ## Danach
 
-1. `docs/hand-scoring-ai-verdicts.md` öffnen, Zeile für Zeile gegen deine eigenen Verdikte vergleichen.
-2. Übereinstimmung zählen (getrennt nach PEMAT/CCI, getrennt nach Fixture) — das ist die erste, echte Accuracy-Zahl des Projekts.
-3. Bei jeder Abweichung kurz notieren, wer (du oder die AI) vermutlich richtig lag und warum — genau die Fälle werden die ersten LLM-Eval-Testfälle (Woche 2).
+Vergleich gegen `docs/hand-scoring-ai-verdicts.md` → siehe `docs/hand-scoring-comparison.md`.
