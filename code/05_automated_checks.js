@@ -63,11 +63,42 @@ const trunc = (s, n = 200) => { s = String(s).replace(/\s+/g, ' ').trim(); retur
 const outer = (el) => trunc($doc.html(el) || '');
 const words = (s) => (String(s).trim().match(/\S+/g) || []).length;
 
+// ---- content scope: isolate main content from navigation/boilerplate ------
+// FIX (18 Aug, Woche 1b real-page testing, decision_log.md pending): the
+// block extraction below used to walk h1-h6/p/ul/ol/table across the WHOLE
+// document. Fine for the fixtures (bare <body>, no surrounding chrome),
+// broken on any real page — found live against
+// nhs.uk/medicines/paracetamol-for-adults/, whose navigation ("Health A to
+// Z", "NHS services", …) and breadcrumbs are real <ul>/<ol> markup and got
+// extracted as if they were article content, corrupting content_text,
+// word_count, and every instrument item derived from them.
+// Deliberately scoped to CONTENT extraction only — the 9 raw WCAG checks
+// below (img alt, link names, form labels, …) still scan the whole $doc,
+// unchanged: an unlabelled nav link is a real WCAG violation regardless of
+// where on the page it sits, and narrowing those to "main content only"
+// would make the tool miss real accessibility problems.
+let $scopeRoot;
+for (const sel of ['main', 'article', '[role="main"]']) {
+  const found = $doc(sel).first();
+  if (found.length && found.text().trim().length > 30) { $scopeRoot = found; break; }
+}
+if (!$scopeRoot) {
+  // No semantic content container — clone <body> so removing nav/header/
+  // footer here doesn't also remove them from $doc, which the WCAG checks
+  // below still need to see.
+  const $bodyClone = $doc('body').clone();
+  $bodyClone.find('nav,header,footer,aside,[role="navigation"],[role="banner"],[role="contentinfo"]').remove();
+  $scopeRoot = $bodyClone;
+}
+// Scoped HTML string, for the one place downstream (CCI 3) that inspects
+// raw markup via regex rather than cheerio selectors.
+const scopedHtml = $doc.html($scopeRoot) || html;
+
 // ---- (c) markdown extraction (review fix #2) -------------------------------
 // blocks: { kind: 'h'|'p'|'list'|'table'|'quote', level?, text, words }
 const blocks = [];
 const isNested = (el, sel) => $doc(el).parents(sel).length > 0;
-$doc('h1,h2,h3,h4,h5,h6,p,ul,ol,table,blockquote,pre').each((_, el) => {
+$scopeRoot.find('h1,h2,h3,h4,h5,h6,p,ul,ol,table,blockquote,pre').each((_, el) => {
   const tag = el.tagName.toLowerCase();
   if (['p', 'blockquote', 'pre'].includes(tag) && isNested(el, 'ul,ol,table,blockquote')) return;
   if ((tag === 'ul' || tag === 'ol') && isNested(el, 'ul,ol')) return; // nested lists flatten into parent
@@ -98,7 +129,7 @@ $doc('h1,h2,h3,h4,h5,h6,p,ul,ol,table,blockquote,pre').each((_, el) => {
 });
 // Fallback for pages with no semantic block markup (text sitting in bare divs):
 if (blocks.reduce((n, b) => n + b.words, 0) < 30) {
-  const bodyText = $doc('body').text().replace(/[ \t]+/g, ' ').replace(/\n{2,}/g, '\n').trim();
+  const bodyText = $scopeRoot.text().replace(/[ \t]+/g, ' ').replace(/\n{2,}/g, '\n').trim();
   if (words(bodyText) > 30) bodyText.split('\n').map((s) => s.trim()).filter(Boolean)
     .forEach((t) => blocks.push({ kind: 'p', text: t, words: words(t) }));
 }
@@ -219,9 +250,13 @@ const O = (instr, no, verdict, rationale) => {
 const sections = []; let cur = 0;
 for (const b of blocks) { if (b.kind === 'h') { sections.push(cur); cur = 0; } else cur += b.words; }
 sections.push(cur);
-const headingCount = hLevels.length;
-const hasEmphasis = $doc('strong,em,b').length > 0;
-const hasList = $doc('ul,ol').length > 0;
+// Content-scoped heading count — deliberately NOT the same as hLevels
+// above (which stays whole-page for the WCAG no-h1/heading-skip check,
+// a legitimate page-wide concern). PEMAT 9 / CCI 9 are about the
+// material's own structure, so nav/footer headings shouldn't count here.
+const headingCount = $scopeRoot.find('h1,h2,h3,h4,h5,h6').length;
+const hasEmphasis = $scopeRoot.find('strong,em,b').length > 0;
+const hasList = $scopeRoot.find('ul,ol').length > 0;
 
 // PEMAT 8 — chunking (N/A if very short, AHRQ)
 if (is_very_short) O('PEMAT', 8, 'not_applicable', 'Material is very short (≤2 paragraphs); chunking not applicable per AHRQ.');
@@ -246,15 +281,17 @@ if (!tableCount) O('PEMAT', 19, 'not_applicable', 'No tables in the material.');
 else O('PEMAT', 19, badTables.length ? 'fail' : 'pass', badTables.length ? 'At least one table has no header cells.' : 'Every table has header cells.');
 // CCI 3 — main message emphasized with visual cues (partial)
 // Operationalized: the first section (before the 2nd heading) starts with a
-// heading or contains emphasis markup.
-let firstSectionHtml = html;
-const hMatches = [...html.matchAll(/<h[1-6][\s>]/gi)];
-if (hMatches.length >= 2) firstSectionHtml = html.slice(0, hMatches[1].index);
+// heading or contains emphasis markup. Scoped to scopedHtml, not the raw
+// page html — otherwise a nav/breadcrumb heading before the real content
+// would be misread as "the first section".
+let firstSectionHtml = scopedHtml;
+const hMatches = [...scopedHtml.matchAll(/<h[1-6][\s>]/gi)];
+if (hMatches.length >= 2) firstSectionHtml = scopedHtml.slice(0, hMatches[1].index);
 const cci3 = (blocks[0] && blocks[0].kind === 'h') || /<(strong|em|b)[\s>]/i.test(firstSectionHtml);
 O('CCI', 3, cci3 ? 'pass' : 'fail', cci3 ? 'First section starts with a heading or contains emphasis markup.' : 'No heading or emphasis markup in the first section.');
 // CCI 8 — lists used, none unbroken > 7 items
 let longList = false;
-$doc('ul,ol').each((_, el) => { if ($doc(el).children('li').length > 7) longList = true; });
+$scopeRoot.find('ul,ol').each((_, el) => { if ($doc(el).children('li').length > 7) longList = true; });
 O('CCI', 8, (hasList && !longList) ? 'pass' : 'fail',
   !hasList ? 'No bulleted or numbered lists in the material.' : longList ? 'A list runs longer than 7 items without a break (CDC rule).' : 'Lists present, none longer than 7 items.');
 // CCI 9 — organized in chunks with headings
