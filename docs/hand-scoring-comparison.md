@@ -22,24 +22,30 @@ Erste echte Accuracy-Messung des Projekts. Quellen: `docs/hand-scoring-worksheet
 
 `docs/hand-scoring-worksheet.md` hat beim Erstellen nicht vermerkt, dass **CDC Clear Communication Index Part A (Items 1–11) laut eigener Regel „applies to all materials"** — kein `N/A` vorgesehen, anders als Parts B/C/D. Die Autorin hat CCI 5, 6 und 12 (alle Part A oder direkt angrenzend) mit `N/A` beantwortet, was gegen diese Regel verstößt. Das ist ein Lücke im Arbeitsblatt, nicht ein Fehler der Bewertung selbst — nachträglich notiert für die nächste Runde, falls das Format wiederverwendet wird.
 
-## AI-Abweichungen — Fixture 1 (die eigentlich interessanten Fälle)
+## AI-Abweichungen, final beurteilt (17. August, nach Einzeldurchsicht)
 
-| Item | Dein Verdikt | AI-Verdikt | Erste Einordnung |
-|---|---|---|---|
-| PEMAT 6 (Zahlen klar) | fail | pass | Du: „BD völlig unklar" — bezieht sich auf die Abkürzung, nicht die Zahlen selbst (5 mg, 25 Grad). Wert, ob PEMAT 6 wirklich für Abkürzungsprobleme zuständig ist oder eher PEMAT 3/4. |
-| PEMAT 7 (keine Berechnung nötig) | fail | pass | Du: „Mengenangabe unklar" — ähnliche Frage wie oben, ob das Item 7 (Berechnung) oder eher 3/4/6 trifft. |
-| CCI 2 (Hauptbotschaft am Anfang) | pass | fail | Du: „relativ am Anfang" — die AI bewertet vermutlich strenger („Seite beginnt mit Werbeinhalt, nicht der Botschaft"), was zum Seiteninhalt passt (Werbeabsatz zuerst). |
-| CCI 11 (bekannt/unbekannt erklärt) | pass | fail | Du: „Fachsprache" als Begründung — passt nicht ganz zur Frage selbst (geht um Wissensgrenzen, nicht Sprachniveau). Wert, das Item nochmal genau zu lesen. |
-| CCI 17 (Berechnung nötig, reverse) | pass | not_applicable | Du: „je nach individueller Verordnung" — AI sieht keine Berechnung im Text selbst. Unterschiedliche Referenzrahmen (Text selbst vs. reale Nutzungssituation). |
-| CCI 20 (numerische Wahrscheinlichkeit) | not_applicable *(„n7a", vermutlich Tippfehler)* | fail | Getippter Wert unklar — bitte bestätigen, ob `n/a` gemeint war. |
+Jeder Fall einzeln durchgegangen — Item-Text und AI-Originalbegründung geprüft, dann von der Autorin selbst entschieden, wer vermutlich richtig lag. Nicht von mir vorentschieden, nur vorgeschlagen; die finale Spalte ist ihre Antwort.
 
-## AI-Abweichungen — Fixture 2 (nur drei, alle einen zweiten Blick wert)
+| Item | Dein Verdikt | AI-Verdikt | AI-Begründung (Original) | **Adjudikation** |
+|---|---|---|---|---|
+| PEMAT 6 (Zahlen klar) | fail | pass | „The only numbers present are the dose (5 mg, 1 tablet) and storage temperature (25 degrees), which are simple and easy to understand without calculation." | **AI richtig.** Item fragt nach den Zahlen selbst, nicht nach der Abkürzung BD (das ist PEMAT 3/4). |
+| PEMAT 7 (keine Berechnung nötig) | fail | pass | „No calculations are required of the user; the dose is stated as a fixed number of tablets." | **Autorin hält an eigenem Urteil fest.** Begründung: die individuelle Arztverschreibung wird im Text nicht berücksichtigt — der Patient muss die generische Anweisung gedanklich mit der eigenen Verordnung abgleichen, was das Item enger liest als nur „reine Arithmetik". Kein Konsens erzielt, echte Meinungsverschiedenheit über den Item-Umfang. |
+| CCI 2 (Hauptbotschaft am Anfang) | pass | fail | „The first visible content is promotional material, not the main message about the medication." | **AI richtig.** Seite beginnt nachweislich mit Werbetext, nicht der Botschaft. |
+| CCI 11 (bekannt/unbekannt erklärt) | pass | fail | „The material presents clinical facts but does not acknowledge any uncertainty or limitations in what is known about the medicine's effects." | **Kein klarer Sieger.** Autorin bestätigt „clinical facts" trifft zu, hält aber an der Fachsprache-Perspektive fest — Item fragt eigentlich nach Wissensgrenzen, nicht Verständlichkeit; beide Aspekte spielen im Text real eine Rolle, ohne dass einer klar dominiert. |
+| CCI 17 (Berechnung nötig, reverse) | fail *(korrigiert — war fälschlich als „pass" normalisiert, siehe unten)* | not_applicable | „No calculations are required of the audience." | **Autorin hält an eigenem Urteil fest**, gleiche Begründung wie PEMAT 7 (individuelle Verordnung). |
+| CCI 20 (numerische Wahrscheinlichkeit) | not_applicable *(bestätigt: „n/a" war gemeint, kein Tippfehler-Inhalt)* | fail | „No numeric probabilities are given in words or visually for any risk or side effect mentioned." | **Ungeklärt.** Nach Korrektur des Tippfehlers bleibt `not_applicable` vs. `fail` eine echte, unaufgelöste Abweichung — keine Einigung erzielt in dieser Runde. |
 
-| Item | Dein Verdikt | AI-Verdikt | Erste Einordnung |
-|---|---|---|---|
-| CCI 7 (alle Fachbegriffe erklärt) | pass | fail | AI: „'NSAID' in Anführungszeichen, aber nicht ausgeschrieben; Medikamentenname fehlt ganz." Liest sich wie ein begründeter, spezifischer AI-Fund — wert, den Seitentext nochmal genau danach zu prüfen. |
-| CCI 16 (Bedeutung der Zahlen erklärt) | fail | pass | Gegenteiliger Fall zu oben — hier warst du strenger als die AI. |
-| CCI 19 (Risiken UND Nutzen adressiert) | pass | fail | AI: „nur Risiken werden genannt, nie der Nutzen der Einnahme." Bereits im Antwortschlüssel als Auffälligkeit vermerkt (siehe `hand-scoring-ai-verdicts.md`) — dieselbe Frage entsteht jetzt unabhängig aus deinem Scoring. |
+## AI-Abweichungen, final beurteilt — Fixture 2
+
+| Item | Dein Verdikt | AI-Verdikt | AI-Begründung (Original) | **Adjudikation** |
+|---|---|---|---|---|
+| CCI 7 (alle Fachbegriffe erklärt) | pass | fail | „'NSAID' is not spelled out or explained in audience-friendly terms; the medicine name is also absent, leaving key specialised terms unexplained." | **Tendenz AI, aber knapp.** Autorin: „IBU wurde zuvor genannt, Grenzfall dahingehend, aber NSAID sollte trotzdem erklärt werden" — akzeptiert den AI-Punkt im Kern, sieht aber den Ibuprofen-Kontext als mildernden Faktor. |
+| CCI 16 (Bedeutung der Zahlen erklärt) | fail | pass | „The meaning of the numbers is explained in plain terms (morning and evening, the table reinforces this)." | **Autorin hält an eigenem Urteil fest**, wieder mit Verweis auf die individuelle Verschreibungssituation. |
+| CCI 19 (Risiken UND Nutzen adressiert) | pass | fail | „Only risks (overdose, side effects, drug interaction) are addressed; no benefits of taking the medication are stated." | **AI richtig.** Autorin bestätigt: „individuelles Textverständnis, würde AI zustimmen." |
+
+**Zusammenfassung der Adjudikation:** von 9 Fällen — **3 AI eindeutig richtig** (PEMAT 6, CCI 2, CCI 19), **1 AI vermutlich richtig, knapp** (CCI 7), **3 Fälle, in denen die Autorin nach Prüfung an ihrem eigenen Urteil festhält** (PEMAT 7, CCI 16, CCI 17 — alle drei mit derselben, eigenständigen Begründung: das Material berücksichtigt nie die individuelle ärztliche Verschreibung, die von der generischen Anweisung abweichen kann), **2 ungeklärt** (CCI 11 — Interpretationsfrage ohne klaren Sieger; CCI 20 — nach Tippfehler-Korrektur weiterhin offen).
+
+**Der wiederkehrende Punkt bei PEMAT 7/CCI 16/CCI 17 ist bemerkenswert, weil er dreimal unabhängig mit derselben Begründung auftaucht, nicht als Zufall.** Die Autorin argumentiert: keines der Items berücksichtigt, dass die tatsächlich verschriebene Dosis eines realen Patienten von der im Material gezeigten generischen Anweisung abweichen kann — das Material selbst adressiert diesen Abgleich nie. Das ist kein Bewertungsfehler ihrerseits, sondern eine eigenständige inhaltliche Beobachtung zum Material, die über die drei Einzelitems hinausgeht.
 
 ## Deterministik-Abweichungen (kein AI-Test — Markup-Proxy vs. Item-Semantik)
 
@@ -56,4 +62,4 @@ Nur bei Fixture 1, alle vier in dieselbe Richtung: die deterministische Prüfung
 
 ## Nächster Schritt
 
-Die AI-Abweichungen oben (9 Fälle) sind die eigentlichen Kandidaten für die ersten LLM-Eval-Testfälle (Woche 2) — bitte pro Fall kurz entscheiden, ob du oder die AI vermutlich richtig lag, und ob es ein echter AI-Fehler, ein Formulierungs-/Interpretationsunterschied, oder eine berechtigte AI-Erkenntnis war (wie bei CCI 7/19 in Fixture 2, wo die AI-Begründung konkret und nachvollziehbar klingt).
+**Erledigt (17. August).** Alle 9 Fälle einzeln adjudiziert, siehe Tabellen oben. Ergebnis: kein Fall ist ein eindeutiger, unstrittiger AI-Fehler — die drei „Autorin hält an eigenem Urteil fest"-Fälle sind eine konsistente inhaltliche Beobachtung (individuelle Arztverschreibung wird nie berücksichtigt), keine Zufallsstreuung, und damit die stärksten Kandidaten für die Woche-2-LLM-Evals. Die zwei ungeklärten Fälle (CCI 11, CCI 20) sind ebenfalls dokumentiert, aber bewusst nicht künstlich aufgelöst.
