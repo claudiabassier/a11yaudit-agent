@@ -355,9 +355,16 @@ CREATE TRIGGER trg_audits_updated
 -- used to be here, claiming it needed to be added, was itself wrong (D-63).
 
 -- Node 13b — Insert Audit Run (new v2.1, one row per execution, never upserted)
--- Same mechanism as Node 13 above: Query Parameters = {{ $json.audit_run_payload }}
--- bound to $1, json_populate_record (singular — one row, not a set, unlike
--- Node 14's json_populate_recordset below).
+-- Same mechanism as Node 13 above: the audit_run_payload field is bound to $1
+-- via the node's own Query Parameters option, json_populate_record (singular
+-- — one row, not a set, unlike Node 14's json_populate_recordset below).
+-- Do NOT write the binding as a live n8n expression inside a SQL comment
+-- here or in the real node — n8n evaluates {{ }} expressions anywhere in a
+-- Query field's text, including inside "--" comments, and a multi-line
+-- value substituted into a one-line comment can break out of it mid-query.
+-- Found 18 August in the real "Insert Findings" node (decision_log.md D-71)
+-- after a findings payload containing an embedded newline turned a
+-- documentation comment into live, malformed SQL.
 -- INSERT INTO audit_runs (
 --   audit_id, run_no, execution_id,
 --   checks_engine, screening_score, screening_score_deterministic,
