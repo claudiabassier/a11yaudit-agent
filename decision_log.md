@@ -1021,6 +1021,22 @@ Both underlying facts held up. Only the word "evolution" — and the unqualified
 
 **Consequences:** `A11yAudit_Fahrplan.md` Woche 1b's `instrument_items` items closed. `code/15a_build_instrument_items_payload.js` (new) and the `postgres_schema.sql` v2.2 Node 15 reference query commit together with the canvas-dependent verification, same one-slice-one-commit discipline as D-63.
 
+## D-65 — `legally_relevant` fixed to include R9, plus two unrelated staleness finds surfaced along the way
+
+**Context:** pulled forward from the backlog (15 August review, "günstig, aber ohne den R9-Backstop für sich wenig Wirkung") while Woche 1b's hand-scoring is blocked on an independent human judgment this session cannot supply. `readme.md`'s own "What it is not" already named the gap precisely: `legally_relevant` was computed as `R5 OR (R4 AND R1)` — R9 firing alone (undefined medical term in safety-relevant content, upgrading a finding to critical) never set it unless the combined score also happened to cross 70. The file's own bundled test input demonstrated this: `["R1","R7","R8","R9"]` fires, `legally_relevant` still read `false`.
+
+**Confirmed against that exact bundled test input before touching anything** (Docker, the real `12_decision_engine.js`, not a rewritten mock): `legally_relevant: false` with `R9` present in `triggered_rules` — the bug as documented, reproduced first, not assumed still current.
+
+**Fix:** `legally_relevant = triggered_rules.includes('R5') || triggered_rules.includes('R9') || (triggered_rules.includes('R4') && triggered_rules.includes('R1'))`. Re-ran the same test: `legally_relevant: true`, rest of the output (`screening_score: 77`, all other rules) byte-identical. Negative control also run — `safety_context: false` (R9/R7 don't fire) still yields `legally_relevant: false`, confirming the fix doesn't over-fire.
+
+**A real, independent gap found while getting `tests/golden` to a clean baseline before trusting the result:** all three fixtures failed with `A2_build_prompt.system_prompt`/`user_message` deviations — not from this fix, but because D-62's `<material>`-tag prompt change was never re-baselined into `tests/golden/expected/*.json`. `--update` run, diff inspected line by line: exactly the two prompt fields changed, nothing in any decision-engine output — confirms none of the three existing fixtures exercise the R9-without-R5/R4+R1 path this fix targets, so `legally_relevant` genuinely never changes for them either way. Re-ran clean: 3/3 PASS.
+
+**A second, unrelated staleness find, caught while editing `readme.md`'s adjacent bullet:** the very next line claimed "no separate least-privilege database user" — no longer accurate on its own terms since D-63 built and function-tested `a11yaudit_app`. But not simply "resolved" either: the credential switch itself (new n8n credential, re-point Nodes 13/13b/14/15/15a to it) was always planned as a deliberate follow-on step after canvas verification (the original 7-step plan's step 6) and never actually happened — it fell through the cracks between the many canvas fixes in D-63/D-64. `readme.md` corrected to state the nuance precisely (role built and proven, not yet in active use) rather than either leaving the stale claim or overclaiming a fix that isn't real yet. Re-added to `A11yAudit_Fahrplan.md` as an explicit open item so it doesn't disappear a second time.
+
+**Decision:** ship the `legally_relevant` fix and the `tests/golden` re-baseline together — the fix needed the clean baseline to verify, so they're one unit of work. The credential-switch gap is logged but deliberately not done now — it's a larger task than fits inside "pull a cheap backlog item forward."
+
+**Consequences:** `code/12_decision_engine.js` fixed, hand-calculation comment corrected to match. `tests/golden/expected/*.json` re-baselined for D-62 (three files, prompt fields only). `readme.md`: `legally_relevant` bullet removed from "What it is not" (resolved), least-privilege bullet corrected to the accurate nuanced state. `A11yAudit_Fahrplan.md`: credential switch re-added as an open item under Woche 1a.
+
 ---
 
 ## Sources consulted

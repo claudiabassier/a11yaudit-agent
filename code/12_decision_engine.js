@@ -182,7 +182,14 @@ R('R8', pemat_understandability !== null && pemat_understandability < 70);
 R('R9', r9Trigger);
 
 const human_review_required = triggered_rules.length > 0;
+// FIX (17 Aug, Phase 2 backlog, decision_log.md D-65): R9 firing alone used
+// to leave legally_relevant false unless the combined score also happened
+// to drop below 70 — R9 upgrades a finding to critical specifically because
+// it is safety-relevant (undefined medical term in safety-relevant
+// content); that severity should count toward legal relevance on its own,
+// not depend on an unrelated score threshold also being crossed.
 const legally_relevant = triggered_rules.includes('R5')
+  || triggered_rules.includes('R9')
   || (triggered_rules.includes('R4') && triggered_rules.includes('R1'));
 
 // ---- return ----------------------------------------------------------------
@@ -217,11 +224,14 @@ return [{
  *   not_assessed_count: 1.
  *   Rules: R1 (upgraded critical), R7 (safety), R8 (50 < 70), R9 →
  *       triggered_rules ["R1","R7","R8","R9"], human_review_required true.
- *   R4 does NOT fire (77 ≥ 70) → legally_relevant false (no R5, no R4+R1).
+ *   R4 does NOT fire (77 ≥ 70), no R5, no R4+R1 — but R9 fires on its own,
+ *   so legally_relevant is true (D-65, 17 Aug) — this exact case is what
+ *   D-65 fixed: before the fix, legally_relevant read false here despite
+ *   R9's critical upgrade, because the formula only checked R5 and R4+R1.
  *
  * Also try: set safety_context false → R9/R7 gone, finding stays "high",
- *   penalty 8+8=16 → score 84; rules ["R8"] only.
- * Also try: set eaa_scope true → R5 joins, legally_relevant true.
+ *   penalty 8+8=16 → score 84; rules ["R8"] only; legally_relevant false.
+ * Also try: set eaa_scope true → R5 joins, legally_relevant true (already was, via R9).
  * Also try (D-36): set checks_engine "none", ai_fallback_used true,
  *   findings [], instrument_items [] → screening_score, screening_label,
  *   screening_score_deterministic and screening_label_deterministic all
