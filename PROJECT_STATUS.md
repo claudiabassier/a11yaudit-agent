@@ -1,6 +1,8 @@
 # A11yAudit — Project Status / Handover
 
-**Last updated: Wednesday 5 August 2026 — DAY 7 SUBSTANTIALLY COMPLETE.** Presentation script and slide deck written; documentation corrected and published. One item outstanding: the deck is not yet uploaded. · Update this file at the end of each build day.
+**This file is a frozen Phase-1 submission snapshot (Turing College Case 3, 7-day sprint, 31 Jul–7 Aug 2026), preserved as evidence — not a living status doc.** Everything below the "Phase 2" note directly under this line is Day-0-through-7 history and is intentionally left as it was written; see "Documentation status — done, do not regenerate" further down, which applies to this file too. **Phase 1 is complete** (confirmed in `A11yAudit_Fahrplan.md`'s own top line: "Phase 1 abgeschlossen"). Do not add Phase-2 work here — see the pointer below instead. The original per-build-day update instruction that used to sit on this line applied only during the 7-day sprint and has been superseded by the note immediately below.
+
+> **Phase 2 status lives elsewhere.** Started 15 August on branch `phase-2-portfolio`; latest entry **D-68** (18 August, `decision_log.md` v5.6). For current status, read `CLAUDE.md`'s Phase-2 section and `A11yAudit_Fahrplan.md`, not this file. The documentation-status table below (§"Documentation status") lists file versions **as they were at the 7 Aug submission** — every one of them has since moved on; check each file's own version header for the current number, e.g. `decision_log.md` is now v5.6 (D-01 to D-68), not the v3.0 listed below.
 
 > **Day 7 (5 Aug).** `presentation.md` written (v2.0, ten minutes, 1,485 spoken words, measured section by section) and `A11yAudit_presentation.pptx` built from `meta/build_deck.js` so it can be rebuilt rather than hand-edited. Four decision-log entries added.
 >
@@ -77,6 +79,8 @@ Purpose: let a new chat pick up seamlessly. Read this first, then `build_runbook
 10. **Submit.** Deadline 7 August.
 
 ### Outstanding: the presentation bundle
+
+> **Resolved — Phase 1 submitted.** This section describes the state as of 5 August, before upload. `A11yAudit_Fahrplan.md` confirms Phase 1 is complete, so this step was carried out; the section is left unedited below as the historical record of what was staged and why, not because the item is still open. If the exact upload timestamp/detail matters, it isn't recorded in this file — check `decision_log.md` D-44 (packaging) or ask the author directly rather than assuming from this note.
 
 Staged and ready at `<staging-folder>/_TO_UPLOAD/`.
 
@@ -259,6 +263,7 @@ Evaluation criteria are only three: presented the outcome; explained what was le
 
 ## Update log
 
+- **18 Aug 2026** — this file's top banner had two contradicting instructions to itself — "update at the end of each build day" versus the documentation table's own "done, do not regenerate" — while genuinely nine days stale (still headed "Day 7 SUBSTANTIALLY COMPLETE — 5 August", with the presentation bundle still described as outstanding). Resolved by declaring the file's actual role explicitly (frozen Phase-1 submission snapshot) rather than picking one of the two contradicting instructions arbitrarily; Phase-1-complete and the bundle-upload status confirmed against `A11yAudit_Fahrplan.md` rather than assumed; a pointer to `CLAUDE.md`/`A11yAudit_Fahrplan.md` added for current Phase-2 status instead of duplicating it here (duplicating it would just create a second copy to keep in sync). The Day-0–7 body below this point is untouched — it is evidence of what was submitted, not a status field. Found and fixed during a rigorous review pass on `decision_log.md` D-68 (content-scoping fix), prompted by a direct question about this file's staleness.
 - **31 Jul 2026** — docs finalised at v2.1 after full design review (7 fixes); rescoped to 7 days; environment setup begun (`.env` created, compose file located); build not yet started. Decided to front-load all Code-node JavaScript before Day 1 (see Day 0 section).
 - **31 Jul 2026 (Day 0, evening)** — all Code-node JavaScript and demo fixtures written, executed outside n8n, and reviewed: 8 defects found in my own code, 7 fixed and re-tested, 1 carried to Day 2. Both check engines pre-written and verified byte-identical, so the Day-1 cheerio decision costs no build time; the `crypto` dependency was removed the same way. Decisions D-16…D-19 added (decision log → v2.2). Project folder tidied: `code/`, `fixtures/`, `meta/`, `.gitignore`, `.env.example`; readme updated. Build not yet started; Day 1 is next.
 - **3 Aug 2026 (Days 1 and 2, one sitting)** — **Day 1:** containers up and healthy, env vars verified in-container, n8n owner account created. Cheerio test **PASSED** (cheerio + crypto reachable in the task runner) — the one live risk retired, cheerio engine confirmed as production version. `a11yaudit` database created; schema + addendum applied; 4 tables and 2 views verified. Postgres and Anthropic credentials created and tested. Gate met.

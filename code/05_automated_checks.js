@@ -64,8 +64,8 @@ const outer = (el) => trunc($doc.html(el) || '');
 const words = (s) => (String(s).trim().match(/\S+/g) || []).length;
 
 // ---- content scope: isolate main content from navigation/boilerplate ------
-// FIX (18 Aug, Woche 1b real-page testing, decision_log.md pending): the
-// block extraction below used to walk h1-h6/p/ul/ol/table across the WHOLE
+// FIX (18 Aug, Woche 1b real-page testing, decision_log.md D-68): the block
+// extraction below used to walk h1-h6/p/ul/ol/table across the WHOLE
 // document. Fine for the fixtures (bare <body>, no surrounding chrome),
 // broken on any real page — found live against
 // nhs.uk/medicines/paracetamol-for-adults/, whose navigation ("Health A to
@@ -77,19 +77,29 @@ const words = (s) => (String(s).trim().match(/\S+/g) || []).length;
 // unchanged: an unlabelled nav link is a real WCAG violation regardless of
 // where on the page it sits, and narrowing those to "main content only"
 // would make the tool miss real accessibility problems.
+//
+// FIX 2 (18 Aug, rigorous review after D-68 landed, decision_log.md
+// pending): the first version only stripped nav/header/footer/aside on the
+// no-<main> fallback path. When a real <main>/<article>/[role="main"] WAS
+// found, it was used as-is with no stripping — but real pages routinely
+// nest an in-page "on this page" jump-list or a breadcrumb <nav> INSIDE
+// <main>, not just around it. Proven with a synthetic fixture (nested
+// <nav><ul>…</ul></nav> as the first child of <main>): content_text came
+// back starting with the jump-list's three items ahead of the real <h1> —
+// the exact same defect class D-68 fixed, just not closed on this branch.
+// Fix: always clone whichever root was chosen (found <main>/<article>, or
+// the <body> fallback) and always strip nested nav/header/footer/aside from
+// the clone — one code path instead of two asymmetric ones. Cloning before
+// stripping (not stripping $doc itself) is required either way, same
+// reason as originally documented: the WCAG checks below still need the
+// unmodified whole-page $doc.
 let $scopeRoot;
 for (const sel of ['main', 'article', '[role="main"]']) {
   const found = $doc(sel).first();
-  if (found.length && found.text().trim().length > 30) { $scopeRoot = found; break; }
+  if (found.length && found.text().trim().length > 30) { $scopeRoot = found.clone(); break; }
 }
-if (!$scopeRoot) {
-  // No semantic content container — clone <body> so removing nav/header/
-  // footer here doesn't also remove them from $doc, which the WCAG checks
-  // below still need to see.
-  const $bodyClone = $doc('body').clone();
-  $bodyClone.find('nav,header,footer,aside,[role="navigation"],[role="banner"],[role="contentinfo"]').remove();
-  $scopeRoot = $bodyClone;
-}
+if (!$scopeRoot) $scopeRoot = $doc('body').clone(); // no semantic content container found
+$scopeRoot.find('nav,header,footer,aside,[role="navigation"],[role="banner"],[role="contentinfo"]').remove();
 // Scoped HTML string, for the one place downstream (CCI 3) that inspects
 // raw markup via regex rather than cheerio selectors.
 const scopedHtml = $doc.html($scopeRoot) || html;
@@ -199,8 +209,17 @@ const noLabel = $doc('input,select,textarea').filter((_, el) => {
   const type = ($el.attr('type') || 'text').toLowerCase();
   if (['hidden', 'submit', 'button', 'reset', 'image'].includes(type)) return false;
   if (($el.attr('aria-label') || '').trim() || $el.attr('aria-labelledby')) return false;
+  // BUG FOUND (18 Aug, rigorous review after D-68): building a CSS
+  // attribute selector by interpolating the id straight into a string
+  // (`label[for="${id}"]`) throws uncaught ("Attribute selector didn't
+  // terminate") on any id containing a double quote — legal in HTML, and
+  // this tool audits arbitrary untrusted pages, so a single malformed id
+  // anywhere on the page crashed the whole node. Reproduced with
+  // id='weird"id' before fixing. Fixed by comparing the attribute value
+  // directly instead of building a selector string — immune to special
+  // characters by construction, not by escaping.
   const id = $el.attr('id');
-  if (id && $doc(`label[for="${id}"]`).length) return false;
+  if (id && $doc('label').filter((_, l) => $doc(l).attr('for') === id).length) return false;
   if ($el.parents('label').length) return false;
   return true;
 });
