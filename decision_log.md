@@ -1037,6 +1037,20 @@ Both underlying facts held up. Only the word "evolution" — and the unqualified
 
 **Consequences:** `code/12_decision_engine.js` fixed, hand-calculation comment corrected to match. `tests/golden/expected/*.json` re-baselined for D-62 (three files, prompt fields only). `readme.md`: `legally_relevant` bullet removed from "What it is not" (resolved), least-privilege bullet corrected to the accurate nuanced state. `A11yAudit_Fahrplan.md`: credential switch re-added as an open item under Woche 1a.
 
+## D-66 — The credential switch D-65 deferred, done the same day: `a11yaudit_app` now the role the workflow actually runs as
+
+**Context:** D-65 logged the gap and deliberately left it — "a larger task than fits inside pull a cheap backlog item forward." Done anyway, immediately after, once asked directly: the actual switch turned out smaller in practice than the earlier estimate suggested.
+
+**Node count corrected while doing it — six, not five.** The original plan (and D-65's own text) named "Nodes 13/13b/14/15/15a." Checking `workflows_export/WF1_Audit_Intake.json` for every Postgres-type node found two more: `Flag for Review` and `Save Report` both write to `audits` (an idempotent status flag and the final report/statement respectively) and were missing from every prior list. `postgres_app_role.sql`'s existing grants already covered both without needing a new `GRANT` — `audits` already has `SELECT, INSERT, UPDATE` — so this was a completeness catch, not a new permissions requirement.
+
+**A real error on the way, not a clean first attempt:** the new n8n credential (`Postgres a11yaudit_app (dev)`) failed to connect — `password authentication failed for user "a11yaudit_app"` — despite the same password having already been proven correct via a direct `psql -h 127.0.0.1` login (D-63). Cause: a trailing newline picked up when the password was copied into the n8n UI's text field, a failure mode the earlier `PGPASSWORD` environment-variable-based test could never have hit, since env vars don't carry that risk the way a pasted UI field does. Fixed by re-copying with `tr -d '\n'` explicitly stripping it before `pbcopy`.
+
+**Verified under the actually-restricted grants, not assumed from the earlier standalone role test.** A real form submission was run after all six nodes were re-pointed. `audit_runs` — insert-only by design, no `UPDATE` grant on this role at all — went from 5 to 6 rows: the strictest possible proof, since any missing grant here would have surfaced as a hard n8n error, not a silent partial write. `instrument_items` stayed at 38, correctly — the same content was re-audited, so `ON CONFLICT (audit_id, instrument, item_no) DO UPDATE` refreshed the existing rows rather than duplicating them; a changed count would have been the wrong result, not the right one.
+
+**Decision:** ship. `readme.md`'s "What it is not" bullet from D-65 rewritten again — from "role built, not yet in use" to "resolved on the dev branch, not yet promoted to the submitted original," which is now the accurate state: `workflows_export/*.json`, the frozen v1.3 original, still uses the single broader role, unchanged, as it must.
+
+**Consequences:** the readme's own security-posture claim now matches the running dev system exactly, verified twice over — once via direct `psql` (D-63), once via the actual n8n execution path under the credential switch (this entry). No code changed, no schema changed — canvas and credential configuration only, nothing to commit to the repo beyond the doc updates already folded into this entry.
+
 ---
 
 ## Sources consulted
