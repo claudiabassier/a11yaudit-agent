@@ -3,8 +3,14 @@
  * Node 5 (URL branch) — Automated Checks (Code, no AI)   ·   Workflow: WF1
  * Spec: workflow_spec.md §1 Node 5 · Checks: knowledge_base.md §1.1 (v2.1)
  * VERSION: cheerio. Requires NODE_FUNCTION_ALLOW_EXTERNAL=cheerio on the
- * n8n container AND the Day-1 cheerio test passing. If cheerio is not
- * reachable, use 05_automated_checks_regex.js instead (same output shape).
+ * n8n container AND the Day-1 cheerio test passing. There is no fallback
+ * engine any more — a regex-based twin existed as a Day-1 contingency
+ * (decision_log.md D-17) in case cheerio was unreachable, was never
+ * deployed (cheerio passed Day 1), and was retired 18 August (D-69) once it
+ * had drifted three known defects behind this file with no production use
+ * to justify keeping it current. If cheerio ever becomes unreachable again,
+ * that is a new, undiagnosed problem — do not assume the old fallback is
+ * still an option.
  * ============================================================================
  *
  * PURPOSE
@@ -42,7 +48,7 @@
 let cheerio;
 try { cheerio = require('cheerio'); }
 catch (e) {
-  throw new Error('cheerio is not reachable in this Code node. Per the pre-committed Day-1 decision rule: switch to 05_automated_checks_regex.js and log the decision.');
+  throw new Error('cheerio is not reachable in this Code node. The regex fallback that used to handle this case was retired 18 August (decision_log.md D-69, never deployed, three known defects behind this file) — this now needs fresh diagnosis, not a switch to a standby file.');
 }
 
 // ---- input -----------------------------------------------------------------

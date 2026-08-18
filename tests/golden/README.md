@@ -97,32 +97,20 @@ spirit as the project's existing hand-verification discipline (D-28/D-29/D-33):
    determinism; skipping this step just trusts the update instead of
    verifying it.
 
-## Engine drift watchdog (`engine_drift.js`)
+## Engine drift watchdog — retired (18 August, decision_log.md D-69)
 
-Separate from the golden chain above: `05_automated_checks.js` (cheerio,
-production) and `05_automated_checks_regex.js` (regex, unused fallback —
-see that file's own header) were built as twins (D-17) and are meant to be
-interchangeable. `engine_drift.js` runs both engines on all three fixtures
-and diffs their outputs **directly against each other** — no AI, no pinning,
-nothing to hand-verify against a golden file, because there is nothing here
-that should legitimately vary.
-
-```sh
-./tests/golden/engine_drift.sh
-```
-
-`checks_engine` is excluded from the comparison on purpose — it is supposed
-to read `"cheerio"` vs `"regex"`. Everything else should be identical, and
-usually is not: see `decision_log.md` D-53 for what this actually found on
-12 August (two real, previously undocumented divergences — implicit
-`<tbody>` in cheerio's serialized table evidence, and differently worded
-PEMAT 17 rationale strings — plus an empirical correction to how far D-25's
-carried-forward defect claim actually reaches on these fixtures).
-
-Exit code 1 here means "the two engines currently disagree here", not
-automatically "regression" — the regex engine is not in production use, so a
-human judges each finding rather than the script silently deciding it does
-or doesn't matter.
+`05_automated_checks_regex.js` (regex, unused fallback for cheerio) and its
+drift-comparison tool `engine_drift.js`/`engine_drift.sh` existed to keep a
+contingency engine (D-17) usable in case `NODE_FUNCTION_ALLOW_EXTERNAL`
+couldn't make cheerio reachable in n8n's task-runner process. That risk was
+retired on Day 1 (31 Jul/1 Aug) — cheerio passed — and the fallback was
+never deployed. By 18 August it carried three known, un-backported defects
+against the production engine (D-25, plus two found in the same-day review
+that produced D-68) rather than one, with no corresponding production use
+to justify keeping it current. Removed rather than left to drift further;
+see D-69 for the full reasoning. `decision_log.md` D-53 (12 August) remains
+as the historical record of what the watchdog found while it existed —
+not rewritten, since it documents real defects found at the time.
 
 ## Known, deliberate limitations of the harness itself
 

@@ -44,7 +44,7 @@ Turing College AI Capstone, **Case 3: create automation / build something useful
 
 **Record decisions.** Every design change or deviation discovered during the build gets an entry in `decision_log.md` (decision, context, alternatives, rationale, consequences). Those entries are the strongest evidence for evaluation criterion 2 — they show reasoning, not just output. Prompt her to log deviations as they happen.
 
-**Technical support style.** For terminal, Docker, n8n or SQL: exact commands, what the expected output looks like, and what the common failure modes mean. One step at a time when she is stuck. Never send her into open-ended troubleshooting — give a time limit and a fallback (e.g. "30 minutes, then switch to the regex fallback").
+**Technical support style.** For terminal, Docker, n8n or SQL: exact commands, what the expected output looks like, and what the common failure modes mean. One step at a time when she is stuck. Never send her into open-ended troubleshooting — give a time limit and a fallback (e.g. "30 minutes, then stop and log it as an open question" — the regex-fallback example this line used to give no longer applies, that engine was retired 18 August, decision_log.md D-69).
 
 **Don't rebuild what exists.** The documentation set is complete and reviewed at v2.1. Edit it; don't regenerate it. Keep version headers and changelogs current.
 

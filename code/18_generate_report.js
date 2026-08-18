@@ -142,7 +142,10 @@ L.push(`- ${d.not_assessed_count ?? 0} instrument item(s) were not assessed and 
 if (Number(d.dropped_unverified) > 0) L.push(`- ${d.dropped_unverified} AI finding(s) were discarded because their evidence quote could not be verified verbatim in the source (anti-fabrication check).`);
 if (Number(d.missing_items_count) > 0) L.push(`- The AI did not return ${d.missing_items_count} requested instrument item(s); they are counted as not assessed.`);
 if (skipped) L.push(`- Input was pasted text without markup: all deterministic HTML checks were skipped (checks engine: none).`);
-if (d.checks_engine === 'regex') L.push(`- HTML checks ran on the regex engine (approximate parsing); see decision log.`);
+// The regex fallback engine (checks_engine: "regex") was retired 18 August
+// (decision_log.md D-69) — never deployed, so no audit row can carry that
+// value. This branch is deliberately removed, not left as unreachable dead
+// code describing an engine that no longer exists.
 if (d.content_truncated) L.push(`- Content was truncated at 30,000 characters; everything beyond that point was not analyzed.`);
 if (fallback) L.push(`- AI analysis unavailable/invalid (${esc(d.fallback_reason || 'unknown')}): findings and instrument verdicts above are deterministic-only.`);
 L.push(`- Accuracy of the AI-assisted findings is unmeasured; confirmed/dismissed review decisions accumulate an empirical false-positive rate over time.`);
