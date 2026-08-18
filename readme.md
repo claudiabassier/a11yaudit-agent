@@ -3,7 +3,7 @@
 **AI-assisted accessibility and health-literacy screening for digital health content.**
 Turing College — AI Capstone (Case 3: automation / build something useful for your work environment)
 
-**Version 1.4 · 18 August 2026** · Phase 2: 24 real external pages tested (English/German), two real defects found and fixed along the way (`decision_log.md` D-68–D-72); two known gaps from the 15 August external review — no intake-form authentication, no per-call AI cost tracking — now named explicitly below rather than living only in the decision log.
+**Version 1.5 · 18 August 2026** · The submitted Phase-1 build (v1.3, 5 August) is unchanged and frozen; everything below reflects active Phase 2 work on `phase-2-portfolio`. Since submission: per-run audit history (`audit_runs`) and per-item instrument verdicts (`instrument_items`) both went from designed-but-cut to built, written, and queryable; the AI prompt was hardened against the audited page's own content trying to manipulate its verdict; the Postgres role every write node authenticates as was narrowed from `n8n`'s own superuser to one with only the grants each table needs; PEMAT/CCI accuracy went from "unmeasured" to one real hand-scored data point (74.5%); and 24 real external pages were run through the pipeline, finding and fixing two real defects along the way. Two gaps the 15 August external review named explicitly — no intake-form authentication, no per-call AI cost tracking — are now stated below rather than living only in the decision log.
 
 ---
 
@@ -46,6 +46,8 @@ Two controls make the AI's output usable:
 **Validation is a shared subworkflow, called from both the first attempt and the one retry.** This logic used to be pasted twice as byte-identical Code nodes, because n8n Code nodes cannot import a sibling node — a real duplication a review caught. Extracted into its own subworkflow, `SUB-A_Validate`, taking its inputs explicitly rather than reaching for a specific upstream node by name, which also closed a real defect: the old version silently returned "valid, zero findings" — a clean-looking report — if that upstream node was ever renamed. The new contract makes a third repair attempt structurally impossible rather than just unlikely to wire wrong.
 
 **Grounding.** The language analysis is not a generic "find unclear writing" prompt. It scores specific, named items from PEMAT-P (AHRQ) and the CDC Clear Communication Index, with item lists taken from the primary sources. Every finding traces to a published criterion, which makes it checkable — and disputable — rather than a matter of opinion.
+
+**Every run is recorded, not just every piece of content.** Re-auditing the same page updates its one `audits` row (by content hash) but also appends a row to `audit_runs` — so a page audited five times has one current result and a full run history, not five competing rows or one row silently overwritten. Every instrument-item verdict (38 per audit, both instruments, all six domains) is written to `instrument_items` individually, with a human override protected from being reset by a later re-audit.
 
 ### Two screening scores, and why
 
@@ -106,7 +108,7 @@ Stated plainly, because these limits are part of the design rather than gaps in 
 - **It screens a listed subset of WCAG 2.2.** Colour contrast, keyboard operation, focus order, media, and anything rendered by JavaScript are out of scope and declared in every report. The tool makes **no conformance claim**.
 - **The instrument scores are an unvalidated adaptation.** PEMAT and the CDC Index were built for trained human raters assessing complete materials. Applying a subset of their items to web text via an LLM is labelled "PEMAT-informed"/"CCI-informed" and is never presented as an official score. Neither AHRQ nor CDC endorses this tool.
 - **Accuracy has one small data point, not a validated measurement.** A single rater hand-scored PEMAT-P/CCI on the two Day-5 fixtures independently (blind to the AI's answers while scoring) and compared against the AI's actual 4 August verdicts: 74.5% raw agreement on AI-decided items (79.5% excluding one worksheet gap — see `docs/hand-scoring-comparison.md`, `decision_log.md` D-67). This is one rater, two fixtures, not the two-independent-raters design PEMAT itself specifies, and not a substitute for the false-positive rate that will eventually come from routine use via the database's own recorded verdicts.
-- **Per-item verdicts are reported but not stored.** The `instrument_items` table was designed and cut for time (see `decision_log.md` D-14, D-20, D-34). Item-by-item reasoning appears in each report; it is not queryable across audits, so no cross-page analysis of instrument items is possible in this version.
+- **Per-item verdicts: reported and stored, but not yet analysed.** The `instrument_items` table was designed and cut for time in the submitted build (`decision_log.md` D-14, D-20, D-34); its write path was built in Phase 2 (D-64) — every audit now writes one row per instrument item (38 rows across PEMAT-P and the CDC Index for a typical audit, both instruments, all six domains), and a human override is protected from being silently reset by a re-audit. What's still missing is the analysis layer: no query or report yet aggregates verdicts across audits to compute an empirical false-positive rate or find which items the AI gets wrong most often — the data exists, the cross-audit view of it doesn't.
 - **The intake form confirms receipt, not success.** n8n's form trigger replies "Form Submitted" the moment it receives the submission, before the workflow runs — so a submission that fails at the first node still shows a success message in the browser. Acceptable for an internal auditor's form; it would have to be closed before the intake was exposed to anyone else.
 - **The intake form has no authentication.** Anyone who can reach the form URL can submit a page for audit, each submission triggering a paid AI call. Not a risk while the form is unpublished and reachable only on local infrastructure; a hard gate before any public exposure, alongside the receipt-vs-success gap above.
 - **Per-call AI cost and token usage are not tracked.** `ai_input_tokens`/`ai_output_tokens`/`ai_cost_usd` are written as `null` on every row — not a placeholder for a future decision, a real two-part gap: it is unconfirmed whether n8n's Anthropic node surfaces token usage at all, and even if it does, `SUB-A`'s own output contract has no field to carry it downstream. A project-level Anthropic spend cap is in place as a coarser substitute (`decision_log.md`, 16 Aug), but that is a ceiling, not per-audit accounting — there is no way yet to see which pages or prompt versions cost the most.
@@ -139,8 +141,10 @@ The Code nodes need `NODE_FUNCTION_ALLOW_EXTERNAL=cheerio` and `NODE_FUNCTION_AL
 | Path | Purpose |
 |---|---|
 | `workflows_export/` | the three workflow JSONs — main workflow, AI subworkflow, error handler |
-| `postgres_schema.sql` | database schema — 4 tables, 2 views |
+| `postgres_schema.sql` | database schema — 5 tables (`audits`, `findings`, `instrument_items`, `audit_runs`, `error_log`), 2 views |
 | `postgres_schema_addendum.sql` | schema addendum (Tier 2, optional) — adds `dropped_unverified` and `checks_engine` to `audits`, `original_severity` and `severity_upgraded_by` to `findings`, `ai_contradiction` to `instrument_items` |
+| `postgres_app_role.sql` | Phase 2: the least-privilege `a11yaudit_app` role every write node now authenticates as — table-by-table grants, no `DELETE` anywhere, `INSERT`-only on `audit_runs`/`error_log` |
+| `docs/hand-scoring-worksheet.md`, `docs/hand-scoring-ai-verdicts.md`, `docs/hand-scoring-comparison.md` | Phase 2: the blind hand-scoring exercise and its comparison against the AI's actual verdicts (D-67) |
 | `code/` | the JavaScript and SQL for every Code and Postgres node, one file per node, each with its input/output contract and a standalone test input |
 | `code/_DAY0_REVIEW.md` | pre-build code review: eight defects found in my own code before any node was built |
 | `code/_S4_evidence_check_harness.js` | the harness used to test the anti-fabrication check against a known-fabricated finding |
@@ -175,7 +179,7 @@ This was designed fresh — no code or workflow carried over — but deliberatel
 ## Future work, in priority order
 
 1. Decide and implement one of the three options in `docs/scoring-stability.md` for R4's remaining instability.
-2. Persist per-item instrument verdicts (the cut Node 15), which unlocks cross-audit analysis and an empirical false-positive rate.
+2. Build the cross-audit analysis layer over `instrument_items` (now written per audit since D-64, not yet queried across audits) to compute an empirical false-positive rate per instrument item.
 3. Add a `screening_score_deterministic` column.
 4. Recalibrate the combined score's verbal labels against a corpus, or drop the label entirely.
 5. Replace the hand-written checks with axe-core in a headless browser — the technically superior option, rejected here only on time risk. It would bring colour contrast and keyboard operation into scope.
