@@ -30,9 +30,6 @@ The language analysis is grounded in **PEMAT-P (AHRQ)** and the **CDC Clear Comm
 ## How it meets the capstone requirements
 20 functional nodes (see `decision_log.md` D-26) including a real AI node and a reusable subworkflow · single-split branching; one exception, now resolved on the development branch — `Validate Output`/`Validate Output2` carried byte-identical validation logic in two places until D-54 flagged it; extracted into one shared subworkflow called from both sites (`decision_log.md` D-55), with the repair-branch call's live routing left honestly unverified in n8n's editor rather than assumed proven, and not yet promoted from `-dev` to the submitted original · consistent Postgres data model with idempotent upserts, referential integrity, and a documented 14-case edge-case matrix · four documented human-interaction points · security and compliance matched to the health scenario (fully local stack, anonymised test data, encrypted credentials, content-free error logs) · independent research beyond the course material (WCAG 2.2, PEMAT-P, CDC Index, EAA/BFSG) · end-to-end explainable, with a decision log recording rationale and rejected alternatives.
 
-## Relationship to my previous n8n project
-None, beyond both being built in n8n. An earlier version of this section claimed a deliberate shared architectural pattern and named roadmap gaps this project closed — none of that is true; the two are unrelated projects (`decision_log.md` D-61, and a further correction after D-61 itself didn't go far enough).
-
 ## Security and compliance
 Runs entirely on local hardware; only anonymised demo content is sent to the AI API; credentials encrypted via `N8N_ENCRYPTION_KEY`; error logs contain no content (GDPR data minimisation); the AI makes no legal or clinical determination.
 
