@@ -122,7 +122,7 @@ Wenn eine Änderung ansteht, immer zuerst prüfen: Läuft sie auf der Dev-Varian
 Bewusst dokumentiert, nicht vergessen. Beim Arbeiten berücksichtigen.
 
 - ~~**D-36:** Wird Text eingefügt (kein Markup) *und* ist die AI nicht verfügbar, wird kein Kriterium geprüft - der Score wird trotzdem als 100 ausgegeben.~~ Erledigt 13. August, `decision_log.md` D-59 - `screening_score`/`screening_score_deterministic` sind jetzt `null` (Report zeigt „not computable", wie die Instrument-Subscores schon immer). Die Sicherheit hing nie daran: der Prescreen feuert trotzdem.
-- **Regel R4** (Score unter 70) feuert auf dem *kombinierten* Score. Bei drei Läufen mit identischem Input ergab er 42, 72, 65 - R4 feuerte, feuerte nicht, feuerte. Der deterministische Score blieb konstant bei 100.
+- ~~**Regel R4** (Score unter 70) feuert auf dem *kombinierten* Score. Bei drei Läufen mit identischem Input ergab er 42, 72, 65 - R4 feuerte, feuerte nicht, feuerte. Der deterministische Score blieb konstant bei 100.~~ Erledigt 19. August, `decision_log.md` D-76 - R4 liest jetzt `screening_score_deterministic` statt des kombinierten Scores (`docs/scoring-stability.md` Option A). Live gegen genau dieselbe Fixture re-verifiziert: dreimal über das echte Formular, deterministischer Score dreimal stabil bei 100, R4 in keinem der drei Läufe ausgelöst - trotz weiterhin schwankendem kombiniertem Score (36/47/35).
 - **`instrument_items`** wurde entworfen und aus Zeitgründen gestrichen (Node 15; siehe `decision_log.md` D-14, D-20, D-34). Item-Verdicts stehen im Report, sind aber nicht abfragbar.
 - ~~**`screening_score_deterministic`** wird berechnet und ausgegeben, hat aber keine Datenbankspalte.~~ Teilweise erledigt 16. August, `decision_log.md` D-63 - Spalte existiert jetzt auf `audit_runs` (genau die Lösung, die `02_Sprintplan.md` für dieses „Future work #3" vorgesehen hatte). `audits` selbst hat sie weiterhin nicht - bewusst so, `audit_runs` ist die richtige Ebene dafür (Lauf-für-Lauf-Vergleich, nicht der aktuelle Stand).
 - ~~**Fetch-Failure-Pfad** ist verdrahtet, aber nie als Test ausgeführt.~~ Erledigt 13. August, `decision_log.md` D-57 - vier Fälle im Production-Modus gegen `WF1-dev` bewiesen.
@@ -171,7 +171,9 @@ Sprint zur Aufarbeitung der Review-Punkte. Reihenfolge:
 
 - Auswertungskorpus geschlossen bei 24 Seiten. *Erledigt (18. August, `decision_log.md` D-72): "50–100" war keine externe Vorgabe (nur "5–10 vor dem vollen Korpus" stand im 15.-August-Review, `A11yAudit_Arbeitslog.md:163`), die Zielzahl selbst tauchte erst im Budget-Eintrag vom 16. August auf, ohne dokumentierte Herleitung. Bewusst hier geschlossen statt weiter auf die Zahl hingearbeitet - zwei Tranchen haben bereits vier reale Defekte gefunden und behoben (D-68 Content-Scoping, D-69 Regex-Retirement, D-71 SQL-Comment-Bug), genug Ertrag. **Woche 1b (`5–10 reale Seiten` + `Auswertungskorpus`) damit komplett abgeschlossen.**
 
-Als Nächstes laut Fahrplan: Woche 2 - Scoring-Stabilität und Kalibrierung (`docs/scoring-stability.md`), Minimal-LLM-Eval-Suite. **Repo bleibt privat, bis Phase 2 fertig ist.**
+- Woche 2, Option A umgesetzt. *Erledigt (19. August, `decision_log.md` D-76): R4 liest jetzt `screening_score_deterministic` statt des kombinierten Scores (gewählt aus den drei in `docs/scoring-stability.md` abgewogenen Optionen - eliminiert D-37s gemessenes Flackern strukturell statt nur statistisch). Live gegen genau die D-37-Fixture re-verifiziert: dreimal über das echte `-dev`-Formular, deterministischer Score dreimal stabil bei 100, R4 in keinem der drei Läufe ausgelöst, trotz weiterhin schwankendem kombiniertem Score (36/47/35). Die übrigen zwei Woche-2-Punkte (Eval-Suite, formale Zehnfach-Messung) bewusst nicht umgesetzt - abnehmender Grenznutzen, explizit im Fahrplan vermerkt statt still liegengelassen. **Woche 2 damit geschlossen.**
+
+Als Nächstes laut Fahrplan: Woche 3 - Portfolio-Seite (GitHub Pages), Accessibility-Audit der eigenen Seite (hängt an der Portfolio-Seite, noch nicht begonnen). **Repo bleibt privat, bis Phase 2 fertig ist.**
 
 ---
 
@@ -179,7 +181,7 @@ Als Nächstes laut Fahrplan: Woche 2 - Scoring-Stabilität und Kalibrierung (`do
 
 Gegen `workflows_export/*.json`, `code/12_decision_engine.js` und `postgres_schema*.sql` geprüft - nicht aus dem README übernommen.
 
-**Seither durch Phase 2 überholt, an zwei Stellen unten (19. August, Konsistenz-Review gefunden):** die Tabellenzahl (`audit_runs` kam mit D-63 dazu, 5 statt 4 - siehe Repository-Tabelle oben, dort schon korrekt) und der zitierte R4-Ausdruck (fehlt der `screening_score !== null &&`-Guard aus D-59). Beide Zeilen unten bleiben als Snapshot vom 10. August stehen, nicht rückwirkend geändert - für den aktuellen Stand `code/12_decision_engine.js` bzw. `postgres_schema.sql` direkt prüfen, nicht dieses Datum.
+**Seither durch Phase 2 überholt, an zwei Stellen unten (19. August, zwei Konsistenz-Reviews am selben Tag gefunden):** die Tabellenzahl (`audit_runs` kam mit D-63 dazu, 5 statt 4 - siehe Repository-Tabelle oben, dort schon korrekt) und der zitierte R4-Ausdruck - der Drift ist inzwischen größer als beim ersten Fund: nicht mehr nur der fehlende `screening_score !== null &&`-Guard aus D-59, R4 liest seit D-76 (Woche 2, selber Tag) eine ganz andere Variable (`screening_score_deterministic` statt `screening_score`). Beide Zeilen unten bleiben als Snapshot vom 10. August stehen, nicht rückwirkend geändert - für den aktuellen Stand `code/12_decision_engine.js` bzw. `postgres_schema.sql` direkt prüfen, nicht dieses Datum.
 
 **Workflows (`name`-Feld, exakt):**
 
