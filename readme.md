@@ -163,10 +163,6 @@ The Code nodes need `NODE_FUNCTION_ALLOW_EXTERNAL=cheerio` and `NODE_FUNCTION_AL
 - **A measurement that weakens your claim is worth more than the claim.** Running the same page twice at temperature 0 and finding the AI output differed forced me to withdraw "reproducible analysis" and split the score in two. The system that came out of that is more defensible than the one that made the stronger claim.
 - **Documentation drifts from the system silently.** A late review found the documents describing a database table that is never written to — a feature correctly cut weeks earlier, but never marked as cut. The check that caught it compared the documents against the exported workflow, not against my own status notes. Read the artefact, not the summary of the artefact.
 
-## Relationship to my previous project
-
-This was designed fresh — no code or workflow carried over — but deliberately applies the same architectural pattern as my earlier an earlier project [project name] (n8n): central AI call with validation and fallback, deterministic decision engine, error handler. It closes two things that project's own roadmap notes named as the next step to production use: Google Sheets replaced by a relational database with constraints and cross-record querying, and manual, pinned-execution testing replaced by automated deterministic checks. It adds what that project lacked: a published standard against which the AI's output can be judged.
-
 ## Future work, in priority order
 
 1. Decide and implement one of the three options in `docs/scoring-stability.md` for R4's remaining instability.

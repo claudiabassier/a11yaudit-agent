@@ -12,7 +12,7 @@ Format per entry: **Decision · Context · Alternatives considered · Rationale 
 ---
 
 ## D-01 — Postgres instead of Google Sheets
-**Context:** the predecessor project (an earlier project [project name]) used Google Sheets as its data layer and I identified this as a weakness in its retrospective.
+**Context:** an earlier personal n8n project used Google Sheets as its data layer, and I identified this as a weakness in its retrospective.
 **Alternatives:** stay on Sheets (fastest); SQLite (no extra container); Postgres.
 **Rationale:** Sheets cannot enforce value constraints, cannot express foreign-key relationships between audits and findings, and requires hand-written lookup logic for idempotent updates. Postgres gives `CHECK` constraints, referential integrity with cascade delete, `ON CONFLICT` upserts, and cross-audit querying. SQLite would have satisfied most of this, but Postgres is the realistic production choice and runs as a first-class n8n container.
 **Consequences:** one more container; schema must be migrated by hand; the `v_audit_summary` view becomes possible, which is the concrete payoff (cross-page questions that were impossible in Sheets).
@@ -938,18 +938,13 @@ Both fixed directly: the two misplaced paragraphs moved to their correct positio
 
 ## D-61 — "Relationship to my previous project" corrected: "evolution" overclaimed code-level lineage that never existed
 
-**Context:** re-reading `readme.md`'s "Relationship to my previous project" section prompted the question directly: is A11yAudit actually *"a deliberate evolution of the an earlier project [project name],"* or does that word claim more than what happened? Asked rather than assumed, since this is exactly the class of claim this project has repeatedly had to correct once already made (D-41, D-43, D-45, D-54). Confirmed directly: A11yAudit was designed fresh — no an earlier project code, workflow JSON, or schema was copied or adapted. an earlier project was a separate, earlier project (a Turing College exercise, built as an n8n [project name] for an architect coordinating a public-sector project).
+**Context:** re-reading `readme.md`'s "Relationship to my previous project" section prompted the question directly: is A11yAudit actually *"a deliberate evolution of"* an earlier, unrelated personal n8n project of the author's, or does that word claim more than what happened? Asked rather than assumed, since this is exactly the class of claim this project has repeatedly had to correct once already made (D-41, D-43, D-45, D-54). Confirmed directly: A11yAudit was designed fresh — no code, workflow JSON, or schema from that earlier project was copied or adapted. It was a separate, earlier Turing College exercise, unrelated to A11yAudit beyond both being n8n builds.
 
-**Verified against the actual an earlier project project files, not recollection alone.** Located at `~/Downloads/project_files/` (and a duplicate copy under `~/Desktop/Project  Submission n8n/`) — its own README was read directly to check whether the two specific claims still held once the "evolution" framing was corrected:
-- **Architecture pattern.** an earlier project's own system diagram names `SUB-A` (shared subworkflow) + `WF1`/`WF2` (main workflows) + `WF3` (error workflow) — the same naming pattern A11yAudit uses (`SUB-A`, `WF1`, `WF-Error`), confirming the *pattern* genuinely was carried forward, even though no artifact was.
-- **"Google Sheets" weakness.** an earlier project's own "Roadmap — from MVP to professional use" section explicitly lists `Storage: Google Sheets → Postgres / real DB with audit trail` as the named next step — grounding the claim in an earlier project's own documented self-assessment, not memory.
-- **"Manual/screenshot testing" weakness.** an earlier project's "Testing performed" sections describe pinned-data, manually-executed n8n runs (e.g. "a pinned `issue_analysis` job... runs the full chain green") rather than automated deterministic test scripts — consistent with what A11yAudit's `readme.md` claimed an earlier project lacked.
-
-Both underlying facts held up. Only the word "evolution" — and the unqualified "retrospective" framing, corrected to "roadmap notes" once the actual section heading was checked — overclaimed.
+**Verified against the earlier project's actual files, not recollection alone.** Its own README was read directly to check whether two specific claims still held once the "evolution" framing was corrected: a shared architectural naming pattern across the shared-subworkflow/main-workflow/error-workflow split, and two named weaknesses (storage on a spreadsheet rather than a real database; manual rather than automated testing) drawn from that project's own documented self-assessment rather than memory. Both underlying facts held up at the time. Only the word "evolution" — and an unqualified "retrospective" framing, corrected to "roadmap notes" once the actual section heading was checked — overclaimed.
 
 **Decision:** corrected `readme.md` and `capstone_proposal.md` (the latter's "Relationship to my previous n8n project" section carries the same sentence) to state plainly that no code was carried over, and that what was actually inherited is the architectural pattern, not the artifact.
 
-**Consequences:** the claim now matches what happened exactly: pattern reuse and lessons applied, not a code-level fork. No other file needed correction — `decision_log.md`'s own D-01/D-02 entries already described an earlier project correctly (as the source of two identified weaknesses via its retrospective/roadmap, never claiming code lineage), so this was a two-file fix, not a project-wide one.
+**Consequences:** the claim now matched what happened exactly: pattern reuse and lessons applied, not a code-level fork. Did not go far enough — a later pass found the surrounding claims built on the same framing were independently untrue too, and the section was ultimately removed from both files entirely rather than corrected a third time. Named here without identifying the other project, per the author's later instruction that it has no place in A11yAudit's own documentation, correction or not.
 
 ---
 
