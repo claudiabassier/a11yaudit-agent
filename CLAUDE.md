@@ -153,7 +153,7 @@ Sprint zur Aufarbeitung der Review-Punkte. Reihenfolge:
 
 **Sprint Phase 1 (Sprintplan Tag 1–8) damit vollständig abgeschlossen, `main` und `iteration-1-subworkflow-refactor` gleichauf und beide auf GitHub gepusht (13. August).** Zusätzlich am 13. August behoben, unabhängig von der Sprint-Reihenfolge: `decision_log.md` D-61 - „a deliberate evolution of an earlier project" in `readme.md`/`capstone_proposal.md` korrigiert (kein Code übernommen, nur das Architekturmuster).
 
-Als Nächstes laut Sprintplan: direkt Phase 2 (Portfolio, 3 Wochen, Enddatum selbst setzen): `instrument_items` persistieren, Auswertungskorpus, Scoring-Stabilität umsetzen (Entscheidung aus `docs/scoring-stability.md` noch offen), Kalibrierung - **Repo bleibt privat, bis Phase 2 fertig ist.**
+Als Nächstes laut Sprintplan: Phase 2 (Portfolio, 3 Wochen, Enddatum selbst setzen): `instrument_items` persistieren, Auswertungskorpus, Scoring-Stabilität umsetzen (Entscheidung aus `docs/scoring-stability.md` noch offen), Kalibrierung - **Repo bleibt privat, bis Phase 2 fertig ist.**
 
 ---
 
