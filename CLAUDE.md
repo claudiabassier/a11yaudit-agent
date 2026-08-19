@@ -1,4 +1,4 @@
-# A11yAudit — Projektkontext
+# A11yAudit - Projektkontext
 
 Selbst gehostete n8n-Automatisierung, die digitale Gesundheitsinhalte auf Barrierefreiheit und Verständlichkeit prüft. Eingabe: URL oder eingefügter Text. Ausgabe: priorisierte Befunde mit Belegen, getrennte Scores, Entwurf einer Barrierefreiheitserklärung, alles in Postgres.
 
@@ -30,36 +30,36 @@ Code-Nodes brauchen `NODE_FUNCTION_ALLOW_EXTERNAL=cheerio` und `NODE_FUNCTION_AL
 
 Diese Eigenschaften sind das Systemdesign, nicht Implementierungsdetails. Änderungen daran nur nach ausdrücklicher Rücksprache mit mir.
 
-1. **Die AI schlägt vor, deterministische Regeln entscheiden.** Die AI bewertet Instrument-Items und schlägt Befunde vor. Sie entscheidet nichts, was zählt — Scoring, Eskalation und die Weiterleitung sicherheitskritischer Inhalte an einen menschlichen Prüfer laufen über feste Regeln.
+1. **Die AI schlägt vor, deterministische Regeln entscheiden.** Die AI bewertet Instrument-Items und schlägt Befunde vor. Sie entscheidet nichts, was zählt - Scoring, Eskalation und die Weiterleitung sicherheitskritischer Inhalte an einen menschlichen Prüfer laufen über feste Regeln.
 
 2. **Der Safety-Prescreen läuft vor dem AI-Call.** Nicht danach, nicht parallel. Deshalb funktioniert die Sicherheitsroutine auch bei totem Modell.
 
-3. **Fail safe.** Fällt die AI aus, endet der Audit mit „full human audit required" — er läuft durch, statt still zu scheitern.
+3. **Fail safe.** Fällt die AI aus, endet der Audit mit „full human audit required" - er läuft durch, statt still zu scheitern.
 
-4. **Evidenzverifikation.** Jeder Befund muss die Quelle wörtlich zitieren; das Zitat wird nach Whitespace-Normalisierung im Code gegen den tatsächlichen Text geprüft. Nicht auffindbare Evidenz wird **still verworfen, ohne Retry und ohne Repair-Angebot** — das Modell bekommt keine Gelegenheit, ein erfundenes Zitat zu verteidigen. Diese Eigenschaft nicht "verbessern".
+4. **Evidenzverifikation.** Jeder Befund muss die Quelle wörtlich zitieren; das Zitat wird nach Whitespace-Normalisierung im Code gegen den tatsächlichen Text geprüft. Nicht auffindbare Evidenz wird **still verworfen, ohne Retry und ohne Repair-Angebot** - das Modell bekommt keine Gelegenheit, ein erfundenes Zitat zu verteidigen. Diese Eigenschaft nicht "verbessern".
 
-5. **Deterministischer Vorrang.** Widersprechen sich Maschinenprüfung und AI, gewinnt die Maschinenprüfung — und der Widerspruch löst menschliche Prüfung aus.
+5. **Deterministischer Vorrang.** Widersprechen sich Maschinenprüfung und AI, gewinnt die Maschinenprüfung - und der Widerspruch löst menschliche Prüfung aus.
 
 6. **`screening_score_deterministic` ist das Ergebnis.** `screening_score` ist beratend und wird nie als Eigenschaft einer Seite zitiert. Die verbalen Labels des kombinierten Scores sind **nicht kalibriert**.
 
 7. **Keine Konformitätsaussage.** Das Tool prüft eine benannte Teilmenge von WCAG 2.2. Instrument-Scores heißen „PEMAT-informed" / „CCI-informed" und sind eine unvalidierte Adaption. Weder AHRQ noch CDC unterstützen dieses Tool. Formulierungen, die das aufweichen, sind Fehler.
 
-8. **Grounding statt Plausibilität.** Sprachbefunde beziehen sich auf benannte Items aus PEMAT-P und dem CDC Clear Communication Index. Item-Definitionen stehen in `knowledge_base.md` und stammen aus Primärquellen. **Erfinde niemals Item-Definitionen oder -Nummern.** Wenn etwas nicht in `knowledge_base.md` steht, sag es, statt zu ergänzen. In einer früheren Fassung wurden nicht existierende PEMAT-Items zitiert — dieser Fehlertyp ist im Gesundheitskontext fatal.
+8. **Grounding statt Plausibilität.** Sprachbefunde beziehen sich auf benannte Items aus PEMAT-P und dem CDC Clear Communication Index. Item-Definitionen stehen in `knowledge_base.md` und stammen aus Primärquellen. **Erfinde niemals Item-Definitionen oder -Nummern.** Wenn etwas nicht in `knowledge_base.md` steht, sag es, statt zu ergänzen. In einer früheren Fassung wurden nicht existierende PEMAT-Items zitiert - dieser Fehlertyp ist im Gesundheitskontext fatal.
 
 ---
 
 ## Arbeitsregeln
 
 - **Plan-Modus bei allem, was mehrere Dateien berührt.** Erst Plan zeigen, dann ändern.
-- **Technische Schritte konkret und wörtlich erklären** — welches Fenster, welcher Button, welcher Befehl. Kein Tooling-Vorwissen voraussetzen (Terminal, Docker, n8n, SQL). Gilt pauschal, nicht nur für n8n/SQL-Neuland.
+- **Technische Schritte konkret und wörtlich erklären** - welches Fenster, welcher Button, welcher Befehl. Kein Tooling-Vorwissen voraussetzen (Terminal, Docker, n8n, SQL). Gilt pauschal, nicht nur für n8n/SQL-Neuland.
 - **Scoring-Logik und die 9 harten Regeln nicht ohne Rückfrage anfassen.**
-- **`decision_log.md` bei jeder Designentscheidung fortschreiben** — inklusive verworfener Alternativen und ihrer Nachteile. Das Log ist Teil des Produkts.
+- **`decision_log.md` bei jeder Designentscheidung fortschreiben** - inklusive verworfener Alternativen und ihrer Nachteile. Das Log ist Teil des Produkts.
 - **Dokumentation driftet still.** Wird ein Workflow geändert, immer auch `workflow_spec.md` und `readme.md` nachziehen. Prüfe gegen den exportierten Workflow, nicht gegen meine Statusnotizen. Versionsköpfe und Changelogs der betroffenen Dateien (`workflow_spec.md`, `decision_log.md`, `knowledge_base.md`, …) beim Bearbeiten mit hochzählen.
 - **Adversarial testen, nicht bestätigend.** Tests sollen Fehler finden, nicht Bestehen erzeugen. Prüf besonders, ob ein Fehler in die *unsichere* Richtung fällt.
-- **Nichts Geplantes als vorhanden dokumentieren.** Der Abschnitt *What it is not* im README ist eine Stärke, keine Schwäche — er bleibt vollständig.
-- **Überclaiming aktiv erkennen, nicht nur vermeiden.** Konformitätsaussagen, „löst X für alle"-Framing, Reichweitenaussagen über den geprüften Teilbereich hinaus, PEMAT/CCI-Ausgabe als validierten Instrument-Score dargestellt — wo immer das auftaucht aktiv korrigieren, nicht nur an der gerade bearbeiteten Stelle. Vor jeder Veröffentlichung `meta/claims_check.sh` laufen lassen — vier falsche Behauptungen dieser Art sind im Projekt bereits durchgerutscht (`decision_log.md` D-41, D-43, D-45).
-- **Faktenclaims vor Aufnahme in ein Dokument gegen Primärquellen prüfen** — nicht nur Instrument-Item-Nummern (Invariante 8), auch WCAG-Kriterien und Rechtsaussagen zu EAA/BFSG. Diese Fehlerklasse ist mehrfach aufgetreten (`decision_log.md` D-43, D-45).
-- **Bei technischen Sackgassen kein offenes Debugging.** Zeitlimit setzen und einen Fallback benennen, bevor es losgeht (z. B. „30 Minuten, dann Umstieg auf X") — bewährtes Muster aus `decision_log.md` D-17.
+- **Nichts Geplantes als vorhanden dokumentieren.** Der Abschnitt *What it is not* im README ist eine Stärke, keine Schwäche - er bleibt vollständig.
+- **Überclaiming aktiv erkennen, nicht nur vermeiden.** Konformitätsaussagen, „löst X für alle"-Framing, Reichweitenaussagen über den geprüften Teilbereich hinaus, PEMAT/CCI-Ausgabe als validierten Instrument-Score dargestellt - wo immer das auftaucht aktiv korrigieren, nicht nur an der gerade bearbeiteten Stelle. Vor jeder Veröffentlichung `meta/claims_check.sh` laufen lassen - vier falsche Behauptungen dieser Art sind im Projekt bereits durchgerutscht (`decision_log.md` D-41, D-43, D-45).
+- **Faktenclaims vor Aufnahme in ein Dokument gegen Primärquellen prüfen** - nicht nur Instrument-Item-Nummern (Invariante 8), auch WCAG-Kriterien und Rechtsaussagen zu EAA/BFSG. Diese Fehlerklasse ist mehrfach aufgetreten (`decision_log.md` D-43, D-45).
+- **Bei technischen Sackgassen kein offenes Debugging.** Zeitlimit setzen und einen Fallback benennen, bevor es losgeht (z. B. „30 Minuten, dann Umstieg auf X") - bewährtes Muster aus `decision_log.md` D-17.
 - **Kein Secret ins Repo.** Keine Keys, Tokens, Verbindungsdaten, produktiven Webhook-URLs, realen Kundendaten. Das Repo ist derzeit privat, wird aber später öffentlich.
 - **Der eingereichte Stand v1.3 wird nicht verändert.** Siehe Arbeitsumgebung.
 
@@ -71,15 +71,15 @@ Der begutachtete Stand (Version 1.3, 5. August 2026) bleibt unversehrt. Weiteren
 
 **Im Repo**
 
-*Ursprünglich als Zielzustand von Sprint-Schritt 1/2 formuliert (unmittelbar nach dem Kopieren des Repos, vor dem ersten Commit) — inzwischen umgesetzt, dieser Absatz war seither nicht mehr aktualisiert worden (dieselbe Art Drift, die diese Datei selbst an anderer Stelle als Fehlerklasse benennt). Tatsächlicher Stand: Tag `v1.3-capstone` gesetzt, Arbeit läuft auf dem Branch `iteration-1-subworkflow-refactor` (nicht auf `main`), mehrere Commits vorhanden — siehe `git log` oder `A11yAudit_Fahrplan.md` für den aktuellen Stand, nicht diesen Absatz.*
+*Ursprünglich als Zielzustand von Sprint-Schritt 1/2 formuliert (unmittelbar nach dem Kopieren des Repos, vor dem ersten Commit) - inzwischen umgesetzt, dieser Absatz war seither nicht mehr aktualisiert worden (dieselbe Art Drift, die diese Datei selbst an anderer Stelle als Fehlerklasse benennt). Tatsächlicher Stand: Tag `v1.3-capstone` gesetzt, Arbeit läuft auf dem Branch `iteration-1-subworkflow-refactor` (nicht auf `main`), mehrere Commits vorhanden - siehe `git log` oder `A11yAudit_Fahrplan.md` für den aktuellen Stand, nicht diesen Absatz.*
 
 - ~~Tag `v1.3-capstone` soll den eingereichten Stand markieren, sobald der erste Commit steht.~~ Erledigt.
 - ~~Arbeit soll auf Zweigen laufen, nicht direkt auf `main`.~~ Erledigt (`iteration-1-subworkflow-refactor`).
-- `workflows_export/v1.3-as-submitted/` als eingefrorenes Unterverzeichnis war so geplant, existiert aber nicht — die Exporte liegen weiterhin direkt in `workflows_export/`; laut „Verifizierte Referenz" unten (10.08.) unverändert original, das genügt bisher als Schutz.
+- `workflows_export/v1.3-as-submitted/` als eingefrorenes Unterverzeichnis war so geplant, existiert aber nicht - die Exporte liegen weiterhin direkt in `workflows_export/`; laut „Verifizierte Referenz" unten (10.08.) unverändert original, das genügt bisher als Schutz.
 
 **In n8n**
 
-n8n kennt keine Versionierung — eine Änderung am importierten Workflow überschreibt das Original unwiderruflich. Deshalb existieren alle drei Workflows doppelt:
+n8n kennt keine Versionierung - eine Änderung am importierten Workflow überschreibt das Original unwiderruflich. Deshalb existieren alle drei Workflows doppelt:
 
 | Original | Entwicklung |
 |---|---|
@@ -87,10 +87,10 @@ n8n kennt keine Versionierung — eine Änderung am importierten Workflow übers
 | SUB-A (deaktiviert) | SUB-A `-dev` |
 | WF-Error (deaktiviert) | WF-Error `-dev` |
 
-**Zwei Fallen, die dabei regelmäßig auftreten — bei jeder Änderung mitprüfen:**
+**Zwei Fallen, die dabei regelmäßig auftreten - bei jeder Änderung mitprüfen:**
 
 1. **Duplizierte Workflows zeigen weiterhin auf die Original-IDs.** Ein kopierter Hauptworkflow ruft über den Execute-Workflow-Node das *originale* SUB-A auf, nicht die Kopie. Dasselbe gilt für die Fehlerhandler-Einstellung. Nach jedem Duplizieren umhängen und verifizieren, dass tatsächlich die Dev-Variante läuft.
-2. **Datentrennung.** Dev- und Originalvariante dürfen nicht in dieselben Audit-Daten schreiben. Die Idempotenz-Logik zählt bei identischem Inhalt hoch, statt eine neue Zeile anzulegen — Testläufe würden sonst Zeilen der Originaldaten verändern. Getrenntes Schema oder getrennte Datenbank verwenden.
+2. **Datentrennung.** Dev- und Originalvariante dürfen nicht in dieselben Audit-Daten schreiben. Die Idempotenz-Logik zählt bei identischem Inhalt hoch, statt eine neue Zeile anzulegen - Testläufe würden sonst Zeilen der Originaldaten verändern. Getrenntes Schema oder getrennte Datenbank verwenden.
 
 Wenn eine Änderung ansteht, immer zuerst prüfen: Läuft sie auf der Dev-Variante, und schreibt sie in die Dev-Daten?
 
@@ -100,8 +100,8 @@ Wenn eine Änderung ansteht, immer zuerst prüfen: Läuft sie auf der Dev-Varian
 
 | Pfad | Inhalt |
 |---|---|
-| `workflows_export/` | vier Dateien: die drei Pipeline-Workflows — Hauptworkflow (`WF1_Audit_Intake.json`), AI-Subworkflow (`SUB-A_AI_Analysis.json`), Fehlerhandler (`WF-Error.json`) — plus `_cheerio_test.json`, Testschrott aus Tag 1, kein Teil der Pipeline |
-| `postgres_schema.sql`, `postgres_schema_addendum.sql` | Schema — 4 Tabellen, 2 Views |
+| `workflows_export/` | vier Dateien: die drei Pipeline-Workflows - Hauptworkflow (`WF1_Audit_Intake.json`), AI-Subworkflow (`SUB-A_AI_Analysis.json`), Fehlerhandler (`WF-Error.json`) - plus `_cheerio_test.json`, Testschrott aus Tag 1, kein Teil der Pipeline |
+| `postgres_schema.sql`, `postgres_schema_addendum.sql` | Schema - 4 Tabellen, 2 Views |
 | `code/` | JavaScript und SQL je Node, eine Datei pro Node, mit Ein-/Ausgabevertrag und Testeingabe |
 | `code/_DAY0_REVIEW.md` | Code-Review vor dem Bau; acht selbst gefundene Defekte |
 | `code/_S4_evidence_check_harness.js` | Harness für den Anti-Fabrication-Test |
@@ -121,18 +121,18 @@ Wenn eine Änderung ansteht, immer zuerst prüfen: Läuft sie auf der Dev-Varian
 
 Bewusst dokumentiert, nicht vergessen. Beim Arbeiten berücksichtigen.
 
-- ~~**D-36:** Wird Text eingefügt (kein Markup) *und* ist die AI nicht verfügbar, wird kein Kriterium geprüft — der Score wird trotzdem als 100 ausgegeben.~~ Erledigt 13. August, `decision_log.md` D-59 — `screening_score`/`screening_score_deterministic` sind jetzt `null` (Report zeigt „not computable", wie die Instrument-Subscores schon immer). Die Sicherheit hing nie daran: der Prescreen feuert trotzdem.
-- **Regel R4** (Score unter 70) feuert auf dem *kombinierten* Score. Bei drei Läufen mit identischem Input ergab er 42, 72, 65 — R4 feuerte, feuerte nicht, feuerte. Der deterministische Score blieb konstant bei 100.
+- ~~**D-36:** Wird Text eingefügt (kein Markup) *und* ist die AI nicht verfügbar, wird kein Kriterium geprüft - der Score wird trotzdem als 100 ausgegeben.~~ Erledigt 13. August, `decision_log.md` D-59 - `screening_score`/`screening_score_deterministic` sind jetzt `null` (Report zeigt „not computable", wie die Instrument-Subscores schon immer). Die Sicherheit hing nie daran: der Prescreen feuert trotzdem.
+- **Regel R4** (Score unter 70) feuert auf dem *kombinierten* Score. Bei drei Läufen mit identischem Input ergab er 42, 72, 65 - R4 feuerte, feuerte nicht, feuerte. Der deterministische Score blieb konstant bei 100.
 - **`instrument_items`** wurde entworfen und aus Zeitgründen gestrichen (Node 15; siehe `decision_log.md` D-14, D-20, D-34). Item-Verdicts stehen im Report, sind aber nicht abfragbar.
 - **`screening_score_deterministic`** wird berechnet und ausgegeben, hat aber keine Datenbankspalte.
-- ~~**Fetch-Failure-Pfad** ist verdrahtet, aber nie als Test ausgeführt.~~ Erledigt 13. August, `decision_log.md` D-57 — vier Fälle im Production-Modus gegen `WF1-dev` bewiesen.
-- **Das Intake-Formular** bestätigt Empfang, nicht Erfolg — n8n antwortet „Form Submitted", bevor der Workflow läuft.
+- ~~**Fetch-Failure-Pfad** ist verdrahtet, aber nie als Test ausgeführt.~~ Erledigt 13. August, `decision_log.md` D-57 - vier Fälle im Production-Modus gegen `WF1-dev` bewiesen.
+- **Das Intake-Formular** bestätigt Empfang, nicht Erfolg - n8n antwortet „Form Submitted", bevor der Workflow läuft.
 - **Genauigkeit ist ungemessen.** Kein Vergleich gegen menschliche Auditoren.
-- **Keine Lauf-Ebene.** `audits` hält eine Zeile pro Inhalt; beim Re-Run werden `dropped_unverified`, `screening_score` und die Subscores überschrieben. Die schlechte Fixture hat `run_count` 6 und genau einen Messwert. Für Phase 2 ist eine Tabelle `audit_runs` beschlossen — eine Zeile pro Ausführung.
+- **Keine Lauf-Ebene.** `audits` hält eine Zeile pro Inhalt; beim Re-Run werden `dropped_unverified`, `screening_score` und die Subscores überschrieben. Die schlechte Fixture hat `run_count` 6 und genau einen Messwert. Für Phase 2 ist eine Tabelle `audit_runs` beschlossen - eine Zeile pro Ausführung.
 
 **Bestätigter Stand der Datenbank** (geprüft): `postgres_schema_addendum.sql` ist vollständig eingespielt, alle fünf Zusatzspalten existieren. 6 Audits, alle mit `checks_engine` befüllt, 3 davon mit `dropped_unverified > 0`.
 
-**Beobachtung aus den Daten:** Der korrigierte Zwilling steht bei kombiniertem Score 38 (deterministisch 100), die schlechte Fixture bei 0. Der E11-Testlauf steht bei 100, obwohl kein Kriterium geprüft wurde — das ist D-36 in der Praxis.
+**Beobachtung aus den Daten:** Der korrigierte Zwilling steht bei kombiniertem Score 38 (deterministisch 100), die schlechte Fixture bei 0. Der E11-Testlauf steht bei 100, obwohl kein Kriterium geprüft wurde - das ist D-36 in der Praxis.
 
 **Veraltete Dokumentation:** Die Referenz-Upsert-Query am Ende von `postgres_schema.sql` listet 26 Spalten und kennt weder `dropped_unverified` noch `checks_engine` noch `status`. Node 13a schreibt alle drei (D-26). Beim nächsten Anfassen mitziehen.
 
@@ -145,21 +145,21 @@ Sprint zur Aufarbeitung der Review-Punkte. Reihenfolge:
 1. Repo sauber aufsetzen, Credential-Sweep (Schwerpunkt `screenshots/` und `meta/`)
 2. Entwicklungsumgebung aufsetzen: Tag `v1.3-capstone`, Arbeitszweig, Workflows in n8n duplizieren, Datentrennung entscheiden
 3. Regressionsbasis unter `tests/golden/` aus den bestehenden Fixtures
-4. **Geteilte Validierungs-Subworkflow** — `Validate Output` und `Validate Output2` enthalten dieselbe Logik doppelt. *Erledigt auf `-dev` (12. August, `decision_log.md` D-55): eine Subworkflow `SUB-A_Validate-dev`, zwei Aufrufstellen, D-A und D-H strukturell mit geschlossen. Reparaturpfad-Aufruf im Live-Editor nicht beobachtbar (n8n-Pin-Einschränkung wie D-38) — Lücke offen benannt, nicht verschwiegen. `workflows_export/*.json` (Original) unverändert.*
-5. Fetch-Failure-Pfad nachweisen, im Format der bestehenden Failure-Path-Records. *Erledigt (13. August, `decision_log.md` D-57): vier Fälle im Production-Modus gegen `WF1-dev` bewiesen — unroutbare Adresse, nicht auflösbarer Host, HTTP 500, kein verwertbarer Inhalt. Geplanter öffentlicher Testendpunkt zweimal unzuverlässig, auf lokalen Docker-Stub umgestellt, Abweichung dokumentiert statt verschwiegen. `readme.md` aktualisiert.*
+4. **Geteilte Validierungs-Subworkflow** - `Validate Output` und `Validate Output2` enthalten dieselbe Logik doppelt. *Erledigt auf `-dev` (12. August, `decision_log.md` D-55): eine Subworkflow `SUB-A_Validate-dev`, zwei Aufrufstellen, D-A und D-H strukturell mit geschlossen. Reparaturpfad-Aufruf im Live-Editor nicht beobachtbar (n8n-Pin-Einschränkung wie D-38) - Lücke offen benannt, nicht verschwiegen. `workflows_export/*.json` (Original) unverändert.*
+5. Fetch-Failure-Pfad nachweisen, im Format der bestehenden Failure-Path-Records. *Erledigt (13. August, `decision_log.md` D-57): vier Fälle im Production-Modus gegen `WF1-dev` bewiesen - unroutbare Adresse, nicht auflösbarer Host, HTTP 500, kein verwertbarer Inhalt. Geplanter öffentlicher Testendpunkt zweimal unzuverlässig, auf lokalen Docker-Stub umgestellt, Abweichung dokumentiert statt verschwiegen. `readme.md` aktualisiert.*
 6. D-36 beheben. *Erledigt (13. August, `decision_log.md` D-59): `screening_score`/`screening_score_deterministic` sind `null` statt 100, wenn nichts geprüft wurde; R4 explizit gegen `null` abgesichert (analog R8). Isoliert getestet (Docker/Node, 5 Szenarien inkl. Regressionscheck gegen den ursprünglichen Day-4-Handrechnungsfall), `tests/golden` erneut PASS.*
-7. Konzeptnotiz `docs/scoring-stability.md`. *Erledigt (13. August, `decision_log.md` D-60): drei Optionen für R4s verbleibende Instabilität gegeneinander abgewogen (Mechanismus, Wirkung, Kosten, Laufzeit, Nachteil, Erfolgsmessung je Option), mit echten Zahlen unterlegt (D-37s 42/72/65-Streuung, echte Node-Timing-Messung: AI-Call = 75s von 75,2s Gesamtlaufzeit). Bewusst keine Empfehlung — Entscheidung offen. `readme.md` synchronisiert (Architekturabschnitt, Future-work-Liste), Autorenzeile bewusst unangetastet.*
+7. Konzeptnotiz `docs/scoring-stability.md`. *Erledigt (13. August, `decision_log.md` D-60): drei Optionen für R4s verbleibende Instabilität gegeneinander abgewogen (Mechanismus, Wirkung, Kosten, Laufzeit, Nachteil, Erfolgsmessung je Option), mit echten Zahlen unterlegt (D-37s 42/72/65-Streuung, echte Node-Timing-Messung: AI-Call = 75s von 75,2s Gesamtlaufzeit). Bewusst keine Empfehlung - Entscheidung offen. `readme.md` synchronisiert (Architekturabschnitt, Future-work-Liste), Autorenzeile bewusst unangetastet.*
 8. Onepager als PDF. *Erledigt (13. August): `~/Desktop/a11yaudit-agent/A11yAudit_Onepager.pdf`, aus README destilliert, 1 Seite, außerhalb des Git-Repos (kein technisches Artefakt).*
 
-**Sprint Phase 1 (Sprintplan Tag 1–8) damit vollständig abgeschlossen, `main` und `iteration-1-subworkflow-refactor` gleichauf und beide auf GitHub gepusht (13. August).** Zusätzlich am 13. August behoben, unabhängig von der Sprint-Reihenfolge: `decision_log.md` D-61 — „a deliberate evolution of an earlier project" in `readme.md`/`capstone_proposal.md` korrigiert (kein Code übernommen, nur das Architekturmuster).
+**Sprint Phase 1 (Sprintplan Tag 1–8) damit vollständig abgeschlossen, `main` und `iteration-1-subworkflow-refactor` gleichauf und beide auf GitHub gepusht (13. August).** Zusätzlich am 13. August behoben, unabhängig von der Sprint-Reihenfolge: `decision_log.md` D-61 - „a deliberate evolution of an earlier project" in `readme.md`/`capstone_proposal.md` korrigiert (kein Code übernommen, nur das Architekturmuster).
 
-Als Nächstes laut Sprintplan: direkt Phase 2 (Portfolio, 3 Wochen, Enddatum selbst setzen): `instrument_items` persistieren, Auswertungskorpus, Scoring-Stabilität umsetzen (Entscheidung aus `docs/scoring-stability.md` noch offen), Kalibrierung — **Repo bleibt privat, bis Phase 2 fertig ist.**
+Als Nächstes laut Sprintplan: direkt Phase 2 (Portfolio, 3 Wochen, Enddatum selbst setzen): `instrument_items` persistieren, Auswertungskorpus, Scoring-Stabilität umsetzen (Entscheidung aus `docs/scoring-stability.md` noch offen), Kalibrierung - **Repo bleibt privat, bis Phase 2 fertig ist.**
 
 ---
 
 ## Verifizierte Referenz (Stand 10.08.2026)
 
-Gegen `workflows_export/*.json`, `code/12_decision_engine.js` und `postgres_schema*.sql` geprüft — nicht aus dem README übernommen.
+Gegen `workflows_export/*.json`, `code/12_decision_engine.js` und `postgres_schema*.sql` geprüft - nicht aus dem README übernommen.
 
 **Workflows (`name`-Feld, exakt):**
 
@@ -175,9 +175,9 @@ Gegen `workflows_export/*.json`, `code/12_decision_engine.js` und `postgres_sche
 
 **Nodes WF-Error (3):** `Error Trigger` · `Strip Payload` · `Insert error_log,` (Komma ist Teil des Namens)
 
-**Validierungs-Nodes:** `Validate Output` (erster Durchlauf) und `Validate Output2` (zweiter Durchlauf, nach Repair) — Code byte-identisch (16.235 Zeichen), beide aus `code/A4_validate_output.js` in den Canvas kopiert. n8n-Code-Nodes können keine Sibling-Nodes per `require()` einbinden, daher die Duplikation — Ziel von Sprint-Schritt 4.
+**Validierungs-Nodes:** `Validate Output` (erster Durchlauf) und `Validate Output2` (zweiter Durchlauf, nach Repair) - Code byte-identisch (16.235 Zeichen), beide aus `code/A4_validate_output.js` in den Canvas kopiert. n8n-Code-Nodes können keine Sibling-Nodes per `require()` einbinden, daher die Duplikation - Ziel von Sprint-Schritt 4.
 
-**Verdrahtung im Export:** `Call SUB-A` zeigt per `workflowId` hardcodiert auf `4K342U3TtgqWWp6A` (SUB-A_AI_Analysis' eigene ID). `settings.errorWorkflow` von WF1 und SUB-A zeigt auf `fv9YbvAy2rfKC2Ng` (WF-Errors eigene ID). Beides konsistent — das ist der eingereichte Originalzustand, keine Dev-Duplizierung im aktuellen Export.
+**Verdrahtung im Export:** `Call SUB-A` zeigt per `workflowId` hardcodiert auf `4K342U3TtgqWWp6A` (SUB-A_AI_Analysis' eigene ID). `settings.errorWorkflow` von WF1 und SUB-A zeigt auf `fv9YbvAy2rfKC2Ng` (WF-Errors eigene ID). Beides konsistent - das ist der eingereichte Originalzustand, keine Dev-Duplizierung im aktuellen Export.
 
 **Tabellen (4, aus `postgres_schema.sql`):** `audits` · `findings` · `instrument_items` · `error_log`
 **Views (2):** `v_review_queue` · `v_audit_summary`
@@ -202,6 +202,6 @@ R('R8', pemat_understandability !== null && pemat_understandability < 70);
 R('R9', r9Trigger);                     // safety && (PEMAT-4 fail || CCI-7 fail)
 ```
 
-Der R9-Upgrade auf `critical` (läuft vor der Score-Berechnung) matcht zusätzlich auf `wcag_criterion === '3.1.4'` oder `'3.1.3'` — breiter als reine Instrument-Tags (siehe `decision_log.md` D-30).
+Der R9-Upgrade auf `critical` (läuft vor der Score-Berechnung) matcht zusätzlich auf `wcag_criterion === '3.1.4'` oder `'3.1.3'` - breiter als reine Instrument-Tags (siehe `decision_log.md` D-30).
 
-**Verzeichnisstruktur:** `workflows_export/` enthält vier Dateien, nicht drei (siehe Repository-Tabelle oben). Rest der Struktur deckt sich mit der Repository-Tabelle. `tests/golden/` existiert seit Sprint-Schritt 3 (12. August): Docker-basierter Regressionsrunner mit fixierter AI-Antwort (`./tests/golden/run.sh`) plus `engine_drift.js` (cheerio- vs. Regex-Engine-Vergleich) — siehe `decision_log.md` D-52/D-53.
+**Verzeichnisstruktur:** `workflows_export/` enthält vier Dateien, nicht drei (siehe Repository-Tabelle oben). Rest der Struktur deckt sich mit der Repository-Tabelle. `tests/golden/` existiert seit Sprint-Schritt 3 (12. August): Docker-basierter Regressionsrunner mit fixierter AI-Antwort (`./tests/golden/run.sh`) plus `engine_drift.js` (cheerio- vs. Regex-Engine-Vergleich) - siehe `decision_log.md` D-52/D-53.
