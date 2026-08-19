@@ -1,6 +1,6 @@
 # A11yAudit - Technical Specification
 
-**Version 2.8 · 18 August 2026 - Node 5 content-scoping fix (Phase 2, Woche 1b real-page testing)**
+**Version 2.9 · 19 August 2026 - R4 now reads the deterministic score (Phase 2, Woche 2); a missing R9 clause in `legally_relevant`'s spec line found and fixed in passing**
 AI-assisted accessibility and health-literacy audit tool for digital health content.
 Stack: self-hosted n8n (Docker) + Postgres 16 · AI: Anthropic `claude-sonnet-4-6` via n8n's Anthropic node · Language: English.
 
@@ -157,14 +157,14 @@ cci_score               = earned ÷ applicable × 100     (item 17 reverse-score
 | R1 | any finding `severity = critical` | patient safety |
 | R2 | SUB-A returned `analysis_status = "fallback"` | AI unavailable → full human audit |
 | R3 | any `severity ∈ {critical, high}` with `confidence < 0.6` | low-trust AI claim |
-| R4 | `screening_score !== null && screening_score < 70` | severe issue density → legally risky. Never fires when nothing was screened (D-36) - R2 already forces review in that case |
+| R4 | `screening_score_deterministic !== null && screening_score_deterministic < 70` | severe issue density in the **markup-level, reproducible** score → legally risky. Reads the deterministic score, not the combined one, since 19 Aug (Woche 2, Option A, `docs/scoring-stability.md`) - the combined score is not reproducible run-to-run (D-37), so a rule meant to detect issue density was detecting AI variance instead. Never fires when nothing was screened (D-36) - R2 already forces review in that case |
 | R5 | `eaa_scope = true` | declared legal exposure |
 | R6 | `ai_disagreement = true` | AI contradicts deterministic evidence |
 | R7 | `safety_context = true` (Node 9) | medical-safety content never ships on AI-only review |
 | R8 | `pemat_understandability < 70` | material demands more literacy than the stated audience has |
 | R9 | a finding tagged PEMAT 4, CCI 7, **or WCAG 3.1.3 / 3.1.4** **and** `safety_context = true` | undefined medical term in safety-relevant content → also **forces the finding to `critical`** |
 
-`legally_relevant = true` if R5, or (R4 and R1).
+`legally_relevant = true` if R5, or R9, or (R4 and R1) - R9 added D-65 (17 Aug), missing from this line until now (found while updating R4 for Woche 2's scoring-stability fix, 19 Aug).
 `triggered_rules` is stored as an array (e.g. `{R1,R7,R9}`) so every escalation is auditable after the fact.
 
 **R9 is the rule that catches the "BD" class of defect** - and its *trigger* is a deterministic regex (the safety prescreen), not AI judgment about severity.

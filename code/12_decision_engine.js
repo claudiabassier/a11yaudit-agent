@@ -174,7 +174,20 @@ R('R3', findings.some((f) => {
   const c = Number(f.confidence);
   return (isFinite(c) ? c : 0) < 0.6;
 }));
-R('R4', screening_score !== null && screening_score < 70);
+// R4 reads the DETERMINISTIC score, not the combined one (Woche 2,
+// docs/scoring-stability.md Option A, chosen 19 Aug): the combined score
+// folds in AI-proposed findings, which are not reproducible run-to-run at
+// temperature 0 (D-37: 42/72/65 on byte-identical input) — a rule whose
+// name promises "severe issue density" was actually detecting "which of
+// three runs you got". screening_score_deterministic is reproducible by
+// construction (original_severity only, no R9 leakage — D-32), so R4 is
+// now reproducible by construction too, not just usually stable. Real
+// behaviour change, not just a stability fix: R4 no longer escalates on
+// AI-proposed comprehension findings alone, only markup-level ones — a
+// language-only barrier on otherwise-clean markup no longer trips R4
+// specifically, though R1 (any critical finding) and R9's upgrade-to-
+// critical mechanism still catch the worst cases independently of R4.
+R('R4', screening_score_deterministic !== null && screening_score_deterministic < 70);
 R('R5', j.eaa_scope === true);
 R('R6', j.ai_disagreement === true);
 R('R7', safety);
@@ -212,11 +225,17 @@ return [{
  *       BOTH findings referencing the undefined-term items are upgraded to
  *       critical: ai-pemat4-abbrev-bd (was high) and ai-cog-structure
  *       (CCI 7, was medium). original_severity is kept on each.
- *   Screening: findings with wcag_criterion = upgraded critical (15)
- *       + high 3.3.2 (8) = 23 penalty. ai-cog-structure has
+ *   Screening (combined): findings with wcag_criterion = upgraded critical
+ *       (15) + high 3.3.2 (8) = 23 penalty. ai-cog-structure has
  *       wcag_criterion null, so despite being critical it does NOT
  *       count toward the score (fix #7) — it still fires R1.
  *       → screening_score 77, label "issues found".
+ *   Screening (deterministic, what R4 now reads — Woche 2, Option A,
+ *       19 Aug): only source:"automated" findings count. That's just
+ *       auto-3.3.2-input-label (high, 8) — the AI-sourced finding on the
+ *       same criterion doesn't count here regardless of its upgrade, and
+ *       ai-cog-structure has no wcag_criterion either way.
+ *       → screening_score_deterministic 92.
  *   PEMAT understandability: items 1(pass) 3(pass) 4(fail) 8(fail)
  *       11(not_applicable) → 2/4 = 50.0 → R8 fires (< 70).
  *   PEMAT actionability: 20(pass) 21(fail) → 1/2 = 50.0.
@@ -224,10 +243,12 @@ return [{
  *   not_assessed_count: 1.
  *   Rules: R1 (upgraded critical), R7 (safety), R8 (50 < 70), R9 →
  *       triggered_rules ["R1","R7","R8","R9"], human_review_required true.
- *   R4 does NOT fire (77 ≥ 70), no R5, no R4+R1 — but R9 fires on its own,
- *   so legally_relevant is true (D-65, 17 Aug) — this exact case is what
- *   D-65 fixed: before the fix, legally_relevant read false here despite
- *   R9's critical upgrade, because the formula only checked R5 and R4+R1.
+ *   R4 does NOT fire (92 ≥ 70 — was 77 ≥ 70 pre-Woche-2, same conclusion,
+ *   different number now that R4 reads the deterministic score), no R5,
+ *   no R4+R1 — but R9 fires on its own, so legally_relevant is true
+ *   (D-65, 17 Aug) — this exact case is what D-65 fixed: before that fix,
+ *   legally_relevant read false here despite R9's critical upgrade,
+ *   because the formula only checked R5 and R4+R1.
  *
  * Also try: set safety_context false → R9/R7 gone, finding stays "high",
  *   penalty 8+8=16 → score 84; rules ["R8"] only; legally_relevant false.
