@@ -71,10 +71,10 @@ Der begutachtete Stand (Version 1.3, 5. August 2026) bleibt unversehrt. Weiteren
 
 **Im Repo**
 
-*Ursprünglich als Zielzustand von Sprint-Schritt 1/2 formuliert (unmittelbar nach dem Kopieren des Repos, vor dem ersten Commit) — inzwischen umgesetzt, dieser Absatz war seither nicht mehr aktualisiert worden (dieselbe Art Drift, die diese Datei selbst an anderer Stelle als Fehlerklasse benennt). Tatsächlicher Stand: Tag `v1.3-capstone` gesetzt, Arbeit läuft auf dem Branch `subworkflow-refactor` (nicht auf `main`), mehrere Commits vorhanden — siehe `git log` oder `A11yAudit_Fahrplan.md` für den aktuellen Stand, nicht diesen Absatz.*
+*Ursprünglich als Zielzustand von Sprint-Schritt 1/2 formuliert (unmittelbar nach dem Kopieren des Repos, vor dem ersten Commit) — inzwischen umgesetzt, dieser Absatz war seither nicht mehr aktualisiert worden (dieselbe Art Drift, die diese Datei selbst an anderer Stelle als Fehlerklasse benennt). Tatsächlicher Stand: Tag `v1.3-capstone` gesetzt, Arbeit läuft auf dem Branch `iteration-1-subworkflow-refactor` (nicht auf `main`), mehrere Commits vorhanden — siehe `git log` oder `A11yAudit_Fahrplan.md` für den aktuellen Stand, nicht diesen Absatz.*
 
 - ~~Tag `v1.3-capstone` soll den eingereichten Stand markieren, sobald der erste Commit steht.~~ Erledigt.
-- ~~Arbeit soll auf Zweigen laufen, nicht direkt auf `main`.~~ Erledigt (`subworkflow-refactor`).
+- ~~Arbeit soll auf Zweigen laufen, nicht direkt auf `main`.~~ Erledigt (`iteration-1-subworkflow-refactor`).
 - `workflows_export/v1.3-as-submitted/` als eingefrorenes Unterverzeichnis war so geplant, existiert aber nicht — die Exporte liegen weiterhin direkt in `workflows_export/`; laut „Verifizierte Referenz" unten (10.08.) unverändert original, das genügt bisher als Schutz.
 
 **In n8n**
@@ -151,7 +151,7 @@ Sprint zur Aufarbeitung der Review-Punkte. Reihenfolge:
 7. Konzeptnotiz `docs/scoring-stability.md`. *Erledigt (13. August, `decision_log.md` D-60): drei Optionen für R4s verbleibende Instabilität gegeneinander abgewogen (Mechanismus, Wirkung, Kosten, Laufzeit, Nachteil, Erfolgsmessung je Option), mit echten Zahlen unterlegt (D-37s 42/72/65-Streuung, echte Node-Timing-Messung: AI-Call = 75s von 75,2s Gesamtlaufzeit). Bewusst keine Empfehlung — Entscheidung offen. `readme.md` synchronisiert (Architekturabschnitt, Future-work-Liste), Autorenzeile bewusst unangetastet.*
 8. Onepager als PDF. *Erledigt (13. August): `~/Desktop/a11yaudit-agent/A11yAudit_Onepager.pdf`, aus README destilliert, 1 Seite, außerhalb des Git-Repos (kein technisches Artefakt).*
 
-**Sprint Phase 1 (Sprintplan Tag 1–8) damit vollständig abgeschlossen, `main` und `subworkflow-refactor` gleichauf und beide auf GitHub gepusht (13. August).** Zusätzlich am 13. August behoben, unabhängig von der Sprint-Reihenfolge: `decision_log.md` D-61 — „a deliberate evolution of an earlier project" in `readme.md`/`capstone_proposal.md` korrigiert (kein Code übernommen, nur das Architekturmuster).
+**Sprint Phase 1 (Sprintplan Tag 1–8) damit vollständig abgeschlossen, `main` und `iteration-1-subworkflow-refactor` gleichauf und beide auf GitHub gepusht (13. August).** Zusätzlich am 13. August behoben, unabhängig von der Sprint-Reihenfolge: `decision_log.md` D-61 — „a deliberate evolution of an earlier project" in `readme.md`/`capstone_proposal.md` korrigiert (kein Code übernommen, nur das Architekturmuster).
 
 Als Nächstes laut Sprintplan: direkt Phase 2 (Portfolio, 3 Wochen, Enddatum selbst setzen): `instrument_items` persistieren, Auswertungskorpus, Scoring-Stabilität umsetzen (Entscheidung aus `docs/scoring-stability.md` noch offen), Kalibrierung — **Repo bleibt privat, bis Phase 2 fertig ist.**
 
