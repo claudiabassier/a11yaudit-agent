@@ -172,10 +172,6 @@ The Code nodes need `NODE_FUNCTION_ALLOW_EXTERNAL=cheerio` and `NODE_FUNCTION_AL
 - **A measurement that weakens your claim is worth more than the claim.** Running the same page twice at temperature 0 and finding the AI output differed forced me to withdraw "reproducible analysis" and split the score in two. The system that came out of that is more defensible than the one that made the stronger claim.
 - **Documentation drifts from the system silently.** A late review found the documents describing a database table that is never written to — a feature correctly cut weeks earlier, but never marked as cut. The check that caught it compared the documents against the exported workflow, not against my own status notes. Read the artefact, not the summary of the artefact.
 
-## Relationship to my previous project
-
-None, beyond both being built in n8n. An earlier version of this section claimed A11yAudit deliberately applied the same architectural pattern as my an earlier project [project name] and closed gaps named in that project's own roadmap — none of that is true; the two are unrelated projects, corrected here rather than left to stand (`decision_log.md` D-61, and a further correction after D-61 itself didn't go far enough).
-
 ## Future work, in priority order
 
 1. Decide and implement one of the three options in `docs/scoring-stability.md` for R4's remaining instability.
