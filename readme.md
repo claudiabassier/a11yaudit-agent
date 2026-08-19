@@ -24,6 +24,9 @@ Two kinds of tools exist, and neither closes the gap:
 
 I could find nothing connecting the two into a single automated screening of a health page — markup checks and instrument-grounded language analysis together. A11yAudit is that bridge: markup checks and instrument-grounded language analysis in one pass, with results stored so they can be compared across pages over time.
 
+![Review queue row for the poor fixture: the BD abbreviation flagged as PEMAT item 4, severity critical, confidence 0.99, evidence verified against the source text](screenshots/ss11_review_queue.png)
+*The exact "BD" case above, as the tool actually found it — `v_review_queue`, queried live from Postgres, not a mockup.*
+
 ## How it works
 
 ```
