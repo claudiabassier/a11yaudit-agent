@@ -41,6 +41,8 @@ Form (URL or text)
 
 **The central design principle is that the AI proposes and deterministic rules dispose.** The AI suggests findings and scores instrument items; it never decides anything that matters. Scoring, escalation, and the routing of safety-critical content to a human reviewer are handled by fixed rules that work even if the AI returns nothing at all. If the AI fails, the system falls back to "full human audit required" - it fails safe rather than silently. That path is not theoretical: it is demonstrated below.
 
+The overall shape - a shared AI subworkflow plus a deterministic decision engine plus a metadata-only error handler - reuses a pattern I proved out in an earlier n8n project, not something designed fresh for this one.
+
 Two controls make the AI's output usable:
 
 1. **Evidence verification** - every finding must quote the source verbatim, and the quote is checked in code against the actual text after whitespace normalisation. A finding whose evidence cannot be located is discarded before it reaches the database, silently and without a retry: the model is given no opportunity to justify a quote it invented. Tested two ways - a controlled injection (a fabricated `critical` finding was dropped while a legitimate one survived) and observation in production, where this discarded between 0 and 4 findings per run on real model output.
