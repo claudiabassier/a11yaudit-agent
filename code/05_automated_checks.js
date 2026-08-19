@@ -144,8 +144,20 @@ $scopeRoot.find('h1,h2,h3,h4,h5,h6,p,ul,ol,table,blockquote,pre').each((_, el) =
   }
 });
 // Fallback for pages with no semantic block markup (text sitting in bare divs):
+// FIX (19 Aug, rigorous consistency review): re-scanning $scopeRoot.text()
+// directly re-included whatever the semantic pass above had already
+// captured, duplicating it in content_text/word_count on any page with a
+// LITTLE semantic markup (e.g. one short <p>) plus a lot of bare-div bulk
+// text — the < 30-word trigger fires on total semantic word count, not on
+// "zero semantic markup found", so the original code's intent (comment
+// above) and its actual condition didn't match. Reproduced: a two-word <p>
+// next to a 100+-word bare <div> caused the two words to appear twice in
+// content_text. Fixed by excluding already-matched elements from a clone
+// before reading its text, so only genuinely unclaimed text is added.
 if (blocks.reduce((n, b) => n + b.words, 0) < 30) {
-  const bodyText = $scopeRoot.text().replace(/[ \t]+/g, ' ').replace(/\n{2,}/g, '\n').trim();
+  const $unclaimed = $scopeRoot.clone();
+  $unclaimed.find('h1,h2,h3,h4,h5,h6,p,ul,ol,table,blockquote,pre').remove();
+  const bodyText = $unclaimed.text().replace(/[ \t]+/g, ' ').replace(/\n{2,}/g, '\n').trim();
   if (words(bodyText) > 30) bodyText.split('\n').map((s) => s.trim()).filter(Boolean)
     .forEach((t) => blocks.push({ kind: 'p', text: t, words: words(t) }));
 }

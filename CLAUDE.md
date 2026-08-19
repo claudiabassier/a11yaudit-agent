@@ -179,6 +179,8 @@ Als Nächstes laut Fahrplan: Woche 2 — Scoring-Stabilität und Kalibrierung (`
 
 Gegen `workflows_export/*.json`, `code/12_decision_engine.js` und `postgres_schema*.sql` geprüft — nicht aus dem README übernommen.
 
+**Seither durch Phase 2 überholt, an zwei Stellen unten (19. August, Konsistenz-Review gefunden):** die Tabellenzahl (`audit_runs` kam mit D-63 dazu, 5 statt 4 — siehe Repository-Tabelle oben, dort schon korrekt) und der zitierte R4-Ausdruck (fehlt der `screening_score !== null &&`-Guard aus D-59). Beide Zeilen unten bleiben als Snapshot vom 10. August stehen, nicht rückwirkend geändert — für den aktuellen Stand `code/12_decision_engine.js` bzw. `postgres_schema.sql` direkt prüfen, nicht dieses Datum.
+
 **Workflows (`name`-Feld, exakt):**
 
 | Workflow | `name` | `id` |

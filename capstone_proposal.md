@@ -1,7 +1,7 @@
 # Capstone Proposal — A11yAudit
 ### AI-assisted accessibility and health-literacy audit tool for digital health content
 
-**Author:** Claudia Bassier · **Program:** Turing College, AI for Business — Capstone (Case 3: automation / build something useful for your work environment) · **Version 2.1, 4 August 2026** · **Submission target:** 7 August 2026 (platform access ends 13 August; submitting on the 7th leaves room for the STL review)
+**Author:** Claudia Bassier · **Program:** Turing College, AI for Business — Capstone (Case 3: automation / build something useful for your work environment) · **Version 2.2, 19 August 2026** (submitted version was 2.1, 4 August; corrected since for a node-count contradiction and an unverified metric — D-54, the shared-validation-subworkflow sync — D-55, and the "relationship to my previous project" overclaim, corrected twice then removed entirely — D-61/D-73; version header itself had drifted from these edits until this pass) · **Submission target:** 7 August 2026 (platform access ends 13 August; submitting on the 7th leaves room for the STL review)
 
 ## Problem
 Digital health content must be accessible, and comprehensible, to people who are frequently reading it while in pain, frightened, or medicated — that is, at reduced cognitive capacity precisely when comprehension matters most. Two toolsets exist and neither closes the gap: accessibility checkers (axe, WAVE, Lighthouse) test markup well but reduce language to a syllable-counting readability grade; validated health-literacy instruments (PEMAT-P, CDC Clear Communication Index) assess language properly but are manual rubrics applied by trained raters. Nothing connects the two into a single audit of a health page.
