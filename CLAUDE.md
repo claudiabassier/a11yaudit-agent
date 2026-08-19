@@ -71,10 +71,10 @@ Der begutachtete Stand (Version 1.3, 5. August 2026) bleibt unversehrt. Weiteren
 
 **Im Repo**
 
-*Ursprünglich als Zielzustand von Sprint-Schritt 1/2 formuliert (unmittelbar nach dem Kopieren des Repos, vor dem ersten Commit) — inzwischen umgesetzt, dieser Absatz war seither nicht mehr aktualisiert worden (dieselbe Art Drift, die diese Datei selbst an anderer Stelle als Fehlerklasse benennt). **Erneut gedriftet, jetzt zum zweiten Mal korrigiert (16. August):** dieser Absatz nannte noch `subworkflow-refactor` als aktiven Branch — der wurde an Tag 8 in `main` gemerged, `main` markiert seither den fertigen Phase-1-Stand. Aktuelle Arbeit (Phase 2) läuft auf `phase-2-portfolio`, von `main` abgezweigt — siehe `git log`/`git branch --show-current` oder `A11yAudit_Fahrplan.md` für den echten aktuellen Stand, nicht diesen Absatz.*
+*Ursprünglich als Zielzustand von Sprint-Schritt 1/2 formuliert (unmittelbar nach dem Kopieren des Repos, vor dem ersten Commit) — inzwischen umgesetzt, dieser Absatz war seither nicht mehr aktualisiert worden (dieselbe Art Drift, die diese Datei selbst an anderer Stelle als Fehlerklasse benennt). **Erneut gedriftet, jetzt zum zweiten Mal korrigiert (16. August):** dieser Absatz nannte noch `subworkflow-refactor` als aktiven Branch — der wurde an Tag 8 in `main` gemerged, `main` markiert seither den fertigen Phase-1-Stand. Aktuelle Arbeit (Phase 2) läuft auf `iteration-2-claude-code`, von `main` abgezweigt — siehe `git log`/`git branch --show-current` oder `A11yAudit_Fahrplan.md` für den echten aktuellen Stand, nicht diesen Absatz.*
 
 - ~~Tag `v1.3-capstone` soll den eingereichten Stand markieren, sobald der erste Commit steht.~~ Erledigt.
-- ~~Arbeit soll auf Zweigen laufen, nicht direkt auf `main`.~~ Erledigt (`subworkflow-refactor` für Phase 1, inzwischen in `main` gemerged; `phase-2-portfolio` für Phase 2, aktiv).
+- ~~Arbeit soll auf Zweigen laufen, nicht direkt auf `main`.~~ Erledigt (`subworkflow-refactor` für Phase 1, inzwischen in `main` gemerged; `iteration-2-claude-code` für Phase 2, aktiv).
 - `workflows_export/v1.3-as-submitted/` als eingefrorenes Unterverzeichnis war so geplant, existiert aber nicht — die Exporte liegen weiterhin direkt in `workflows_export/`; laut „Verifizierte Referenz" unten (10.08.) unverändert original, das genügt bisher als Schutz.
 
 **In n8n**
@@ -153,7 +153,7 @@ Sprint zur Aufarbeitung der Review-Punkte. Reihenfolge:
 
 **Sprint Phase 1 (Sprintplan Tag 1–8) damit vollständig abgeschlossen, `main` und `subworkflow-refactor` gleichauf und beide auf GitHub gepusht (13. August).** Zusätzlich am 13. August behoben, unabhängig von der Sprint-Reihenfolge: `decision_log.md` D-61 — „a deliberate evolution of" (Bezug auf ein früheres, unabhängiges Projekt) in `readme.md`/`capstone_proposal.md` korrigiert; später (D-73, 18. August) ganz entfernt, da A11yAudit für sich steht und kein Vergleich zu einem anderen Projekt in die Doku gehört.
 
-**Phase 2 stattdessen gewählt und läuft aktiv, auf `phase-2-portfolio` (von `main` abgezweigt, 15. August):**
+**Phase 2 stattdessen gewählt und läuft aktiv, auf `iteration-2-claude-code` (von `main` abgezweigt, 15. August):**
 
 - Prompt-Injection-Mitigation + adversarialer Test. *Erledigt (15./16. August, `decision_log.md` D-62): `<material>`-Tags + explizite System-Prompt-Anweisung in `A2_build_prompt.js`, plus `code/_prompt_injection_harness.js` — echter Docker-Lauf bestätigt `human_review_required: true` trotz simulierter perfekter AI-Antwort.*
 - `audit_runs` — eine Zeile pro Ausführung statt nur pro Inhalt. *Erledigt (16./17. August, `decision_log.md` D-63): Schema, Payload-Builder, Least-Privilege-Postgres-Rolle (`a11yaudit_app`) gebaut und funktional bewiesen, Canvas-Verdrahtung, Ende-zu-Ende mit echtem Formular-Lauf verifiziert (`run_no: 5`, `triggered_rules: {R1,R4,R7,R8,R9}`). `ai_input_tokens`/`ai_output_tokens`/`ai_cost_usd` bewusst noch `NULL` — separates, größeres Follow-up (SUB-As Output-Contract fehlt dafür ein Feld). Die Rolle war zu diesem Zeitpunkt gebaut, aber noch nicht im aktiven Einsatz — siehe D-66 unten.*
