@@ -1,12 +1,12 @@
-# A11yAudit — Technical Specification
+# A11yAudit - Technical Specification
 
-**Version 2.6 · 13 August 2026 — synchronised with the as-built system, Tag 7's D-36 fix folded in**
+**Version 2.6 · 13 August 2026 - synchronised with the as-built system, Tag 7's D-36 fix folded in**
 AI-assisted accessibility and health-literacy audit tool for digital health content.
 Stack: self-hosted n8n (Docker) + Postgres 16 · AI: Anthropic `claude-sonnet-4-6` via n8n's Anthropic node · Language: English.
 
 > **Spec versus canvas.** Up to v2.1 this document described the system as designed. From v2.2 it describes the system **as built**, and every difference between the two is recorded in `decision_log.md`. Where the canvas and this document disagree, the canvas is the truth and the disagreement is a defect in this file.
 
-**Changelog** — v2.6 (13 Aug, Tag 7): `screening_score`/`screening_score_deterministic` now `null` ("not computable") rather than 100 when nothing was actually screened, mirroring the existing instrument-subscore pattern; R4 guarded against `null` explicitly (D-36). v2.5 (13 Aug, Tag 6): Node 4's fetch-failure path, previously "not yet demonstrated", proven across four cases against `WF1-dev` in production mode (D-57) — no code change, this closes an evidence gap, not a defect. v2.4 (12 Aug, Sprint-Schritt 4–5): `Validate Output`/`Validate Output2` (byte-identical Code nodes) extracted into one subworkflow, `SUB-A_Validate`, called from two sites — closes D-A (implicit `$('Build Prompt')` coupling inside the validator) and D-H (`attempt` not reliably 2 on repair) by construction rather than by convention; new output field `next_action` (D-55). v2.3 (10 Aug, pre-commit review sync): `v_review_queue`'s join fixed from INNER to LEFT, so an audit escalated by R2–R8 with no individually-flagged finding row is no longer invisible to the reviewer (D-47) · this document's R1–R9 table and Node 5b description confirmed accurate against the code — `decision_log.md`'s D-20 cut list, not this file, was the stale one (D-46) · Node 12's `screening_score` can read 100 when nothing was actually screened, known defect, not fixed (D-36) · Node A4's evidence-verification tested by direct injection against a fabricated finding, not just unit tests (D-38) · the dash-vs-colon error-message convention noted at Node 2 below is now also in this changelog (D-35). v2.2 (4 Aug, as-built sync): Node 4 stops on error rather than continuing (D-24) · Node 12 reports a second, AI-independent screening score (D-32) and its verbal label is documented as uncalibrated for content findings (D-33) · R9's implemented trigger set is wider than v2.1 stated (D-30) · node count corrected from 19 to 20 on canvas (D-26) · A3 model and `max_tokens` corrected (D-22, D-27). v2.1: seven pre-build review fixes (safety-regex context gating, markdown extraction, screening-score rename, linear repair chain, instrument completeness check, partial-write honesty, score-contamination rule) — see `decision_log.md` D-13; scope tiered for the 7-day window (D-14). v2.0: grounded the language analysis in PEMAT-P and the CDC Clear Communication Index (see `knowledge_base.md`); added instrument subscores kept separate from the WCAG score; added rules R8/R9; added explicit not-assessed reporting. v1.0: initial WCAG + generic cognitive design.
+**Changelog** - v2.6 (13 Aug, Tag 7): `screening_score`/`screening_score_deterministic` now `null` ("not computable") rather than 100 when nothing was actually screened, mirroring the existing instrument-subscore pattern; R4 guarded against `null` explicitly (D-36). v2.5 (13 Aug, Tag 6): Node 4's fetch-failure path, previously "not yet demonstrated", proven across four cases against `WF1-dev` in production mode (D-57) - no code change, this closes an evidence gap, not a defect. v2.4 (12 Aug, Sprint-Schritt 4–5): `Validate Output`/`Validate Output2` (byte-identical Code nodes) extracted into one subworkflow, `SUB-A_Validate`, called from two sites - closes D-A (implicit `$('Build Prompt')` coupling inside the validator) and D-H (`attempt` not reliably 2 on repair) by construction rather than by convention; new output field `next_action` (D-55). v2.3 (10 Aug, pre-commit review sync): `v_review_queue`'s join fixed from INNER to LEFT, so an audit escalated by R2–R8 with no individually-flagged finding row is no longer invisible to the reviewer (D-47) · this document's R1–R9 table and Node 5b description confirmed accurate against the code - `decision_log.md`'s D-20 cut list, not this file, was the stale one (D-46) · Node 12's `screening_score` can read 100 when nothing was actually screened, known defect, not fixed (D-36) · Node A4's evidence-verification tested by direct injection against a fabricated finding, not just unit tests (D-38) · the dash-vs-colon error-message convention noted at Node 2 below is now also in this changelog (D-35). v2.2 (4 Aug, as-built sync): Node 4 stops on error rather than continuing (D-24) · Node 12 reports a second, AI-independent screening score (D-32) and its verbal label is documented as uncalibrated for content findings (D-33) · R9's implemented trigger set is wider than v2.1 stated (D-30) · node count corrected from 19 to 20 on canvas (D-26) · A3 model and `max_tokens` corrected (D-22, D-27). v2.1: seven pre-build review fixes (safety-regex context gating, markdown extraction, screening-score rename, linear repair chain, instrument completeness check, partial-write honesty, score-contamination rule) - see `decision_log.md` D-13; scope tiered for the 7-day window (D-14). v2.0: grounded the language analysis in PEMAT-P and the CDC Clear Communication Index (see `knowledge_base.md`); added instrument subscores kept separate from the WCAG score; added rules R8/R9; added explicit not-assessed reporting. v1.0: initial WCAG + generic cognitive design.
 
 **Companion documents:** `knowledge_base.md` (verified instrument items and scope), `decision_log.md` (design decisions and rationale), `build_runbook.md` (reproducible build and test procedure), `postgres_schema.sql`.
 
@@ -17,7 +17,7 @@ Stack: self-hosted n8n (Docker) + Postgres 16 · AI: Anthropic `claude-sonnet-4-
 ```
 Form → WF1 Audit Intake ──► SUB-A (AI analysis, validated, fallback-safe)
                         └─► Decision Engine (deterministic, AI-independent)
-                        └─► Postgres (audits / findings · instrument_items designed, not built — D-20)
+                        └─► Postgres (audits / findings · instrument_items designed, not built - D-20)
                         └─► Report + Accessibility statement draft
 All workflows ──► WF-Error (metadata-only logging)
 ```
@@ -28,9 +28,9 @@ All workflows ──► WF-Error (metadata-only logging)
 
 ---
 
-## 1. WF1 — Audit Intake (main workflow)
+## 1. WF1 - Audit Intake (main workflow)
 
-### Node 1 — `Form Trigger`
+### Node 1 - `Form Trigger`
 
 | Field | Type | Required | Purpose |
 |---|---|---|---|
@@ -44,30 +44,30 @@ All workflows ──► WF-Error (metadata-only logging)
 
 *The `audience` field exists because the CDC Index explicitly requires the primary audience and its literacy skills to be known before a material can be scored. Recording it makes the assessment reproducible and is a documented human-input point.*
 
-### Node 2 — `Normalize Input` (Code)
+### Node 2 - `Normalize Input` (Code)
 Trim fields; empty string → `null`.
 **Edge cases:** both `page_url` and `pasted_content` null → `Stop and Error` (`no_content`). Both present → URL wins, note recorded. URL not matching `^https?://` → `Stop and Error` (`bad_url`).
 
-> **Error-message convention — do not "tidy" this (D-35).** The error class token must be separated from the message by a **hyphen**, never a colon: `throw new Error('no_content - …')`. n8n rewrites a Code-node error on its way to the Error Trigger, appending `[line N]` and **discarding everything before the first colon**. With a colon, `WF-Error` receives a message with no class token and correctly falls back to `unknown_error`. Verified by the E1 runs at 17:16 (colon → `unknown_error`) and 17:26 (hyphen → `no_content`).
+> **Error-message convention - do not "tidy" this (D-35).** The error class token must be separated from the message by a **hyphen**, never a colon: `throw new Error('no_content - …')`. n8n rewrites a Code-node error on its way to the Error Trigger, appending `[line N]` and **discarding everything before the first colon**. With a colon, `WF-Error` receives a message with no class token and correctly falls back to `unknown_error`. Verified by the E1 runs at 17:16 (colon → `unknown_error`) and 17:26 (hyphen → `no_content`).
 Output contract: `{ source_type, page_url, page_title, content_language, audience, eaa_scope, auditor_note, started_at }`.
 
-### Node 3 — `IF: source type`
+### Node 3 - `IF: source type`
 `source_type === "url"` → URL branch, else text branch. Single split; branches rejoin at Node 7. No logic is duplicated across branches.
 
-### Node 4 (URL) — `Fetch Page` (HTTP Request)
+### Node 4 (URL) - `Fetch Page` (HTTP Request)
 GET, timeout 15 s, **`On Error` = "Stop workflow"** (n8n's default), custom User-Agent.
-**Edge case:** non-200 or timeout → the node throws, the execution stops, and `WF-Error` logs it (in production executions only — D-21).
+**Edge case:** non-200 or timeout → the node throws, the execution stops, and `WF-Error` logs it (in production executions only - D-21).
 
-> **As-built change (D-24).** v2.1 specified `Continue On Fail = true` here, so that a fetch failure would be caught and turned into a `fetch_error` by a later node. That was wrong for this node: continuing on failure passes an empty or error-shaped body downstream, where `Automated Checks` would score it as a page with no headings, no `lang` attribute and no alt text — a fetch failure would have been reported as a very inaccessible page. Stopping is the conservative behaviour: no audit row is written at all, rather than a wrong one. **Demonstrated 13 August (D-57)** — four cases (unroutable address, unresolvable host, HTTP 500, no usable content) proven against `WF1-dev` in production mode, verified against `execution_entity`/`error_log` directly. Full detail: `demo_output/11_fetch_failure_test.md`.
+> **As-built change (D-24).** v2.1 specified `Continue On Fail = true` here, so that a fetch failure would be caught and turned into a `fetch_error` by a later node. That was wrong for this node: continuing on failure passes an empty or error-shaped body downstream, where `Automated Checks` would score it as a page with no headings, no `lang` attribute and no alt text - a fetch failure would have been reported as a very inaccessible page. Stopping is the conservative behaviour: no audit row is written at all, rather than a wrong one. **Demonstrated 13 August (D-57)** - four cases (unroutable address, unresolvable host, HTTP 500, no usable content) proven against `WF1-dev` in production mode, verified against `execution_entity`/`error_log` directly. Full detail: `demo_output/11_fetch_failure_test.md`.
 
-### Node 5 (URL) — `Automated Checks` (Code, no AI)
+### Node 5 (URL) - `Automated Checks` (Code, no AI)
 Requires `NODE_FUNCTION_ALLOW_EXTERNAL=cheerio` on the n8n container.
 
 Produces two outputs:
 
-**(a) WCAG findings** — the nine deterministic checks in `knowledge_base.md` §1.1. Each gets `source: "automated"`, `confidence: 1.00`, and a stable `finding_key` (e.g. `auto-1.1.1-img-alt`).
+**(a) WCAG findings** - the nine deterministic checks in `knowledge_base.md` §1.1. Each gets `source: "automated"`, `confidence: 1.00`, and a stable `finding_key` (e.g. `auto-1.1.1-img-alt`).
 
-**(b) Deterministic instrument observations** — machine-decidable instrument items:
+**(b) Deterministic instrument observations** - machine-decidable instrument items:
 
 | Item | Rule implemented |
 |---|---|
@@ -80,21 +80,21 @@ Produces two outputs:
 | CCI 8 | list present and no unbroken list > 7 items → pass |
 | CCI 9 | ≥2 headings with content chunks → pass |
 
-Also extracts `content_text` — **as lightweight markdown, not flat text** (review fix #2): headings become `#`/`##`…, lists become `-`/`1.`, paragraph breaks preserved, everything else stripped. The AI cannot judge heading informativeness (PEMAT 9), chunking (PEMAT 8), sequence (PEMAT 10), or main-message position (CCI 2/10) from structure-free text; markdown preserves exactly the structure those items require while staying cheap to quote in evidence. Plus `word_count`, `paragraph_count`, `is_very_short` (≤2 paragraphs, AHRQ definition).
+Also extracts `content_text` - **as lightweight markdown, not flat text** (review fix #2): headings become `#`/`##`…, lists become `-`/`1.`, paragraph breaks preserved, everything else stripped. The AI cannot judge heading informativeness (PEMAT 9), chunking (PEMAT 8), sequence (PEMAT 10), or main-message position (CCI 2/10) from structure-free text; markdown preserves exactly the structure those items require while staying cheap to quote in evidence. Plus `word_count`, `paragraph_count`, `is_very_short` (≤2 paragraphs, AHRQ definition).
 
-### Node 6 (text) — `Prepare Text` (Code)
+### Node 6 (text) - `Prepare Text` (Code)
 `content_text = pasted_content`; `automated_findings = []`; `automated_checks_skipped = true`; all deterministic instrument items → `not_assessed` (no markup available). This limitation is printed in the report.
 
-### Node 7 — `Merge`
+### Node 7 - `Merge`
 
-### Node 8 — `Hash + Guard` (Code)
+### Node 8 - `Hash + Guard` (Code)
 `content_hash = sha256(content_text)`.
 **Edge cases:** `content_text` shorter than 200 characters → `Stop and Error` (`insufficient_content`; scoring would be meaningless). Longer than 30 000 characters → truncate, `content_truncated = true`.
 
-### Node 9 — `Safety Prescreen` (Code, deterministic)
-Runs the §4 regex sets from `knowledge_base.md` against `content_text`, using the **two-tier matching rule** (v2.1): long unambiguous terms match standalone; short dosing abbreviations match only within 40 characters of a number, unit, or dose-form word — otherwise German "im" would trigger review on every German page. Outputs `safety_terms_found: string[]` and `safety_context: boolean`. **Runs before the AI call** so that safety routing is independent of the AI's availability.
+### Node 9 - `Safety Prescreen` (Code, deterministic)
+Runs the §4 regex sets from `knowledge_base.md` against `content_text`, using the **two-tier matching rule** (v2.1): long unambiguous terms match standalone; short dosing abbreviations match only within 40 characters of a number, unit, or dose-form word - otherwise German "im" would trigger review on every German page. Outputs `safety_terms_found: string[]` and `safety_context: boolean`. **Runs before the AI call** so that safety routing is independent of the AI's availability.
 
-### Node 10 — `Call SUB-A` (Execute Workflow)
+### Node 10 - `Call SUB-A` (Execute Workflow)
 
 Input contract:
 ```json
@@ -110,15 +110,15 @@ Input contract:
 ```
 `deterministic_items` is passed in so the AI does not re-judge what has already been decided by code.
 
-### Node 11 — `Merge Findings` (Code)
+### Node 11 - `Merge Findings` (Code)
 - Concatenate automated + AI findings.
 - **Dedupe:** same `wcag_criterion` with overlapping evidence → keep the automated finding, attach the AI's `explanation_plain`.
 - **Precedence:** for any instrument item present in both, the deterministic verdict overrides the AI's.
 - **Cross-check:** automated check failed a criterion but the AI reports it clean → `ai_disagreement = true` (feeds R6).
 
-### Node 12 — `Decision Engine` (Code) — deterministic, AI-independent
+### Node 12 - `Decision Engine` (Code) - deterministic, AI-independent
 
-**(a) WCAG screening scores — two of them (D-32)**
+**(a) WCAG screening scores - two of them (D-32)**
 ```
 screening_score               = max(0, 100 − Σ penalty over ALL findings with a WCAG criterion)
 screening_score_deterministic = max(0, 100 − Σ penalty over AUTOMATED findings only,
@@ -127,19 +127,19 @@ penalty: critical 15 · high 8 · medium 4 · low 1
 label: ≥90 "no issues in screened subset" · 70–89 "issues found" · <70 "severe issues found"
 ```
 
-> **Why two numbers.** The Day-5 before/after demo exposed a problem: on the corrected fixture, *all* penalty points came from AI-proposed findings, because the page had zero automated findings. The most prominent number in the report — the one labelled "WCAG screening score" — was therefore neither AI-independent nor reproducible (D-30), inside a system whose entire claim is that the AI proposes and deterministic rules dispose. `screening_score_deterministic` is computed from the deterministic checks alone and can be re-run to the same value; `screening_score` includes AI-proposed findings and is advisory. R9 upgrades are excluded from the deterministic figure because the upgrade is AI-triggered, so counting it would leak AI influence into the number that exists to be free of it. **Quote the deterministic score as the result.**
+> **Why two numbers.** The Day-5 before/after demo exposed a problem: on the corrected fixture, *all* penalty points came from AI-proposed findings, because the page had zero automated findings. The most prominent number in the report - the one labelled "WCAG screening score" - was therefore neither AI-independent nor reproducible (D-30), inside a system whose entire claim is that the AI proposes and deterministic rules dispose. `screening_score_deterministic` is computed from the deterministic checks alone and can be re-run to the same value; `screening_score` includes AI-proposed findings and is advisory. R9 upgrades are excluded from the deterministic figure because the upgrade is AI-triggered, so counting it would leak AI influence into the number that exists to be free of it. **Quote the deterministic score as the result.**
 
-> **The verbal label is not calibrated for content findings (D-33).** The ≥90 / 70–89 / <70 bands were designed when only the nine deterministic checks fed the score. AI-proposed comprehension findings are numerous by nature — seven on a *well-written* page — so any page with content barriers lands under 70 regardless of quality. The bands need recalibration against a corpus before the combined score can carry a verbal label at all. Not attempted; the label is printed for the deterministic score and described as advisory for the combined one.
+> **The verbal label is not calibrated for content findings (D-33).** The ≥90 / 70–89 / <70 bands were designed when only the nine deterministic checks fed the score. AI-proposed comprehension findings are numerous by nature - seven on a *well-written* page - so any page with content barriers lands under 70 regardless of quality. The bands need recalibration against a corpus before the combined score can carry a verbal label at all. Not attempted; the label is printed for the deterministic score and described as advisory for the combined one.
 
-> **Fixed (D-36, 13 Aug).** Both scores are now `null` — rendered "not computable" by the report layer, same as the instrument subscores — when nothing was actually screened: pasted text (`checks_engine: "none"`) with the AI unavailable. Previously the penalty sum defaulted to 0 from zero checks, not zero problems, and printed 100/"no issues in screened subset" for a page nobody assessed (first observed on the E11 test run). R4 (below) is guarded against `null` explicitly, the same pattern R8 already used for `pemat_understandability`.
+> **Fixed (D-36, 13 Aug).** Both scores are now `null` - rendered "not computable" by the report layer, same as the instrument subscores - when nothing was actually screened: pasted text (`checks_engine: "none"`) with the AI unavailable. Previously the penalty sum defaulted to 0 from zero checks, not zero problems, and printed 100/"no issues in screened subset" for a page nobody assessed (first observed on the E11 test run). R4 (below) is guarded against `null` explicitly, the same pattern R8 already used for `pemat_understandability`.
 
-**Storage note.** `postgres_schema.sql` has no column for `screening_score_deterministic`; it is computed by Node 12, printed in the report and the statement, and **not persisted**. Adding the column was descoped under D-20; it is future work, but not the first priority — persisting per-item instrument verdicts ranks ahead of it (see readme.md's "Future work, in priority order" and `decision_log.md` D-34).
+**Storage note.** `postgres_schema.sql` has no column for `screening_score_deterministic`; it is computed by Node 12, printed in the report and the statement, and **not persisted**. Adding the column was descoped under D-20; it is future work, but not the first priority - persisting per-item instrument verdicts ranks ahead of it (see readme.md's "Future work, in priority order" and `decision_log.md` D-34).
 
 Two rules from review:
 - **Naming (fix #3):** this is *not* a conformance score, and the labels deliberately avoid ACR/VPAT conformance language ("supports" etc.). The tool screens a listed subset of WCAG; claiming conformance over 87 criteria after screening nine would be an overclaim with legal implications under BFSG. Report and statement name the screened criteria explicitly.
 - **No contamination (fix #7):** only findings with a non-null `wcag_criterion` count toward the screening score. Pure cognitive findings (`wcag_criterion: null`) are already measured by the PEMAT/CCI subscores; counting them here would double-count and blur what each number means.
 
-**(b) Instrument subscores** — computed per instrument rules, `not_assessed` items excluded from the denominator:
+**(b) Instrument subscores** - computed per instrument rules, `not_assessed` items excluded from the denominator:
 ```
 pemat_understandability = passed ÷ applicable × 100     (items 1–12, 15–19)
 pemat_actionability     = passed ÷ applicable × 100     (items 20–26)
@@ -148,14 +148,14 @@ cci_score               = earned ÷ applicable × 100     (item 17 reverse-score
 
 > **These four numbers are never blended into one figure.** A WCAG screening score and a health-literacy percentage measure different things against different scales; averaging them would produce a number with no defensible meaning. The report shows them side by side. (See `decision_log.md` D-05.)
 
-**(c) Hard rules — `human_review_required = true` if ANY fire**
+**(c) Hard rules - `human_review_required = true` if ANY fire**
 
 | # | Condition | Rationale |
 |---|---|---|
 | R1 | any finding `severity = critical` | patient safety |
 | R2 | SUB-A returned `analysis_status = "fallback"` | AI unavailable → full human audit |
 | R3 | any `severity ∈ {critical, high}` with `confidence < 0.6` | low-trust AI claim |
-| R4 | `screening_score !== null && screening_score < 70` | severe issue density → legally risky. Never fires when nothing was screened (D-36) — R2 already forces review in that case |
+| R4 | `screening_score !== null && screening_score < 70` | severe issue density → legally risky. Never fires when nothing was screened (D-36) - R2 already forces review in that case |
 | R5 | `eaa_scope = true` | declared legal exposure |
 | R6 | `ai_disagreement = true` | AI contradicts deterministic evidence |
 | R7 | `safety_context = true` (Node 9) | medical-safety content never ships on AI-only review |
@@ -165,62 +165,62 @@ cci_score               = earned ÷ applicable × 100     (item 17 reverse-score
 `legally_relevant = true` if R5, or (R4 and R1).
 `triggered_rules` is stored as an array (e.g. `{R1,R7,R9}`) so every escalation is auditable after the fact.
 
-**R9 is the rule that catches the "BD" class of defect** — and its *trigger* is a deterministic regex (the safety prescreen), not AI judgment about severity.
+**R9 is the rule that catches the "BD" class of defect** - and its *trigger* is a deterministic regex (the safety prescreen), not AI judgment about severity.
 
 > **As-built scope of R9 (D-30).** The WCAG 3.1.3 / 3.1.4 arm was added during the 31 July review because the AI frequently reports an undefined abbreviation under the WCAG criterion without tagging the instrument item. The consequence, verified on the corrected fixture: **every jargon finding on safety-relevant content becomes critical**, so "'excipients' is unexplained" and "'BD' is undefined" carry the same severity. That is conservative in the intended direction, but it must be stated when presenting R9 rather than left for a reviewer to discover. R9 accounted for 28 of the 62 penalty points on the corrected page (D-33).
 
-### Node 13 — `Upsert Audit` (Postgres)
+### Node 13 - `Upsert Audit` (Postgres)
 `INSERT … ON CONFLICT (content_hash) DO UPDATE`; writes scores, labels, flags, `triggered_rules`, `ai_model`, `ai_fallback_used`, `not_assessed_count`. Returns `audit_id`.
 
-### Node 14 — `Insert Findings` (Postgres)
-Upsert on `(audit_id, finding_key)` — idempotent re-runs.
+### Node 14 - `Insert Findings` (Postgres)
+Upsert on `(audit_id, finding_key)` - idempotent re-runs.
 
-### Node 15 — `Insert Instrument Items` (Postgres) — **DESIGNED, NOT BUILT IN v1 (D-14 Tier 2, cut by D-20)**
-*As designed:* upsert on `(audit_id, instrument, item_no)` into `instrument_items` — one row per PEMAT/CCI item with `verdict`, `decided_by` (`deterministic` / `ai` / `human`) and `rationale`, carrying `WHERE overridden_by_human = false` so a re-run never overwrites a human reviewer's correction. Intended as the queryable audit trail of the assessment itself.
+### Node 15 - `Insert Instrument Items` (Postgres) - **DESIGNED, NOT BUILT IN v1 (D-14 Tier 2, cut by D-20)**
+*As designed:* upsert on `(audit_id, instrument, item_no)` into `instrument_items` - one row per PEMAT/CCI item with `verdict`, `decided_by` (`deterministic` / `ai` / `human`) and `rationale`, carrying `WHERE overridden_by_human = false` so a re-run never overwrites a human reviewer's correction. Intended as the queryable audit trail of the assessment itself.
 
 *As built:* the node does not exist. The per-item verdicts are computed and printed in the report, but not stored as rows. The `instrument_items` table is empty. See the note under Node 19 for the full consequences.
 
-Aggregated across audits, `v_audit_summary` was designed to answer the cross-page questions that were impossible on the previous project's Google Sheets basis — most frequently failing criterion, average confidence per criterion, and (once findings have been reviewed) the confirmed/dismissed ratio that gives an empirical false-positive rate. **Because Node 15 was cut, the per-item half of that is not currently answerable.** What *is* answerable from `audits` and `findings`: per-criterion finding frequency across audits, severity distribution, and which rules fired how often.
+Aggregated across audits, `v_audit_summary` was designed to answer the cross-page questions that were impossible on the previous project's Google Sheets basis - most frequently failing criterion, average confidence per criterion, and (once findings have been reviewed) the confirmed/dismissed ratio that gives an empirical false-positive rate. **Because Node 15 was cut, the per-item half of that is not currently answerable.** What *is* answerable from `audits` and `findings`: per-criterion finding frequency across audits, severity distribution, and which rules fired how often.
 
-### Node 16 — `IF: human review?`
+### Node 16 - `IF: human review?`
 true → Node 17, else → Node 18.
 
-### Node 17 — `Flag for Review` (Postgres)
+### Node 17 - `Flag for Review` (Postgres)
 `audits.status = 'needs_review'`. Reviewer works the `v_review_queue` view.
 
-### Node 18 — `Generate Report + Statement` (Code, deterministic templates)
+### Node 18 - `Generate Report + Statement` (Code, deterministic templates)
 
-**Audit report (markdown):** metadata and audience · **five numbers side by side** — two WCAG screening scores (deterministic-only and AI-inclusive, D-32) and three instrument subscores · findings table by severity · per finding: plain-language explanation, recommendation, evidence quote, instrument/criterion reference · instrument item table with verdicts · **Limitations section** (auto-generated: not-assessed items, out-of-scope WCAG criteria per `knowledge_base.md` §1.3, `automated_checks_skipped`, `content_truncated`, fallback notice) · the PEMAT/CCI adaptation disclaimer.
+**Audit report (markdown):** metadata and audience · **five numbers side by side** - two WCAG screening scores (deterministic-only and AI-inclusive, D-32) and three instrument subscores · findings table by severity · per finding: plain-language explanation, recommendation, evidence quote, instrument/criterion reference · instrument item table with verdicts · **Limitations section** (auto-generated: not-assessed items, out-of-scope WCAG criteria per `knowledge_base.md` §1.3, `automated_checks_skipped`, `content_truncated`, fallback notice) · the PEMAT/CCI adaptation disclaimer.
 
-**Accessibility statement draft:** screening result **with an explicit list of which criteria were and were not evaluated** (no conformance claim is made or implied — review fix #3), known issues (severity ≥ medium), feedback contact placeholder, EAA/BFSG reference if declared. Marked **DRAFT — requires human legal review and a full audit before any conformance claim**.
+**Accessibility statement draft:** screening result **with an explicit list of which criteria were and were not evaluated** (no conformance claim is made or implied - review fix #3), known issues (severity ≥ medium), feedback contact placeholder, EAA/BFSG reference if declared. Marked **DRAFT - requires human legal review and a full audit before any conformance claim**.
 
-### Node 19 — `Save Report` (Postgres)
+### Node 19 - `Save Report` (Postgres)
 Writes `report_md`, `statement_draft`, `completed_at`, final `status`.
 
-### Node 15 and the node numbering — as built (D-26)
+### Node 15 and the node numbering - as built (D-26)
 
 The numbering above is the **specification** numbering. On the canvas, WF1 has **20 nodes**: spec nodes 1–14 and 16–19, plus two extra Code nodes, `Build Audit Payload` and `Build Findings Payload`, which sit immediately before the two Postgres writes.
 
-Those two nodes exist because the database writes are done as parameterised `Execute Query` statements taking a single JSON payload, rather than through n8n's column-mapping UI (D-26). The mapping UI cannot express `ON CONFLICT … DO UPDATE` with a `WHERE` guard, and it silently drops fields it does not recognise. Building the payload in a Code node makes the write explicit, reviewable and idempotent — at the cost of two extra nodes on the canvas.
+Those two nodes exist because the database writes are done as parameterised `Execute Query` statements taking a single JSON payload, rather than through n8n's column-mapping UI (D-26). The mapping UI cannot express `ON CONFLICT … DO UPDATE` with a `WHERE` guard, and it silently drops fields it does not recognise. Building the payload in a Code node makes the write explicit, reviewable and idempotent - at the cost of two extra nodes on the canvas.
 
-**Spec node 15 (`Insert Instrument Items`) was NOT built — designed, not built in v1, see D-14 and D-20.** It was Tier 2 scope, and D-20 cut all Tier 2 on 3 August. Consequences, stated here because they affect what the system can be said to do:
+**Spec node 15 (`Insert Instrument Items`) was NOT built - designed, not built in v1, see D-14 and D-20.** It was Tier 2 scope, and D-20 cut all Tier 2 on 3 August. Consequences, stated here because they affect what the system can be said to do:
 
 - The `instrument_items` **table exists in the schema and is never written to.** It contains zero rows.
-- The per-item PEMAT and CCI verdicts *are* produced — by `Call SUB-A_Validate` (subworkflow `SUB-A_Validate`, see §2 A4, D-55) and `Decision Engine` — and they *are* shown in the generated report, item by item with verdict and rationale. They are simply not persisted as queryable rows; they survive only inside `audits.report_md`.
+- The per-item PEMAT and CCI verdicts *are* produced - by `Call SUB-A_Validate` (subworkflow `SUB-A_Validate`, see §2 A4, D-55) and `Decision Engine` - and they *are* shown in the generated report, item by item with verdict and rationale. They are simply not persisted as queryable rows; they survive only inside `audits.report_md`.
 - Therefore the cross-audit questions attributed to `v_audit_summary` below (most frequently failing criterion, average confidence per criterion, empirical false-positive rate) are **not currently answerable**. They are designed, not demonstrated.
 - `build_runbook.md` SCREENSHOT 12 (`SELECT * FROM instrument_items`) cannot be taken and is withdrawn.
 
-*20 nodes plus a subworkflow — requirement "≥5 functional nodes incl. a real AI node" comfortably met.*
+*20 nodes plus a subworkflow - requirement "≥5 functional nodes incl. a real AI node" comfortably met.*
 
 ---
 
-## 2. SUB-A — AI Analysis subworkflow
+## 2. SUB-A - AI Analysis subworkflow
 
-### A1 — `Execute Workflow Trigger`
-### A2 — `Build Prompt` (Code) — injects content, audience, and `deterministic_items`; sets `attempt = 1`.
-### A3 — `AI Analysis` (n8n Anthropic node) — model `claude-sonnet-4-6`, temperature 0, **`max_tokens` 16000**, `On Error` = "Continue (using error output)".
+### A1 - `Execute Workflow Trigger`
+### A2 - `Build Prompt` (Code) - injects content, audience, and `deterministic_items`; sets `attempt = 1`.
+### A3 - `AI Analysis` (n8n Anthropic node) - model `claude-sonnet-4-6`, temperature 0, **`max_tokens` 16000**, `On Error` = "Continue (using error output)".
 
-> **As-built (D-22, D-27).** The model is fixed to `claude-sonnet-4-6` because n8n's Anthropic node offers no way to disable extended thinking on models that default to it, and extended thinking forces `temperature` away from 0 and truncates the JSON response. `max_tokens` was raised from 6000 to 16000 on Day 4 after a truncated response: the truncation was caught by `Validate Output` and routed to the repair branch rather than passed on, which is how test **S2 (malformed AI output)** came to be demonstrated by accident. Temperature 0 reduces but does not eliminate run-to-run variation — see D-30; **no reproducibility claim is made for this node.**
+> **As-built (D-22, D-27).** The model is fixed to `claude-sonnet-4-6` because n8n's Anthropic node offers no way to disable extended thinking on models that default to it, and extended thinking forces `temperature` away from 0 and truncates the JSON response. `max_tokens` was raised from 6000 to 16000 on Day 4 after a truncated response: the truncation was caught by `Validate Output` and routed to the repair branch rather than passed on, which is how test **S2 (malformed AI output)** came to be demonstrated by accident. Temperature 0 reduces but does not eliminate run-to-run variation - see D-30; **no reproducibility claim is made for this node.**
 
 **System prompt:**
 
@@ -231,7 +231,7 @@ compliance, legal, or clinical decisions.
 
 You perform two tasks.
 
-TASK 1 — BARRIER FINDINGS
+TASK 1 - BARRIER FINDINGS
 Identify accessibility barriers detectable from text and markup:
  - WCAG 2.2 criteria that require judgment: 3.1.3 (unusual words),
    3.1.4 (abbreviations), 3.1.5 (reading level), 2.4.6 (headings and
@@ -240,14 +240,14 @@ Identify accessibility barriers detectable from text and markup:
    abbreviations, complex sentences, missing or unclear instructions,
    ambiguous dosing or timing language, unstated action triggers.
 Do NOT report colour contrast, keyboard operation, focus order, media
-captions, or anything requiring a rendered page — you cannot observe them.
+captions, or anything requiring a rendered page - you cannot observe them.
 
-TASK 2 — INSTRUMENT ASSESSMENT
+TASK 2 - INSTRUMENT ASSESSMENT
 Score the items listed below, drawn from PEMAT-P (AHRQ) and the CDC Clear
 Communication Index. For each: verdict "pass", "fail" or "not_applicable",
 plus a one-sentence rationale citing evidence from the material.
 Items already decided deterministically are given to you in
-`deterministic_items` — do NOT re-judge those; they are fixed.
+`deterministic_items` - do NOT re-judge those; they are fixed.
 Judge every item strictly from the material itself. Do not use outside
 knowledge of the subject. Rate "pass" only if the criterion holds
 throughout the material (AHRQ guidance: 80–100% of the time).
@@ -299,7 +299,7 @@ RULES
   outside this call.
 - Do NOT give clinical advice or judge medical correctness.
 
-Respond with ONLY a JSON object matching this schema exactly — no markdown,
+Respond with ONLY a JSON object matching this schema exactly - no markdown,
 no code fences, no commentary.
 ```
 
@@ -335,20 +335,20 @@ no code fences, no commentary.
 
 **User message:** `Audience: {{audience}} | Title: {{page_title}} | Language: {{content_language}} | Very short: {{is_very_short}} | Truncated: {{content_truncated}}\nAlready decided (do not re-judge): {{deterministic_items}}\n\nMATERIAL:\n{{content_text}}`
 
-### A4 — `Call SUB-A_Validate` (Execute Workflow → subworkflow `SUB-A_Validate`, Code node `Validate`)
-**As-built on the development branch (D-55), not yet promoted to the submitted original.** `workflows_export/SUB-A_AI_Analysis.json` — the exported artefact matching the submission — still shows the old two byte-identical Code nodes (`Validate Output`, `Validate Output2`) and is untouched; this section describes `SUB-A_Validate-dev`, live on the `-dev` workflows only. Was two byte-identical Code nodes pasted onto this canvas because n8n Code nodes cannot `require()` a sibling node. Extracted into one subworkflow, called from two sites, each preceded by a Set node (`Prep Validate Input` / the extended `Mark Attempt 2`) that assembles its explicit input:
-- `content_text` (required), `deterministic_items` (optional, default `{}`) — via `$('Build Prompt')` expressions on the Set node, not a `$()` lookup inside the code anymore. This closes **D-A**: previously `content_text` was read via `$('Build Prompt')` *inside* the validator itself, so renaming that node would have silently produced `valid:true, 0 findings`. The dependency on `Build Prompt`'s name still exists (something must supply `content_text`), but it is now a visible, named field mapping on the canvas, and the validator itself falls back to `context_unavailable → api_error:true` if the field arrives empty, from any cause.
-- `attempt` (required) — a literal set on each Set node (`1`, `2`), not read from Build Prompt. Closes **D-H**: the repair pass's `attempt` is now correct by construction, and the `Mark Attempt 2` workaround node (D-23) is folded into this same mechanism rather than being a separate patch.
-- `allow_repair` (required, strict `=== true`) — `true` on the first call, `false` on the second.
+### A4 - `Call SUB-A_Validate` (Execute Workflow → subworkflow `SUB-A_Validate`, Code node `Validate`)
+**As-built on the development branch (D-55), not yet promoted to the submitted original.** `workflows_export/SUB-A_AI_Analysis.json` - the exported artefact matching the submission - still shows the old two byte-identical Code nodes (`Validate Output`, `Validate Output2`) and is untouched; this section describes `SUB-A_Validate-dev`, live on the `-dev` workflows only. Was two byte-identical Code nodes pasted onto this canvas because n8n Code nodes cannot `require()` a sibling node. Extracted into one subworkflow, called from two sites, each preceded by a Set node (`Prep Validate Input` / the extended `Mark Attempt 2`) that assembles its explicit input:
+- `content_text` (required), `deterministic_items` (optional, default `{}`) - via `$('Build Prompt')` expressions on the Set node, not a `$()` lookup inside the code anymore. This closes **D-A**: previously `content_text` was read via `$('Build Prompt')` *inside* the validator itself, so renaming that node would have silently produced `valid:true, 0 findings`. The dependency on `Build Prompt`'s name still exists (something must supply `content_text`), but it is now a visible, named field mapping on the canvas, and the validator itself falls back to `context_unavailable → api_error:true` if the field arrives empty, from any cause.
+- `attempt` (required) - a literal set on each Set node (`1`, `2`), not read from Build Prompt. Closes **D-H**: the repair pass's `attempt` is now correct by construction, and the `Mark Attempt 2` workaround node (D-23) is folded into this same mechanism rather than being a separate patch.
+- `allow_repair` (required, strict `=== true`) - `true` on the first call, `false` on the second.
 
-Validation logic itself is unchanged: parses as JSON (strip stray code fences first); `schema_version`/`summary`/`findings[]`/`instrument_items[]` present; per finding — required keys, enums valid, `confidence` clamped [0,1], `wcag_criterion` matches `^\d\.\d{1,2}\.\d{1,2}$` or null, `evidence` non-empty ≤300 chars **and verified to be a literal substring of `content_text`** after whitespace normalisation (anti-fabrication check — a quote not in the source invalidates the finding; passing findings get `evidence_verified:true`, failing ones are dropped and counted in `dropped_unverified`); per instrument item — enums valid, missing items become `not_assessed` and excluded from subscore denominators (completeness check, review fix #5); max 25 findings, most severe kept; every AI finding tagged `source: "ai"`.
+Validation logic itself is unchanged: parses as JSON (strip stray code fences first); `schema_version`/`summary`/`findings[]`/`instrument_items[]` present; per finding - required keys, enums valid, `confidence` clamped [0,1], `wcag_criterion` matches `^\d\.\d{1,2}\.\d{1,2}$` or null, `evidence` non-empty ≤300 chars **and verified to be a literal substring of `content_text`** after whitespace normalisation (anti-fabrication check - a quote not in the source invalidates the finding; passing findings get `evidence_verified:true`, failing ones are dropped and counted in `dropped_unverified`); per instrument item - enums valid, missing items become `not_assessed` and excluded from subscore denominators (completeness check, review fix #5); max 25 findings, most severe kept; every AI finding tagged `source: "ai"`.
 
-**Output gained one field:** `next_action` (`'accept' | 'repair' | 'fallback'`) — `accept` if valid, `fallback` if `api_error` (never repair on an API error), otherwise `repair` if `allow_repair` else `fallback`. This is what actually prevents a third repair attempt, independent of how the canvas IF-nodes are wired: `valid`/`api_error` are unchanged and still what `Valid?`/`API Error?.`/`Valid 2?` read.
+**Output gained one field:** `next_action` (`'accept' | 'repair' | 'fallback'`) - `accept` if valid, `fallback` if `api_error` (never repair on an API error), otherwise `repair` if `allow_repair` else `fallback`. This is what actually prevents a third repair attempt, independent of how the canvas IF-nodes are wired: `valid`/`api_error` are unchanged and still what `Valid?`/`API Error?.`/`Valid 2?` read.
 
-*The substring verification is still the strongest single anti-hallucination control in the system: any finding whose evidence cannot be located verbatim in the source is dropped before it ever reaches the database. Re-verified against the new contract by `code/_S4_evidence_check_harness.js` (D-38, re-run 12 Aug: identical result — the fabricated finding still dropped, the real one still survives).*
+*The substring verification is still the strongest single anti-hallucination control in the system: any finding whose evidence cannot be located verbatim in the source is dropped before it ever reaches the database. Re-verified against the new contract by `code/_S4_evidence_check_harness.js` (D-38, re-run 12 Aug: identical result - the fabricated finding still dropped, the real one still survives).*
 
-### A5 — `Repair Attempt` (linear, review fix #4)
-No loop-back on the canvas — n8n loops with modified state are fragile and hard to read. Instead a **linear chain**: `AI Analysis` → `Prep Validate Input` → `Call SUB-A_Validate` → IF invalid → `AI Analysis (repair)` (second chat node, same config, with the validation errors appended as a repair message) → `Mark Attempt 2` → `Call SUB-A_Validate (2)` → still invalid → fallback. Both `Call SUB-A_Validate` nodes invoke the same subworkflow (D-55) — the duplication that remained after that refactor is the two AI chat nodes, a deliberate trade-off of DRY for legibility and testability, recorded in `decision_log.md` D-13. An API error/timeout at either AI node routes directly to the **fallback object**:
+### A5 - `Repair Attempt` (linear, review fix #4)
+No loop-back on the canvas - n8n loops with modified state are fragile and hard to read. Instead a **linear chain**: `AI Analysis` → `Prep Validate Input` → `Call SUB-A_Validate` → IF invalid → `AI Analysis (repair)` (second chat node, same config, with the validation errors appended as a repair message) → `Mark Attempt 2` → `Call SUB-A_Validate (2)` → still invalid → fallback. Both `Call SUB-A_Validate` nodes invoke the same subworkflow (D-55) - the duplication that remained after that refactor is the two AI chat nodes, a deliberate trade-off of DRY for legibility and testability, recorded in `decision_log.md` D-13. An API error/timeout at either AI node routes directly to the **fallback object**:
 ```json
 { "schema_version": "2.0", "analysis_status": "fallback",
   "summary": "AI analysis unavailable or invalid after retry. Full human audit required.",
@@ -356,14 +356,14 @@ No loop-back on the canvas — n8n loops with modified state are fragile and har
   "fallback_reason": "validation_failed | api_error" }
 ```
 
-### A6 — `Return`
+### A6 - `Return`
 **Contract guarantee:** WF1 receives either a schema-valid analysis or an explicit fallback, which rule R2 converts into mandatory human review. The system fails safe, never silently.
 
 ---
 
 ## 3. WF-Error
 
-`Error Trigger` → `Strip Payload` (Code — retain only workflow name, node name, error class, execution id, timestamp; **discard all content and AI output**, GDPR data minimisation) → `Postgres: insert error_log`.
+`Error Trigger` → `Strip Payload` (Code - retain only workflow name, node name, error class, execution id, timestamp; **discard all content and AI output**, GDPR data minimisation) → `Postgres: insert error_log`.
 
 Configure on WF1 and SUB-A: Settings → Error Workflow → `WF-Error`.
 
