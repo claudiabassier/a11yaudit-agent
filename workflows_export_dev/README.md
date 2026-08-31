@@ -45,8 +45,13 @@ FROM workflow_entity we JOIN workflow_history wh ON wh."versionId" = we."activeV
 WHERE we.name = '<workflow name>';
 ```
 
-then pretty-print the result over the matching file here. **Not yet
-automated** — a natural next CI addition (compare `code/*.js`/`*.sql`
-directly against these files' embedded `jsCode`/`query` fields, the way
-D-89's node-by-node audit did by hand) is named but not built; see
-`A11yAudit_Fahrplan.md`.
+then pretty-print the result over the matching file here.
+
+**Refreshing this by hand is still required** — nothing generates these
+files automatically. What *is* now automated (`decision_log.md` D-92,
+`.github/workflows/checks.yml`'s `static-checks` job) is catching the
+drift the way D-89's manual audit did: `meta/check_export_sync.py`
+compares every mapped node's `jsCode`/`query` here against `code/`
+byte-for-byte on every push, and fails the build if they differ. If that
+check goes red, the fix is exactly this refresh procedure, run for
+whichever workflow it names.

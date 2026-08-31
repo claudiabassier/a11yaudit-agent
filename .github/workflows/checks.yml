@@ -67,6 +67,8 @@ jobs:
           done
       - name: SQL comment guard — no {{ }} inside a "--" comment (decision_log.md D-71)
         run: bash meta/check_sql_comments.sh
+      - name: code/ vs workflows_export_dev/ sync check (decision_log.md D-92)
+        run: python3 meta/check_export_sync.py
       - name: Absolute-claims check (meta/claims_check.sh)
         run: |
           bash meta/claims_check.sh
