@@ -142,3 +142,142 @@ jobs:
             exit 1
           fi
           echo "Every table has at least one grant to a11yaudit_app."
+
+  n8n-e2e:
+    # Closes external review Finding 7: none of the checks above ever
+    # imports the real workflows into a real n8n, submits the real form,
+    # or writes through the real Postgres nodes — they all run isolated
+    # code. This job does. Deliberately proven by hand first against
+    # throwaway containers (decision_log.md D-87) before being written
+    # here, the same discipline every other CI job in this file followed.
+    #
+    # No live AI call, and deliberately so (see the "Bewusst nicht in CI"
+    # note in A11yAudit_Fahrplan.md): the Anthropic credential imported
+    # below is intentionally invalid, forcing SUB-A's own fallback path
+    # (R2) rather than skipping the AI node — this is the one path this
+    # project's own design makes a first-class, tested outcome (S3/E11),
+    # not a workaround. It proves the real n8n canvas — import, publish,
+    # webhook, all four Postgres write nodes, WF-Error wiring — actually
+    # works as deployed, deterministically and at zero API cost. It does
+    # NOT prove the real Claude call behaves as documented; that remains
+    # a live, manual, periodic check, never a per-push CI gate.
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: n8n
+          POSTGRES_PASSWORD: ci_test_only
+          POSTGRES_DB: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U n8n"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PGPASSWORD: ci_test_only
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prepare a11yaudit_dev
+        run: |
+          psql -h localhost -U n8n -d postgres -c "CREATE DATABASE a11yaudit_dev;"
+          psql -h localhost -U n8n -d a11yaudit_dev -v ON_ERROR_STOP=1 -f postgres_schema.sql
+
+      - name: Serve fixtures/ locally (n8n's Fetch Page node needs a real URL to hit)
+        run: |
+          python3 -m http.server 8899 --directory fixtures &
+          sleep 1
+          curl -sf -o /dev/null http://localhost:8899/bp-meds-short.html
+
+      # host.docker.internal (via --add-host=...:host-gateway), not
+      # --network host: the officially portable way for a container to
+      # reach the host's own localhost — proven working in THIS project
+      # already (decision_log.md D-80's live verification used the exact
+      # same mechanism), unlike --network host, whose behaviour differs
+      # between Docker Desktop (Mac, used to hand-verify this job before
+      # writing it, decision_log.md D-87) and native Linux (what this
+      # runner actually is) — not something to trust unverified.
+      - name: Start n8n (headless — N8N_USER_MANAGEMENT_DISABLED, no owner-setup wizard)
+        run: |
+          docker run -d --name ci-n8n -p 5678:5678 --add-host=host.docker.internal:host-gateway \
+            -e DB_TYPE=postgresdb -e DB_POSTGRESDB_HOST=host.docker.internal -e DB_POSTGRESDB_PORT=5432 \
+            -e DB_POSTGRESDB_DATABASE=a11yaudit_dev -e DB_POSTGRESDB_USER=n8n -e DB_POSTGRESDB_PASSWORD=ci_test_only \
+            -e N8N_ENCRYPTION_KEY=ci-test-encryption-key-not-a-secret \
+            -e N8N_USER_MANAGEMENT_DISABLED=true \
+            -e NODE_FUNCTION_ALLOW_EXTERNAL=cheerio -e NODE_FUNCTION_ALLOW_BUILTIN=crypto \
+            -e N8N_DIAGNOSTICS_ENABLED=false \
+            docker.n8n.io/n8nio/n8n:2.32.7
+          for i in $(seq 1 30); do
+            curl -sf -o /dev/null http://localhost:5678/healthz && break
+            sleep 2
+          done
+          curl -sf -o /dev/null http://localhost:5678/healthz || { echo "::error::n8n did not become healthy"; docker logs ci-n8n; exit 1; }
+
+      - name: Import workflows and credentials
+        run: |
+          set -e
+          docker cp workflows_export/WF-Error.json ci-n8n:/tmp/WF-Error.json
+          docker cp workflows_export/WF1_Audit_Intake.json ci-n8n:/tmp/WF1_Audit_Intake.json
+          docker cp workflows_export/SUB-A_AI_Analysis.json ci-n8n:/tmp/SUB-A_AI_Analysis.json
+          docker exec ci-n8n n8n import:workflow --input=/tmp/WF-Error.json
+          docker exec ci-n8n n8n import:workflow --input=/tmp/WF1_Audit_Intake.json
+          docker exec ci-n8n n8n import:workflow --input=/tmp/SUB-A_AI_Analysis.json
+          # IDs/names must match the credential references baked into the
+          # exported workflow JSON exactly (workflows_export/*.json carry
+          # only a credential id+name reference, never the secret itself —
+          # meta/GITHUB_SUBMISSION.md's own note on this). The Anthropic
+          # key is deliberately invalid — see the job-level comment above.
+          cat > /tmp/ci_credentials.json << 'EOF'
+          [
+            { "id": "vPiLWWTt24LF3VzP", "name": "Postgres a11yaudit", "type": "postgres",
+              "data": { "host": "host.docker.internal", "port": 5432, "database": "a11yaudit_dev", "user": "n8n", "password": "ci_test_only" } },
+            { "id": "5WVzsoNCm1M8TLEY", "name": "Anthropic account", "type": "anthropicApi",
+              "data": { "apiKey": "sk-ci-deliberately-invalid-no-real-calls" } }
+          ]
+          EOF
+          docker cp /tmp/ci_credentials.json ci-n8n:/tmp/ci_credentials.json
+          docker exec ci-n8n n8n import:credentials --input=/tmp/ci_credentials.json
+
+      - name: Publish (activate) all three workflows, then restart to apply
+        run: |
+          set -e
+          docker exec ci-n8n n8n publish:workflow --id=fv9YbvAy2rfKC2Ng  # WF-Error
+          docker exec ci-n8n n8n publish:workflow --id=cplV72n5kJnDaP3S  # WF1 - Audit Intake
+          docker exec ci-n8n n8n publish:workflow --id=4K342U3TtgqWWp6A # SUB-A_AI_Analysis
+          # publish:workflow's own output says so explicitly: changes need
+          # a restart to take effect on an already-running instance.
+          docker restart ci-n8n
+          for i in $(seq 1 30); do
+            curl -sf -o /dev/null http://localhost:5678/healthz && break
+            sleep 2
+          done
+          docker exec ci-n8n n8n list:workflow --active=true
+
+      - name: Submit the real form (multipart/form-data — build_runbook.md's own D-84 note on this)
+        run: |
+          curl -sf -X POST "http://localhost:5678/form/7e975c33-8fdb-404d-bbeb-258fc9f1e49c" \
+            -F "field-0=http://host.docker.internal:8899/bp-meds-short.html" \
+            -F "field-3=en" \
+            -F "field-4=general_public" \
+            -o /dev/null -w "form POST: HTTP %{http_code}\n"
+
+      - name: Wait for the execution, then assert against the real audits row
+        run: |
+          set -e
+          for i in $(seq 1 30); do
+            row=$(psql -h localhost -U n8n -d a11yaudit_dev -tAc "SELECT status||'|'||ai_fallback_used||'|'||human_review_required||'|'||triggered_rules::text FROM audits ORDER BY created_at DESC LIMIT 1")
+            [ -n "$row" ] && break
+            sleep 2
+          done
+          echo "audits row: $row"
+          [ -n "$row" ] || { echo "::error::no audits row appeared within 60s"; docker logs ci-n8n; exit 1; }
+          case "$row" in
+            needs_review\|t\|t\|*R2*) echo "PASS — AI-fallback path completed end to end through the real n8n canvas: status=needs_review, ai_fallback_used=true, human_review_required=true, R2 fired." ;;
+            *) echo "::error::unexpected audits row shape: $row"; exit 1 ;;
+          esac
+
+      - name: Dump n8n logs (always, for debugging a future failure here)
+        if: always()
+        run: docker logs ci-n8n 2>&1 | tail -100
