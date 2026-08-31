@@ -1,7 +1,7 @@
 -- ===========================================================================
 -- Node 17 — Flag for Review   ·   Workflow: WF1
 -- Postgres node, operation "Execute Query".
--- Query Parameters (Options):  {{ $('Upsert Audit').first().json.audit_id }}
+-- Query Parameters (Options): audit_id from the Upsert Audit node -- bound via the node's own Query Parameters option, NOT evaluated here (decision_log.md D-71).
 --
 -- Spec Node 17: audits.status = 'needs_review'; the reviewer works the
 -- v_review_queue view. Node 13 already sets this status on insert, so this

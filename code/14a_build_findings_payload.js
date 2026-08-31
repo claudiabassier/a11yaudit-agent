@@ -113,6 +113,33 @@ const rows = findings.map((f) => ({
   severity_upgraded_by: f.severity_upgraded_by ?? null,
 }));
 
+// FIX (rigorous review, 19 Aug, after D-80): stableAiKey() can collide
+// WITHIN a single run's own payload — reproduced with two distinct AI
+// findings, no instrument mapping, same wcag_criterion, quoting the
+// identical evidence sentence for two different reasons (e.g. one sentence
+// naming two separate unexplained terms, each its own finding under 3.1.3).
+// Left alone, both rows reach Insert Findings with the same
+// (audit_id, finding_key) in one INSERT, and Postgres's
+// ON CONFLICT DO UPDATE throws "cannot affect row a second time" —
+// failing the whole findings insert for the audit, not just the duplicate
+// row. Disambiguated by a hash of the finding's own title, not by array
+// position, so a future run producing the same two titles lands on the
+// same disambiguated key again rather than a fresh one each time; the
+// common (non-colliding) case is untouched, keeping stableAiKey()'s
+// evidence-only cross-run convergence exactly as before.
+const seenAiKeys = new Set();
+for (const r of rows) {
+  if (r.source !== 'ai') continue;
+  if (!seenAiKeys.has(r.finding_key)) { seenAiKeys.add(r.finding_key); continue; }
+  const base = r.finding_key;
+  const tieBreak = crypto.createHash('sha256').update(String(r.title || '').toLowerCase().trim()).digest('hex').slice(0, 6);
+  let candidate = `${base}-${tieBreak}`;
+  let n = 1;
+  while (seenAiKeys.has(candidate)) candidate = `${base}-${tieBreak}-${++n}`;
+  r.finding_key = candidate;
+  seenAiKeys.add(candidate);
+}
+
 // schema constraint chk_instrument_pair: instrument and item must both be set
 // or both null. Fail loudly here rather than as an opaque Postgres error.
 for (const r of rows) {

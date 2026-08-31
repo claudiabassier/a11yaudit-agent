@@ -306,16 +306,29 @@ else O('PEMAT', 9, headingCount ? 'pass' : 'fail', headingCount ? `${headingCoun
 O('PEMAT', 12, (hasList || hasEmphasis) ? 'pass' : 'fail',
   (hasList || hasEmphasis) ? 'Lists or emphasis markup present as visual cues.' : 'No lists or emphasis markup found.');
 // PEMAT 17 — visual aids have titles/captions (partial: alt/figcaption)
-const imgs = $doc('img');
-if (!imgs.length) O('PEMAT', 17, 'not_applicable', 'No images in the material.');
+// FIX (rigorous review, 19 Aug): this used to read $doc('img') — the WHOLE
+// page, same as WCAG finding #1 above, which is deliberately whole-page
+// (an unlabelled nav image is still a real WCAG defect). PEMAT 17 judges
+// "the material", the same principle headingCount/hasList/hasEmphasis
+// above are already scoped for — reproduced with a synthetic fixture: a
+// <main> whose only image has correct alt text still failed PEMAT 17
+// because an unrelated <footer> tracking pixel had none. Scoped to
+// $scopeRoot, matching every other instrument-item check in this section.
+const scopedImgs = $scopeRoot.find('img');
+if (!scopedImgs.length) O('PEMAT', 17, 'not_applicable', 'No images in the material.');
 else {
-  const allCaptioned = imgs.filter((_, el) => !(($doc(el).attr('alt') || '').trim()) && !$doc(el).parents('figure').find('figcaption').length).length === 0;
+  const allCaptioned = scopedImgs.filter((_, el) => !(($doc(el).attr('alt') || '').trim()) && !$doc(el).parents('figure').find('figcaption').length).length === 0;
   O('PEMAT', 17, allCaptioned ? 'pass' : 'fail', allCaptioned ? 'Every image has non-empty alt text or a figcaption.' : 'At least one image lacks both alt text and a figcaption.');
 }
 // PEMAT 19 — simple tables with headings (partial: <th> present)
-const tableCount = $doc('table').length;
-if (!tableCount) O('PEMAT', 19, 'not_applicable', 'No tables in the material.');
-else O('PEMAT', 19, badTables.length ? 'fail' : 'pass', badTables.length ? 'At least one table has no header cells.' : 'Every table has header cells.');
+// Same fix as PEMAT 17 above: was $doc('table')/badTables (whole-page,
+// correct for WCAG finding #9, wrong for this instrument judgment) —
+// reproduced the same way, a footer copyright table with no <th> failing
+// PEMAT 19 despite a correctly-headed table inside <main>.
+const scopedTables = $scopeRoot.find('table');
+const scopedBadTables = scopedTables.filter((_, el) => !$doc(el).find('th').length);
+if (!scopedTables.length) O('PEMAT', 19, 'not_applicable', 'No tables in the material.');
+else O('PEMAT', 19, scopedBadTables.length ? 'fail' : 'pass', scopedBadTables.length ? 'At least one table has no header cells.' : 'Every table has header cells.');
 // CCI 3 — main message emphasized with visual cues (partial)
 // Operationalized: the first section (before the 2nd heading) starts with a
 // heading or contains emphasis markup. Scoped to scopedHtml, not the raw

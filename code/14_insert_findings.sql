@@ -1,7 +1,7 @@
 -- ===========================================================================
 -- Node 14 — Insert Findings   ·   Workflow: WF1
 -- Postgres node, operation "Execute Query".
--- Query Parameters (Options):  {{ $json.findings_payload }}
+-- Query Parameters (Options): field "findings_payload" -- bound via the node's own Query Parameters option, NOT evaluated here. Never put a live n8n expression inside this comment: n8n evaluates expressions anywhere in the Query text, including inside SQL comments (decision_log.md D-71).
 --
 -- Idempotent on (audit_id, finding_key) — spec Node 14. A re-run refreshes
 -- the analysis fields but deliberately does NOT touch status, reviewer_note

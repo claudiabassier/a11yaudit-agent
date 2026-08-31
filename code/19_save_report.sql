@@ -1,7 +1,7 @@
 -- ===========================================================================
 -- Node 19 — Save Report   ·   Workflow: WF1
 -- Postgres node, operation "Execute Query".
--- Query Parameters (Options):  {{ JSON.stringify($json) }}
+-- Query Parameters (Options): JSON.stringify of the item -- bound via the node's own Query Parameters option, NOT evaluated here (decision_log.md D-71).
 --
 -- Node 18 emits exactly { report_md, statement_draft, completed_at, status,
 -- audit_id }, so the whole item can be passed as one JSON parameter — no
