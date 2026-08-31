@@ -273,8 +273,18 @@ jobs:
           done
           echo "audits row: $row"
           [ -n "$row" ] || { echo "::error::no audits row appeared within 60s"; docker logs ci-n8n; exit 1; }
+          # boolean||text concatenation renders as the words "true"/"false"
+          # (confirmed directly against a throwaway Postgres 16, not
+          # assumed) — not the "t"/"f" abbreviation psql's own \pset
+          # table rendering uses for a boolean *column*, which is a
+          # different, client-side-only formatting path. First version of
+          # this assertion used "t"/"f" and failed the real run on
+          # GitHub's Linux runner (decision_log.md D-87) despite passing
+          # by hand locally, because the local hand-test used a plain
+          # SELECT with separate columns, not this exact concatenated
+          # query — the gap between what was verified and what shipped.
           case "$row" in
-            needs_review\|t\|t\|*R2*) echo "PASS — AI-fallback path completed end to end through the real n8n canvas: status=needs_review, ai_fallback_used=true, human_review_required=true, R2 fired." ;;
+            needs_review\|true\|true\|*R2*) echo "PASS — AI-fallback path completed end to end through the real n8n canvas: status=needs_review, ai_fallback_used=true, human_review_required=true, R2 fired." ;;
             *) echo "::error::unexpected audits row shape: $row"; exit 1 ;;
           esac
 
