@@ -278,11 +278,26 @@ jobs:
 
       - name: Submit the real form (multipart/form-data — build_runbook.md's own D-84 note on this)
         run: |
-          curl -sf -X POST "http://localhost:5678/form/7769bc3d-55c5-4fe6-b363-ba338956d0b4" \
-            -F "field-0=http://host.docker.internal:8899/bp-meds-short.html" \
-            -F "field-3=en" \
-            -F "field-4=general_public" \
-            -o /dev/null -w "form POST: HTTP %{http_code}\n"
+          set -e
+          # /healthz turned out not to be enough (decision_log.md D-89's
+          # first real run on this runner): n8n's HTTP server answers
+          # healthz before "Start Active Workflows" finishes registering
+          # every workflow's triggers in order. The real n8n log for that
+          # failed run shows it precisely — WF-Error-dev already active,
+          # WF1's Form Trigger webhook still unregistered, this exact POST
+          # arriving in that window: "Received request for unknown
+          # webhook". Retry the POST itself, not just the health probe.
+          for i in $(seq 1 15); do
+            code=$(curl -s -o /tmp/form_resp.html -w '%{http_code}' -X POST "http://localhost:5678/form/7769bc3d-55c5-4fe6-b363-ba338956d0b4" \
+              -F "field-0=http://host.docker.internal:8899/bp-meds-short.html" \
+              -F "field-3=en" \
+              -F "field-4=general_public")
+            [ "$code" = "200" ] && break
+            echo "form POST attempt $i: HTTP $code, retrying..."
+            sleep 2
+          done
+          echo "form POST: HTTP $code"
+          [ "$code" = "200" ] || { echo "::error::form webhook never returned 200"; docker logs ci-n8n; exit 1; }
 
       - name: Wait for the execution, then assert against the real audits row
         run: |
