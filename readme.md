@@ -148,8 +148,8 @@ The Code nodes need `NODE_FUNCTION_ALLOW_EXTERNAL=cheerio` and `NODE_FUNCTION_AL
 | Path | Purpose |
 |---|---|
 | `workflows_export/` | the three workflow JSONs - main workflow, AI subworkflow, error handler |
-| `postgres_schema.sql` | database schema - 5 tables (`audits`, `findings`, `instrument_items`, `audit_runs`, `error_log`), 2 views |
-| `postgres_schema_addendum.sql` | schema addendum (Tier 2, optional) - adds `dropped_unverified` and `checks_engine` to `audits`, `original_severity` and `severity_upgraded_by` to `findings`, `ai_contradiction` to `instrument_items` |
+| `postgres_schema.sql` | database schema - 5 tables (`audits`, `findings`, `instrument_items`, `audit_runs`, `error_log`), 3 views (`v_review_queue`, `v_audit_summary`, `v_pipeline_health` - added D-83) |
+| `postgres_schema_addendum.sql` | schema addendum - labelled "Tier 2, optional" in its own header (31 July), **not actually optional since 4 August**: `code/13_upsert_audit.sql`/`14_insert_findings.sql` name its columns directly in their fixed INSERT lists, so skipping it crashes the first write (`decision_log.md` D-82). Adds `dropped_unverified` and `checks_engine` to `audits`, `original_severity` and `severity_upgraded_by` to `findings`, `ai_contradiction` to `instrument_items` |
 | `postgres_app_role.sql` | Phase 2: the least-privilege `a11yaudit_app` role every write node now authenticates as - table-by-table grants, no `DELETE` anywhere, `INSERT`-only on `audit_runs`/`error_log` |
 | `docs/hand-scoring-worksheet.md`, `docs/hand-scoring-ai-verdicts.md`, `docs/hand-scoring-comparison.md` | Phase 2: the blind hand-scoring exercise and its comparison against the AI's actual verdicts (D-67) |
 | `code/` | the JavaScript and SQL for every Code and Postgres node, one file per node, each with its input/output contract and a standalone test input |

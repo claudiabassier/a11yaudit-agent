@@ -63,8 +63,9 @@ GRANT SELECT, INSERT ON audit_runs TO a11yaudit_app;
 -- see postgres_schema.sql comment on the table itself). No UPDATE.
 GRANT SELECT, INSERT ON error_log TO a11yaudit_app;
 
--- v_review_queue, v_audit_summary — read-only reporting views.
-GRANT SELECT ON v_review_queue, v_audit_summary TO a11yaudit_app;
+-- v_review_queue, v_audit_summary, v_pipeline_health — read-only reporting
+-- views (v_pipeline_health added 19 August, decision_log.md D-83).
+GRANT SELECT ON v_review_queue, v_audit_summary, v_pipeline_health TO a11yaudit_app;
 
 -- Explicitly no DDL rights (no CREATE/ALTER/DROP on anything), no
 -- CREATEDB/CREATEROLE/SUPERUSER — the absence of a GRANT is the point here,

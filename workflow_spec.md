@@ -184,6 +184,8 @@ Upsert on `(audit_id, finding_key)` - idempotent re-runs. Was false in practice 
 
 Aggregated across audits, `v_audit_summary` was designed to answer the cross-page questions that were impossible on the previous project's Google Sheets basis - most frequently failing criterion, average confidence per criterion, and (once findings have been reviewed) the confirmed/dismissed ratio that gives an empirical false-positive rate. The per-item half of that is now answerable from `instrument_items` directly, since D-64; it was not before.
 
+A third view, `v_pipeline_health` (added D-83, 19 August, closing external review Finding 3 - "no operational status view"), answers a different question neither of the two above does: is the pipeline itself healthy right now, not what it found. One row: audits stuck in `in_progress` past a generous time margin (the exact partial-write risk `build_runbook.md` E12 already names - no transaction spans Nodes 13-15/17/19, so a mid-pipeline crash leaves a row stuck there indefinitely), audit volume and AI-fallback rate over the last 24 hours, and the most recent `error_log` entry. `SELECT * FROM v_pipeline_health;` rather than a table to page through.
+
 ### Node 16 - `IF: human review?`
 true → Node 17, else → Node 18.
 

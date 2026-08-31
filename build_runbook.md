@@ -61,16 +61,20 @@ N8N_DIAGNOSTICS_ENABLED=false
 ### 1.2 Apply the database schema
 ```bash
 docker compose exec -T postgres psql -U <user> -d <db> < postgres_schema.sql
+docker compose exec -T postgres psql -U <user> -d <db> < postgres_schema_addendum.sql
 docker compose exec postgres psql -U <user> -d <db> -c "\dt"
 docker compose exec postgres psql -U <user> -d <db> -c "\dv"
 ```
-**Verify:** the frozen v1 submission's `postgres_schema.sql` produces 4 tables (`audits`, `findings`, `instrument_items`, `error_log`), 2 views (`v_review_queue`, `v_audit_summary`). The current `postgres_schema.sql` (Phase 2, `audit_runs` added by D-63) produces 5 tables - `audit_runs` alongside the four above - same 2 views.
+**This runbook did not mention `postgres_schema_addendum.sql` at all until this line (found in the rigorous review, `decision_log.md` D-82) — apply it. It is not optional despite its own header saying so.** Written 31 July as a skippable Tier-2 nicety, it stopped being safe to skip on 4 August once `code/13_upsert_audit.sql` and `code/14_insert_findings.sql` started naming its columns directly in their fixed `INSERT` column lists. Skip it and the very first "Upsert Audit" write throws `column "dropped_unverified" of relation "audits" does not exist` — the pipeline fails outright, not degrades.
+**Verify:** the frozen v1 submission's `postgres_schema.sql` produces 4 tables (`audits`, `findings`, `instrument_items`, `error_log`), 2 views (`v_review_queue`, `v_audit_summary`). The current `postgres_schema.sql` (Phase 2, `audit_runs` added by D-63, `v_pipeline_health` added by D-83) produces 5 tables - `audit_runs` alongside the four above - and 3 views.
 **[SCREENSHOT 2]** - `\dt` and `\dv` output.
 
 ### 1.3 Credentials in n8n
 Create: **Postgres** credential (host `postgres`, i.e. the compose service name - *not* `localhost`, which would resolve inside the n8n container to itself) and the **Anthropic API** credential (the model is fixed to `claude-sonnet-4-6` - see D-22).
 **Verify:** Postgres credential → "Test connection" succeeds.
 **[SCREENSHOT 3]** - successful connection test (redact any key).
+
+**Not part of the frozen v1 submission — a Phase 2 addition this section never covered (found in the rigorous review, `decision_log.md` D-82):** `postgres_app_role.sql` creates `a11yaudit_app`, a least-privilege role scoped to exactly the statements each audit table needs, replacing the superuser `n8n` role the credential above uses by default. Apply it (after §1.2, since it grants against tables that must already exist), create a **second** Postgres credential in n8n using it, and re-point Nodes 13/13b/14/15/17/19 to that credential rather than the first one — see the file's own header for the full four-step sequence. Verified in production use since D-66 (17 August); a setup following only the steps above ends up on the broader, original role instead.
 
 ---
 

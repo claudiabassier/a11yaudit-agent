@@ -95,9 +95,9 @@ Verified tonight against the real PostgreSQL grammar (31 July, before
 `instrument_items`, `error_log`), **2 views** (`v_review_queue`,
 `v_audit_summary`), 8 indexes, 1 function, 1 trigger. `postgres_schema.sql`
 was later edited in place to add `audit_runs` (v2.1, 16/17 August,
-`decision_log.md` D-63) - applying the *current* file produces **5
-tables**, same 2 views. If psql reports a syntax error, it is an
-environment problem, not the file.
+`decision_log.md` D-63) and `v_pipeline_health` (v2.3, 19 August, D-83) -
+applying the *current* file produces **5 tables, 3 views**. If psql
+reports a syntax error, it is an environment problem, not the file.
 
 ## 5. Verify
 
@@ -106,7 +106,7 @@ docker compose exec postgres psql -U n8n -d a11yaudit -c "\dt"
 docker compose exec postgres psql -U n8n -d a11yaudit -c "\dv"
 ```
 **Expect:** the tables and views listed above - 4 and 2 against the 31 July
-schema, 5 and 2 against the current one.
+schema, 5 and 3 against the current one.
 
 ## 6. Audit-trail columns — labelled "optional" below; run it anyway
 

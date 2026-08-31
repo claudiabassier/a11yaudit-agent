@@ -1,7 +1,11 @@
 -- ================================================================
 -- A11yAudit — Postgres schema
--- Version 2.2 · 17 August 2026 · Postgres 16
+-- Version 2.3 · 19 August 2026 · Postgres 16
 --
+-- v2.3 changes: v_pipeline_health added — a one-row operational snapshot
+--   (stalled audits, recent volume, AI fallback rate, most recent error).
+--   Closes external review Finding 3, "no operational status view"
+--   (decision_log.md D-83). No DDL change to any table.
 -- v2.2 changes: Node 15 (Insert Instrument Items) reference query written
 --   for the first time — the table has existed since v2.0, but the write
 --   path was cut for time (decision_log.md D-14/D-20/D-34) and never had
@@ -21,7 +25,7 @@
 -- Run once:
 --   docker compose exec -T postgres psql -U <user> -d <db> < postgres_schema.sql
 -- Verify:
---   \dt   and   \dv     (expect 5 tables, 2 views)
+--   \dt   and   \dv     (expect 5 tables, 3 views)
 -- ================================================================
 
 CREATE EXTENSION IF NOT EXISTS pgcrypto;   -- gen_random_uuid()
@@ -283,6 +287,40 @@ ORDER BY occurrences DESC;
 -- Note: once enough audits are reviewed, dismissed_by_human / occurrences
 -- gives an empirical false-positive rate per criterion — the beginning of
 -- a validation story for the tool. See decision_log.md D-09.
+
+-- ----------------------------------------------------------------
+-- v_pipeline_health — one-row operational snapshot
+-- Added 19 August 2026 (rigorous review, decision_log.md D-82/external
+-- review Finding 3: "no operational status view"). v_review_queue answers
+-- "what needs a human", v_audit_summary answers "what does the corpus
+-- look like" — neither answers "is the pipeline itself currently healthy".
+-- A single row rather than a table: this is a status check (SELECT * FROM
+-- v_pipeline_health;), not a report to page through.
+-- ----------------------------------------------------------------
+CREATE OR REPLACE VIEW v_pipeline_health AS
+SELECT
+    -- build_runbook.md E12's known risk made queryable: no transaction
+    -- spans Nodes 13-15/17/19, so a crash mid-pipeline (e.g. Postgres
+    -- restarting) leaves a row stuck in 'in_progress' forever, indistin-
+    -- guishable from "still running" without a time threshold. A real
+    -- audit run measures 59-69s end to end (decision_log.md D-54); 10
+    -- minutes gives generous margin before counting a row as stalled
+    -- rather than merely slow.
+    (SELECT COUNT(*) FROM audits
+      WHERE status = 'in_progress' AND updated_at < now() - interval '10 minutes')
+                                                          AS stalled_audits,
+    (SELECT COUNT(*) FROM audits WHERE created_at > now() - interval '24 hours')
+                                                          AS audits_last_24h,
+    (SELECT COUNT(*) FROM audits
+      WHERE ai_fallback_used AND created_at > now() - interval '24 hours')
+                                                          AS ai_fallbacks_last_24h,
+    (SELECT COUNT(*) FROM error_log WHERE occurred_at > now() - interval '24 hours')
+                                                          AS errors_last_24h,
+    (SELECT error_class FROM error_log ORDER BY occurred_at DESC LIMIT 1)
+                                                          AS last_error_class,
+    (SELECT occurred_at FROM error_log ORDER BY occurred_at DESC LIMIT 1)
+                                                          AS last_error_at,
+    (SELECT MAX(created_at) FROM audits)                 AS last_audit_at;
 
 -- ----------------------------------------------------------------
 -- updated_at trigger
