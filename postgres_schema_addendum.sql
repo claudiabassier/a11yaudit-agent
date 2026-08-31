@@ -14,8 +14,19 @@
 --   severity_upgraded_by — which rule upgraded it
 --   ai_contradiction     — what the AI claimed where code disagreed (R6)
 --
--- All nullable, all additive: safe to skip entirely. If you are behind
--- schedule, skip this file — nothing downstream depends on it.
+-- All nullable, all additive to the SCHEMA — but no longer optional in
+-- practice. Was true when written (31 July); false since 4 August, when
+-- code/13_upsert_audit.sql's fixed INSERT column list started naming
+-- dropped_unverified/checks_engine directly, and code/14_insert_findings.sql
+-- started naming original_severity/severity_upgraded_by (D-26/D-27/D-32);
+-- code/15a_build_instrument_items_payload.js names ai_contradiction since
+-- D-64. Skip this file and the very first "Upsert Audit" write throws
+-- `column "dropped_unverified" of relation "audits" does not exist` —
+-- the pipeline fails outright on its first execution, not degrades.
+-- APPLY THIS FILE. It is no longer Tier 2/optional despite the header
+-- above; the header is left as originally written (31 July) rather than
+-- rewritten, since the file it describes never changed — only what
+-- depends on it did. See decision_log.md D-81 (rigorous review, 19 Aug).
 -- ===========================================================================
 
 ALTER TABLE audits

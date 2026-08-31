@@ -65,9 +65,12 @@ then: **new workflow → Manual Trigger → Code node** → paste the whole of
 `code/_day1_cheerio_test.js` → **Execute step**.
 
 - `cheerio_available: true` → use `code/05_automated_checks.js`.
-- error / `false` → **30 minutes maximum**, then switch permanently to
-  `code/05_automated_checks_regex.js` and add one line to `decision_log.md`.
-  The fallback is verified byte-identical. Do not let this eat the afternoon.
+- error / `false` → **30 minutes maximum**, then this was the Day-1 plan:
+  switch permanently to `code/05_automated_checks_regex.js`. **That file no
+  longer exists** — the regex fallback was retired 18 August, three
+  defects behind the production engine with no production use to justify
+  keeping it current (`decision_log.md` D-69). A cheerio failure today is
+  a fresh problem to diagnose, not a switch-to-fallback case.
 
 ---
 
@@ -87,11 +90,14 @@ docker compose exec -T postgres psql -U n8n -d a11yaudit < postgres_schema.sql
 **Expect:** a run of `CREATE TABLE`, `CREATE INDEX`, `CREATE VIEW`,
 `CREATE FUNCTION`, `CREATE TRIGGER` lines and **no** `ERROR:` line.
 
-Verified tonight against the real PostgreSQL grammar: 18 statements,
-**4 tables** (`audits`, `findings`, `instrument_items`, `error_log`),
-**2 views** (`v_review_queue`, `v_audit_summary`), 8 indexes, 1 function,
-1 trigger. If psql reports a syntax error, it is an environment problem,
-not the file.
+Verified tonight against the real PostgreSQL grammar (31 July, before
+`audit_runs` existed): 18 statements, **4 tables** (`audits`, `findings`,
+`instrument_items`, `error_log`), **2 views** (`v_review_queue`,
+`v_audit_summary`), 8 indexes, 1 function, 1 trigger. `postgres_schema.sql`
+was later edited in place to add `audit_runs` (v2.1, 16/17 August,
+`decision_log.md` D-63) - applying the *current* file produces **5
+tables**, same 2 views. If psql reports a syntax error, it is an
+environment problem, not the file.
 
 ## 5. Verify
 
@@ -99,13 +105,18 @@ not the file.
 docker compose exec postgres psql -U n8n -d a11yaudit -c "\dt"
 docker compose exec postgres psql -U n8n -d a11yaudit -c "\dv"
 ```
-**Expect:** the four tables and the two views listed above.
+**Expect:** the tables and views listed above - 4 and 2 against the 31 July
+schema, 5 and 2 against the current one.
 
-## 6. Optional (Tier 2) — audit-trail columns
+## 6. Audit-trail columns — labelled "optional" below; run it anyway
 
-Only if steps 1–5 went smoothly. Adds nullable columns for provenance the
-node code produces but the v2.0 schema has no home for. Skip without regret
-if you are behind; the same information still appears in `report_md`.
+This was written as Tier 2/skippable on 31 July. **It stopped being safe to
+skip on 4 August**, once `code/13_upsert_audit.sql` and
+`code/14_insert_findings.sql` started naming these columns directly in
+their fixed INSERT column lists (`decision_log.md` D-26/D-27/D-32) - skip
+this step and the very first "Upsert Audit" write throws
+`column "dropped_unverified" of relation "audits" does not exist`, failing
+the pipeline outright rather than degrading gracefully. Run it.
 
 ```bash
 docker compose exec -T postgres psql -U n8n -d a11yaudit < postgres_schema_addendum.sql

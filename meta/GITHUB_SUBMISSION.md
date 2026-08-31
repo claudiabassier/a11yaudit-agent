@@ -22,11 +22,11 @@ Prepared 5 August 2026. Verified secret-clean.
 |---|---|
 | `workflows_export/` | `WF1_Audit_Intake.json` (20 nodes) · `SUB-A_AI_Analysis.json` (12) · `WF-Error.json` (3) · `_cheerio_test.json`. Credential **references** only — an id and a display name; anyone importing must supply their own |
 | `code/` | one file per Code/Postgres node, each with its input/output contract and a standalone test input. Plus `_DAY0_REVIEW.md` (the pre-build code review) and `_S4_evidence_check_harness.js` |
-| `postgres_schema.sql`, `postgres_schema_addendum.sql` | 4 tables, 2 views |
+| `postgres_schema.sql`, `postgres_schema_addendum.sql`, `postgres_app_role.sql` | the audit schema, its provenance-column addendum (no longer optional despite its own header - see `decision_log.md` D-81), and the least-privilege application role |
 | `docker-compose.yml` | Postgres 16 + n8n, with the two `NODE_FUNCTION_ALLOW_*` variables the Code nodes require |
 
 ### The documentation
-`workflow_spec.md` · `knowledge_base.md` · `decision_log.md` · `build_runbook.md` · `capstone_proposal.md` · `PROJECT_STATUS.md` · `presentation.md` (the presentation script)
+`workflow_spec.md` · `knowledge_base.md` · `decision_log.md` · `build_runbook.md` · `capstone_proposal.md` · `PROJECT_STATUS.md` · `A11yAudit_presentation.pptx` (the slide deck; a planned separate markdown presentation script was never built, see `meta/claims_check.sh`'s matching reference for the same leftover)
 
 Each carries its own version header and changelog. Read those rather than trusting a list here.
 

@@ -12,7 +12,11 @@ echo "CLAIMS CHECK — $(date +%Y-%m-%d)"
 echo "Each hit asserts something about the world outside this repository."
 echo "It needs a source, a hedge, or removal. Statements about this system are false positives."
 echo
-for f in readme.md presentation.md knowledge_base.md capstone_proposal.md workflow_spec.md; do
+# presentation.md was a planned markdown presentation script that was never
+# built - the deck is A11yAudit_presentation.pptx instead, binary, not
+# something this grep-based check can usefully scan. Dropped from the list
+# rather than left as a dead reference (decision_log.md D-81).
+for f in readme.md knowledge_base.md capstone_proposal.md workflow_spec.md; do
   [ -f "$f" ] || continue
   hits=$(grep -inE "$PAT" "$f")
   if [ -n "$hits" ]; then

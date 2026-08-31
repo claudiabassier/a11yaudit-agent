@@ -1,7 +1,21 @@
+// WARNING (decision_log.md D-81, rigorous review, 19 Aug): not re-run
+// since D-74's manual OOXML edit of A11yAudit_presentation.pptx. Known
+// stale before you touch anything else:
+//   - Slide 9 narrates R4's 42/72/65 flicker as a still-open finding.
+//     Fixed 19 Aug (D-76): R4 now reads screening_score_deterministic,
+//     re-verified live against the same fixture holding steady at 100
+//     across three re-runs. Rewrite Slide 9 before regenerating from this.
+//   - The decision-log entry count is hardcoded in at least three places
+//     below (45 / 43 / 41 - already inconsistent with each other) and all
+//     three are far behind the real count; decision_log.md's own header
+//     is the only source that won't be stale.
+//   - SS below pointed at a different sandbox session's filesystem path,
+//     not this repo - fixed to a relative path, but re-check it resolves
+//     before running.
 const pptxgen = require("pptxgenjs");
 const path = require("path");
 
-const SS = "/sessions/gifted-fervent-clarke/mnt/a11yaudit/screenshots/";
+const SS = path.join(__dirname, "..", "screenshots") + path.sep;
 
 const INK    = "111111";
 const PAPER  = "FFFFFF";
