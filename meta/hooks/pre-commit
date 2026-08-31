@@ -1,15 +1,16 @@
 #!/bin/bash
-# meta/hooks/pre-commit — blocks a commit if decision_log.md's own
-# completeness claim ("D-01 to D-NN, no missing numbers, no duplicates")
-# is false of the actual document body.
+# meta/hooks/pre-commit — blocks a commit on the two fast, deterministic
+# documentation-integrity checks this project has: decision_log.md's own
+# completeness claim, and readme.md/CLAUDE.md's table/view counts against
+# the real schema.
 #
 # Why this exists as a local hook, not just a CI check: branch protection
 # is currently blocked on this private free-tier repo (decision_log.md
 # D-86), so a red CI check today is informational only — it does not stop
 # a push or a merge. This hook is the one thing that can actually block
-# something *today*, at commit time, which is also the moment a D-XX fix
-# is still fresh enough to write the full entry for — not three reviews
-# and eleven commits later (decision_log.md D-93/D-94).
+# something *today*, at commit time, which is also the moment a fix is
+# still fresh enough to write the full entry for — not three reviews and
+# eleven commits later (decision_log.md D-93/D-94/D-95).
 #
 # Install (once per clone):
 #   git config core.hooksPath meta/hooks
@@ -19,12 +20,19 @@ set -e
 REPO_ROOT="$(git rev-parse --show-toplevel)"
 cd "$REPO_ROOT"
 
-if [ -f meta/check_decision_log_completeness.sh ]; then
-  if ! bash meta/check_decision_log_completeness.sh; then
-    echo
-    echo "pre-commit: decision_log.md's completeness claim does not match its own body — see above."
-    echo "Fix it (write the missing ## D-XX entry, or correct the Completeness/Changelog line) before committing."
-    echo "To bypass in a genuine emergency: git commit --no-verify (leaves the gap for the next check to catch)."
-    exit 1
+run_check() {
+  local script="$1" what="$2"
+  if [ -f "$script" ]; then
+    if ! bash "$script"; then
+      echo
+      echo "pre-commit: $what — see above."
+      echo "To bypass in a genuine emergency: git commit --no-verify (leaves the gap for the next check to catch)."
+      exit 1
+    fi
   fi
-fi
+}
+
+run_check meta/check_decision_log_completeness.sh \
+  "decision_log.md's completeness claim does not match its own body"
+run_check meta/check_doc_schema_numbers.sh \
+  "readme.md/CLAUDE.md's table/view count claims don't match postgres_schema.sql"
