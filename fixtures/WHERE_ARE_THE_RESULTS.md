@@ -72,7 +72,7 @@ That is the view in the screenshot on slide 2, showing the `BD` finding.
 
 ## Two things that will catch you out
 
-**The deterministic screening score is not in the database.** There is no column for it. It is calculated, printed into `report_md`, and never stored. So the `screening_score` you see in the query above is the **combined** one, which includes AI findings and moves between runs. If you want the deterministic number you have to read the report text. This is a known gap, listed as future work in `readme.md`.
+**The deterministic screening score is not on the `audits` row you just queried.** It is calculated, printed into `report_md`, and not stored on `audits` itself. So the `screening_score` you see in the query above is the **combined** one, which includes AI findings and moves between runs. The deterministic number *is* stored, but on a different table — `audit_runs` (one row per execution, added `decision_log.md` D-63) — specifically so repeat runs of the same content can be compared; query that table, or read the report text, for the deterministic figure.
 
 **Re-submitting the same content will not create a new row.** It increments `run_count` on the existing one, because the system is idempotent. If you demo the same text twice and wonder why nothing new appeared, that is why, and it is working correctly.
 

@@ -17,7 +17,7 @@ Stack: self-hosted n8n (Docker) + Postgres 16 · AI: Anthropic `claude-sonnet-4-
 ```
 Form → WF1 Audit Intake ──► SUB-A (AI analysis, validated, fallback-safe)
                         └─► Decision Engine (deterministic, AI-independent)
-                        └─► Postgres (audits / findings · instrument_items designed, not built - D-20)
+                        └─► Postgres (audits / audit_runs / findings / instrument_items - all six write nodes built and wired, D-63/D-64)
                         └─► Report + Accessibility statement draft
 All workflows ──► WF-Error (metadata-only logging)
 ```
@@ -135,7 +135,7 @@ label: ≥90 "no issues in screened subset" · 70–89 "issues found" · <70 "se
 
 > **Fixed (D-36, 13 Aug).** Both scores are now `null` - rendered "not computable" by the report layer, same as the instrument subscores - when nothing was actually screened: pasted text (`checks_engine: "none"`) with the AI unavailable. Previously the penalty sum defaulted to 0 from zero checks, not zero problems, and printed 100/"no issues in screened subset" for a page nobody assessed (first observed on the E11 test run). R4 (below) is guarded against `null` explicitly, the same pattern R8 already used for `pemat_understandability`.
 
-**Storage note.** `postgres_schema.sql` has no column for `screening_score_deterministic`; it is computed by Node 12, printed in the report and the statement, and **not persisted**. Adding the column was descoped under D-20; it is future work, but not the first priority - persisting per-item instrument verdicts ranks ahead of it (see readme.md's "Future work, in priority order" and `decision_log.md` D-34).
+**Storage note.** `audits` has no column for `screening_score_deterministic` - it is computed by Node 12 and printed in the report and the statement from that run's in-memory value, not read back from `audits`. It **is** persisted, but on `audit_runs` (one row per execution, not per content), added 16/17 August (D-63) specifically to support the run-to-run stability comparison in `docs/scoring-stability.md`: `audit_runs.screening_score_deterministic` stays constant across repeat runs of the same content while `audit_runs.screening_score` should not.
 
 Two rules from review:
 - **Naming (fix #3):** this is *not* a conformance score, and the labels deliberately avoid ACR/VPAT conformance language ("supports" etc.). The tool screens a listed subset of WCAG; claiming conformance over 87 criteria after screening nine would be an overclaim with legal implications under BFSG. Report and statement name the screened criteria explicitly.
@@ -177,12 +177,12 @@ cci_score               = earned ÷ applicable × 100     (item 17 reverse-score
 ### Node 14 - `Insert Findings` (Postgres)
 Upsert on `(audit_id, finding_key)` - idempotent re-runs. Was false in practice for AI-sourced findings until 19 August (external review, `decision_log.md` D-80): `finding_key` used to be whatever string the AI itself proposed, unstable across re-runs, so the upsert could never fire and findings accumulated silently instead. `code/14a_build_findings_payload.js` (Node 14a - Build Findings Payload, added 4 Aug per D-26, not otherwise documented in this file) now computes `finding_key` deterministically from the wcag_criterion/instrument reference plus a hash of the evidence quote, never from AI-invented text.
 
-### Node 15 - `Insert Instrument Items` (Postgres) - **DESIGNED, NOT BUILT IN v1 (D-14 Tier 2, cut by D-20)**
+### Node 15 - `Insert Instrument Items` (Postgres) - **built 17 August (D-64), after having been cut from v1 (D-14 Tier 2, cut by D-20)**
 *As designed:* upsert on `(audit_id, instrument, item_no)` into `instrument_items` - one row per PEMAT/CCI item with `verdict`, `decided_by` (`deterministic` / `ai` / `human`) and `rationale`, carrying `WHERE overridden_by_human = false` so a re-run never overwrites a human reviewer's correction. Intended as the queryable audit trail of the assessment itself.
 
-*As built:* the node does not exist. The per-item verdicts are computed and printed in the report, but not stored as rows. The `instrument_items` table is empty. See the note under Node 19 for the full consequences.
+*As built:* the node exists and is wired - `code/15a_build_instrument_items_payload.js` (Node 15a - Build Instrument Items Payload, same parameterised-query pattern as Node 14a) builds one JSON row per instrument item, including the `domain` column (also never populated before D-64, closed in the same pass), and Node 15 writes them. Verified end-to-end 17 August against a real form submission: 38 rows for one audit, both instruments, all six domains represented (D-64).
 
-Aggregated across audits, `v_audit_summary` was designed to answer the cross-page questions that were impossible on the previous project's Google Sheets basis - most frequently failing criterion, average confidence per criterion, and (once findings have been reviewed) the confirmed/dismissed ratio that gives an empirical false-positive rate. **Because Node 15 was cut, the per-item half of that is not currently answerable.** What *is* answerable from `audits` and `findings`: per-criterion finding frequency across audits, severity distribution, and which rules fired how often.
+Aggregated across audits, `v_audit_summary` was designed to answer the cross-page questions that were impossible on the previous project's Google Sheets basis - most frequently failing criterion, average confidence per criterion, and (once findings have been reviewed) the confirmed/dismissed ratio that gives an empirical false-positive rate. The per-item half of that is now answerable from `instrument_items` directly, since D-64; it was not before.
 
 ### Node 16 - `IF: human review?`
 true → Node 17, else → Node 18.
@@ -199,20 +199,15 @@ true → Node 17, else → Node 18.
 ### Node 19 - `Save Report` (Postgres)
 Writes `report_md`, `statement_draft`, `completed_at`, final `status`.
 
-### Node 15 and the node numbering - as built (D-26)
+### Node 15 and the node numbering - as built (D-26), for the frozen v1 submission
 
-The numbering above is the **specification** numbering. On the canvas, WF1 has **20 nodes**: spec nodes 1–14 and 16–19, plus two extra Code nodes, `Build Audit Payload` and `Build Findings Payload`, which sit immediately before the two Postgres writes.
+The numbering above is the **specification** numbering. On the canvas of the **frozen v1 submission** (Phase 1, what `readme.md`/`capstone_proposal.md`/`build_runbook.md`/`meta/GITHUB_SUBMISSION.md` describe as the node count), WF1 has **20 nodes**: spec nodes 1–14 and 16–19, plus two extra Code nodes, `Build Audit Payload` and `Build Findings Payload`, which sit immediately before the two Postgres writes. Node 15 (`Insert Instrument Items`) was cut from that frozen submission - Tier 2 scope, cut 3 August by D-20 - so the "20 nodes" count above does not include it.
 
-Those two nodes exist because the database writes are done as parameterised `Execute Query` statements taking a single JSON payload, rather than through n8n's column-mapping UI (D-26). The mapping UI cannot express `ON CONFLICT … DO UPDATE` with a `WHERE` guard, and it silently drops fields it does not recognise. Building the payload in a Code node makes the write explicit, reviewable and idempotent - at the cost of two extra nodes on the canvas.
+Those two extra Code nodes exist because the database writes are done as parameterised `Execute Query` statements taking a single JSON payload, rather than through n8n's column-mapping UI (D-26). The mapping UI cannot express `ON CONFLICT … DO UPDATE` with a `WHERE` guard, and it silently drops fields it does not recognise. Building the payload in a Code node makes the write explicit, reviewable and idempotent - at the cost of two extra nodes on the canvas.
 
-**Spec node 15 (`Insert Instrument Items`) was NOT built - designed, not built in v1, see D-14 and D-20.** It was Tier 2 scope, and D-20 cut all Tier 2 on 3 August. Consequences, stated here because they affect what the system can be said to do:
+**Node 15 was built 17 August, Phase 2 (D-64) - not present in the frozen v1 submission above, but live on the current (`-dev`) canvas since.** The `instrument_items` table is written to via `code/15a_build_instrument_items_payload.js` + Node 15; the cross-audit questions attributed to `v_audit_summary` below (most frequently failing criterion, average confidence per criterion, empirical false-positive rate) are answerable from it, per-item, since D-64. `build_runbook.md` SCREENSHOT 12 (`SELECT * FROM instrument_items`) describes the frozen-submission state and remains withdrawn for that snapshot; it is no longer withdrawn on the current canvas.
 
-- The `instrument_items` **table exists in the schema and is never written to.** It contains zero rows.
-- The per-item PEMAT and CCI verdicts *are* produced - by `Call SUB-A_Validate` (subworkflow `SUB-A_Validate`, see §2 A4, D-55) and `Decision Engine` - and they *are* shown in the generated report, item by item with verdict and rationale. They are simply not persisted as queryable rows; they survive only inside `audits.report_md`.
-- Therefore the cross-audit questions attributed to `v_audit_summary` below (most frequently failing criterion, average confidence per criterion, empirical false-positive rate) are **not currently answerable**. They are designed, not demonstrated.
-- `build_runbook.md` SCREENSHOT 12 (`SELECT * FROM instrument_items`) cannot be taken and is withdrawn.
-
-*20 nodes plus a subworkflow - requirement "≥5 functional nodes incl. a real AI node" comfortably met.*
+*20 nodes plus a subworkflow (frozen v1 submission) - requirement "≥5 functional nodes incl. a real AI node" comfortably met. The current `-dev` canvas has grown further since (D-63 `audit_runs`, D-64 `instrument_items`) and is not the count graded.*
 
 ---
 

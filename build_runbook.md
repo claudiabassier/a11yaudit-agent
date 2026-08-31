@@ -64,7 +64,7 @@ docker compose exec -T postgres psql -U <user> -d <db> < postgres_schema.sql
 docker compose exec postgres psql -U <user> -d <db> -c "\dt"
 docker compose exec postgres psql -U <user> -d <db> -c "\dv"
 ```
-**Verify:** 4 tables (`audits`, `findings`, `instrument_items`, `error_log`), 2 views (`v_review_queue`, `v_audit_summary`).
+**Verify:** the frozen v1 submission's `postgres_schema.sql` produces 4 tables (`audits`, `findings`, `instrument_items`, `error_log`), 2 views (`v_review_queue`, `v_audit_summary`). The current `postgres_schema.sql` (Phase 2, `audit_runs` added by D-63) produces 5 tables - `audit_runs` alongside the four above - same 2 views.
 **[SCREENSHOT 2]** - `\dt` and `\dv` output.
 
 ### 1.3 Credentials in n8n

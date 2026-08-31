@@ -1,7 +1,11 @@
 # A11yAudit - Knowledge Base
 
-**Version 2.4 · 5 August 2026** · Reference document for SUB-A prompt construction and the automated-checks node.
+**Version 2.5 · 19 August 2026** · Reference document for SUB-A prompt construction and the automated-checks node.
 
+> **v2.5 change:** §4's Tier B digit-context rule corrected — the bare `\d` branch matched any digit in the 40-character window, not just a dose-related one, producing false positives on ordinary sentences containing a year or age. Bounded to a 1–3 digit run with digit boundaries. See `decision_log.md` **D-79** (rigorous review, 19 Aug). No instrument item or prompt content changed.
+>
+> **v2.4 change:** Sources list extended with the SHeLL Health Literacy Editor (Sydney Health Literacy Lab) as related work — the closest existing automated health-literacy tool, explicitly not a source for any item here (it does not check markup and is not grounded in PEMAT or the CDC Index). See `decision_log.md` **D-45**. No instrument item, prescreen term or code path changed.
+>
 > **v2.3 change:** §4's rationale note rewritten. It claimed patients "routinely misread BD as bedtime" - **unsupported, and inverted relative to ISMP**, which records the opposite (`BD` meaning *bedtime* mistaken as `BID`) and drops `BD` entirely from its current 2024 list. Replaced with the correct patient-facing evidence base (Wolf et al. 2007) and the correct clinician-facing citation, kept separate. Two new sources added. See `decision_log.md` **D-43**. No instrument item, prescreen term or code path changed.
 >
 > **v2.2 change:** §4 emergency-number list extended with `999` and `111` (`decision_log.md` D-37). No instrument item was changed; §2 and §3 remain as verified against the primary sources on 31 July. Every item below is quoted or paraphrased from the primary source listed at the end.
@@ -122,7 +126,7 @@ Regex match on `content_text`, case-insensitive. Presence forces human review - 
 
 > **Matching rule (v2.1, from review):** short and ambiguous abbreviations collide with ordinary words - German "im" ("in the"), English "stat", "od". Standalone matching would fire R7 on virtually every German page, routing everything to review and destroying the tool's ability to discriminate (test E14 could never pass). Therefore two tiers:
 > - **Tier A - standalone match:** unambiguous long terms only (e.g. `contraindicat`, `overdose`, `Dosierung`, `Notfall`).
-> - **Tier B - context-gated match:** dosing abbreviations (`bd`, `bid`, `tid`, `qid`, `qd`, `qhs`, `prn`, `po`, `sc`, `im`, `iv`, `stat`, `ac`, `pc`, `od`, `os`, `ou`) count only when within 40 characters of a number, unit, or dose-form word (`\d`, `mg`, `mcg`, `ml`, `tablet|Tablette`, `capsule|Kapsel`, `drops|Tropfen`, `dose|Dosis`). "Take 1 tablet BD" matches; "im Krankenhaus" does not.
+> - **Tier B - context-gated match:** dosing abbreviations (`bd`, `bid`, `tid`, `qid`, `qd`, `qhs`, `prn`, `po`, `sc`, `im`, `iv`, `stat`, `ac`, `pc`, `od`, `os`, `ou`) count only when within 40 characters of a number, unit, or dose-form word (a **1-3 digit number with digit boundaries**, `mg`, `mcg`, `ml`, `tablet|Tablette`, `capsule|Kapsel`, `drops|Tropfen`, `dose|Dosis`). "Take 1 tablet BD" matches; "im Krankenhaus" does not. **Fixed 19 Aug (external review, `decision_log.md` D-79):** the digit branch used to be a bare `\d`, matching any digit anywhere in the window - "im Jahr 2020" and "im Alter ab 18 Jahren" both false-positived via "im" near an unrelated year/age. Bounded to `(?<!\d)\d{1,3}(?!\d)` so a dose quantity still matches but no digit inside a 4+-digit run (any year, most large IDs) does; a coincidental 1-2 digit age can still match by chance, documented as an accepted residual, not closed.
 
 *Rationale for the list itself, corrected 5 Aug (see `decision_log.md` D-43):*
 
