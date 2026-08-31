@@ -2,6 +2,8 @@
 
 **Three files.** The Day-5 demo pair (`bp-meds-poor.html` / `bp-meds-good.html`), documented in full below, and a third fixture added on Day 6 for the S5 test.
 
+(This folder held two further files, `LIVE_DEMO.md` and `WHERE_ARE_THE_RESULTS.md` — support material written for the one-time Phase-1 grading demo, not for the fixtures themselves. Archived 19 August 2026 at `archive/fixtures-demo-aids/`, `decision_log.md` D-84, external review Finding 9.)
+
 ## `bp-meds-short.html` — very short material (added 5 Aug, test S5)
 
 A deliberately **well-formed but short** patient leaflet about furosemide: two paragraphs, 128 words, valid `lang`, a `<title>` and an `<h1>`. Written so that the *only* reason any instrument item drops out is length, not defective markup.

@@ -1,5 +1,14 @@
+// FIX (rigorous review, 19 Aug, decision_log.md D-84, external review):
+// read from the actual repo file, not a hardcoded /tmp/validate_output.js
+// that nothing ever wrote to — the harness could not previously be run
+// without an undocumented manual copy step first, and would fail outright
+// (ENOENT) in a fresh clone or CI. Also added the pass/fail assertion and
+// exit code this file never had (contrast _prompt_injection_harness.js,
+// its sibling, which already had both) — until now this only printed
+// values for a human to eyeball, which cannot gate CI.
 const fs = require('fs');
-const code = fs.readFileSync('/tmp/validate_output.js', 'utf8');
+const path = require('path');
+const code = fs.readFileSync(path.join(__dirname, 'A4_validate_output.js'), 'utf8');
 
 const CONTENT = "Taking your water tablet\n\nYour doctor has prescribed furosemide, sometimes called a water tablet. Take one tablet each morning with a glass of water.\n\nTell your practice nurse if you feel dizzy when you stand up.";
 
@@ -56,3 +65,21 @@ console.log('surviving severities :', r.analysis.findings.map(f => f.severity).j
 console.log('evidence_verified    :', r.analysis.findings.map(f => f.evidence_verified).join(', '));
 console.log('missing_items_count  :', r.missing_items_count);
 console.log('errors               :', JSON.stringify(r.errors));
+
+// ---- pass/fail --------------------------------------------------------------
+// The whole point of this harness (spec A4 step 3, "anti-fabrication check"):
+// the real quote survives, verified; the fabricated quote is dropped
+// silently — no repair offered, no error raised, just absent — and counted
+// in dropped_unverified rather than disappearing unaccountably.
+const survivingKeys = r.analysis.findings.map((f) => f.finding_key);
+const pass = r.valid === true
+  && r.dropped_unverified === 1
+  && survivingKeys.length === 1
+  && survivingKeys[0] === 's4-real-quote'
+  && !survivingKeys.includes('s4-fabricated-quote')
+  && r.analysis.findings[0].evidence_verified === true;
+console.log();
+console.log(pass
+  ? 'PASS — the fabricated quote was dropped silently; the real, verifiable quote survived.'
+  : 'FAIL — anti-fabrication check did not behave as expected. Investigate immediately.');
+if (!pass) process.exitCode = 1;

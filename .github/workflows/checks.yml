@@ -1,0 +1,44 @@
+# A11yAudit — automated checks
+#
+# Runs every self-contained, exit-code-bearing check this project has on
+# every push and pull request. None of this is a substitute for the live
+# n8n/Postgres verification decision_log.md repeatedly insists on — all
+# three checks run real project code in isolated Node/Docker, never a live
+# Postgres, live HTTP fetch, or live AI call. See tests/golden/README.md
+# "Out of scope" for exactly what the golden suite does and does not cover.
+#
+# Added 19 August 2026 (rigorous review, decision_log.md D-83/D-84,
+# external review Finding 8: "no CI" — until now every one of these was
+# manually invoked, never enforced automatically). Originally
+# golden-tests.yml (D-83), renamed and extended to cover the two
+# standalone harness scripts once D-84 found they hadn't been wired in —
+# and that one of them (_S4_evidence_check_harness.js) could not have
+# run in CI as it stood, reading from a hardcoded /tmp path nothing
+# populated and reporting no pass/fail signal at all.
+
+name: Checks
+
+"on":
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+
+jobs:
+  golden-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: tests/golden (builds its own Docker image, matches local run.sh)
+        run: sh tests/golden/run.sh
+
+  standalone-harnesses:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the shared test image (same one tests/golden uses)
+        run: docker build -t a11yaudit-golden tests/golden
+      - name: Prompt-injection harness (code/_prompt_injection_harness.js)
+        run: docker run --rm -v "$PWD":/repo -w /repo a11yaudit-golden node code/_prompt_injection_harness.js
+      - name: Evidence-fabrication harness (code/_S4_evidence_check_harness.js)
+        run: docker run --rm -v "$PWD":/repo -w /repo a11yaudit-golden node code/_S4_evidence_check_harness.js

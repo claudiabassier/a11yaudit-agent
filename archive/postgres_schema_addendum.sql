@@ -1,4 +1,17 @@
 -- ===========================================================================
+-- ARCHIVED 19 August 2026 (rigorous review, decision_log.md D-84, external
+-- review Finding 9). Every column below is now defined directly on its
+-- table in postgres_schema.sql (v2.4) — do not run this file against a
+-- fresh database, it is redundant (ADD COLUMN IF NOT EXISTS would just
+-- no-op) and no longer part of the setup sequence in any doc. Kept here,
+-- not deleted, as the historical record of why these five columns exist
+-- and what they were named before the merge — decision_log.md's own
+-- convention throughout this project. See postgres_schema.sql's v2.4
+-- changelog note for why two files for one schema was retired: it was a
+-- real ordering trap at setup time (this file's own header, below,
+-- called it "safe to skip" — true when written, false since 4 August).
+-- ===========================================================================
+--
 -- A11yAudit — schema addendum (Tier 2, optional)
 -- 31 July 2026 · apply AFTER postgres_schema.sql, before any data exists
 --

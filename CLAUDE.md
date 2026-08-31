@@ -100,8 +100,8 @@ Wenn eine Änderung ansteht, immer zuerst prüfen: Läuft sie auf der Dev-Varian
 
 | Pfad | Inhalt |
 |---|---|
-| `workflows_export/` | vier Dateien: die drei Pipeline-Workflows - Hauptworkflow (`WF1_Audit_Intake.json`), AI-Subworkflow (`SUB-A_AI_Analysis.json`), Fehlerhandler (`WF-Error.json`) - plus `_cheerio_test.json`, Testschrott aus Tag 1, kein Teil der Pipeline |
-| `postgres_schema.sql`, `postgres_schema_addendum.sql` | Schema - 5 Tabellen (v2.1: `audit_runs` neu, Phase 2 Woche 1a, D-63), 2 Views |
+| `workflows_export/` | die drei Pipeline-Workflows - Hauptworkflow (`WF1_Audit_Intake.json`), AI-Subworkflow (`SUB-A_AI_Analysis.json`), Fehlerhandler (`WF-Error.json`). `_cheerio_test.json` (Testschrott aus Tag 1, kein Teil der Pipeline) liegt seit D-84 in `archive/day1-cheerio-test/` |
+| `postgres_schema.sql` | Schema, eine Datei (das ehemalige `postgres_schema_addendum.sql` seit D-84 direkt eingebaut, siehe `archive/postgres_schema_addendum.sql`) - 5 Tabellen (v2.1: `audit_runs` neu, D-63), 3 Views (`v_pipeline_health` neu, D-83) |
 | `code/` | JavaScript und SQL je Node, eine Datei pro Node, mit Ein-/Ausgabevertrag und Testeingabe |
 | `code/_DAY0_REVIEW.md` | Code-Review vor dem Bau; acht selbst gefundene Defekte |
 | `code/_S4_evidence_check_harness.js` | Harness für den Anti-Fabrication-Test |
@@ -112,8 +112,8 @@ Wenn eine Änderung ansteht, immer zuerst prüfen: Läuft sie auf der Dev-Varian
 | `knowledge_base.md` | verifizierte Instrument-Items, WCAG-Scope, Safety-Begriffe, Quellen |
 | `decision_log.md` | Designentscheidungen, verworfene Alternativen, korrigierte Behauptungen |
 | `build_runbook.md` | reproduzierbare Bau- und Testprozedur |
-| `PROJECT_STATUS.md` | Baustand, Übergabenotizen |
 | `meta/` | Build-Session-Material inkl. System-Prompt des verwendeten KI-Assistenten |
+| `archive/` | überholte oder einmalige Dateien, als Beleg behalten statt gelöscht (`decision_log.md` D-84) - u. a. `PROJECT_STATUS.md`, der eingefrorene Phase-1-Baustand/Übergabe-Schnappschuss; aktueller Stand: dieses File hier |
 
 ---
 

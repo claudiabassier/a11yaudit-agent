@@ -1,7 +1,14 @@
 -- ================================================================
 -- A11yAudit — Postgres schema
--- Version 2.3 · 19 August 2026 · Postgres 16
+-- Version 2.4 · 19 August 2026 · Postgres 16
 --
+-- v2.4 changes: postgres_schema_addendum.sql merged in place —
+--   audits.dropped_unverified/checks_engine, findings.original_severity/
+--   severity_upgraded_by, instrument_items.ai_contradiction are now
+--   defined directly on their tables. Two files for one schema was an
+--   ordering trap at setup time (external review Finding 9, decision_log.md
+--   D-84) — postgres_schema_addendum.sql is no longer part of the setup
+--   sequence; running this one file alone is the whole schema.
 -- v2.3 changes: v_pipeline_health added — a one-row operational snapshot
 --   (stalled audits, recent volume, AI fallback rate, most recent error).
 --   Closes external review Finding 3, "no operational status view"
@@ -70,6 +77,19 @@ CREATE TABLE IF NOT EXISTS audits (
     automated_checks_skipped boolean NOT NULL DEFAULT false,
     content_truncated     boolean NOT NULL DEFAULT false,
 
+    -- provenance for the system's central claims (originally
+    -- postgres_schema_addendum.sql, 31 July; merged in place here v2.4,
+    -- 19 August, decision_log.md D-84 — two files for one schema was an
+    -- ordering trap at setup time: the addendum's own header called it
+    -- "safe to skip", true when written, false since 4 August once
+    -- code/13_upsert_audit.sql started naming dropped_unverified/
+    -- checks_engine directly in its fixed INSERT column list. One file,
+    -- no ordering to get wrong, closes that risk structurally rather
+    -- than by warning about it. See decision_log.md D-82/D-83 for the
+    -- warnings this superseded.)
+    dropped_unverified    integer DEFAULT 0, -- AI findings discarded because the evidence quote could not be located verbatim in the source. Rises = the model is fabricating more.
+    checks_engine         text CHECK (checks_engine IN ('cheerio', 'regex', 'none')), -- which HTML parser produced the deterministic checks: cheerio (full), regex (retired, decision_log.md D-69 — no row should carry this value on or after 18 August), none (text branch)
+
     -- outputs
     report_md           text,
     statement_draft     text,
@@ -118,6 +138,11 @@ CREATE TABLE IF NOT EXISTS findings (
     reviewed_at         timestamptz,
     created_at          timestamptz NOT NULL DEFAULT now(),
 
+    -- merged from postgres_schema_addendum.sql, v2.4 (D-84) — see the note
+    -- on audits' own dropped_unverified/checks_engine above for why
+    original_severity   text CHECK (original_severity IN ('critical','high','medium','low')), -- severity as reported before a deterministic rule upgraded it; NULL if never upgraded
+    severity_upgraded_by text,                  -- rule that forced the upgrade, e.g. 'R9' (undefined medical term in safety-relevant content)
+
     UNIQUE (audit_id, finding_key),
     -- an instrument reference must name both instrument and item, or neither
     CONSTRAINT chk_instrument_pair CHECK (
@@ -150,6 +175,9 @@ CREATE TABLE IF NOT EXISTS instrument_items (
     evidence        text,
     overridden_by_human boolean NOT NULL DEFAULT false,
     created_at      timestamptz NOT NULL DEFAULT now(),
+
+    -- merged from postgres_schema_addendum.sql, v2.4 (D-84)
+    ai_contradiction text,                      -- what the AI claimed where the deterministic verdict disagreed; the deterministic verdict stands, this records the disagreement that fired R6
 
     UNIQUE (audit_id, instrument, item_no)
 );

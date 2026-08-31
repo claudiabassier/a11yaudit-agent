@@ -108,19 +108,16 @@ docker compose exec postgres psql -U n8n -d a11yaudit -c "\dv"
 **Expect:** the tables and views listed above - 4 and 2 against the 31 July
 schema, 5 and 3 against the current one.
 
-## 6. Audit-trail columns — labelled "optional" below; run it anyway
+## 6. Audit-trail columns — no longer a separate step
 
-This was written as Tier 2/skippable on 31 July. **It stopped being safe to
-skip on 4 August**, once `code/13_upsert_audit.sql` and
-`code/14_insert_findings.sql` started naming these columns directly in
-their fixed INSERT column lists (`decision_log.md` D-26/D-27/D-32) - skip
-this step and the very first "Upsert Audit" write throws
-`column "dropped_unverified" of relation "audits" does not exist`, failing
-the pipeline outright rather than degrading gracefully. Run it.
-
-```bash
-docker compose exec -T postgres psql -U n8n -d a11yaudit < postgres_schema_addendum.sql
-```
+This section originally ran `postgres_schema_addendum.sql` as a second,
+"Tier 2/skippable" file (31 July) - it stopped being safe to skip on
+4 August, once `code/13_upsert_audit.sql`/`code/14_insert_findings.sql`
+started naming these columns directly in their fixed INSERT column lists.
+Merged into `postgres_schema.sql` itself (v2.4, 19 August,
+`decision_log.md` D-84) - step 4 above already includes these columns,
+nothing further to run here. The addendum file is kept only as history at
+`archive/postgres_schema_addendum.sql`.
 
 ---
 

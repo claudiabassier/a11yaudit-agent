@@ -61,11 +61,10 @@ N8N_DIAGNOSTICS_ENABLED=false
 ### 1.2 Apply the database schema
 ```bash
 docker compose exec -T postgres psql -U <user> -d <db> < postgres_schema.sql
-docker compose exec -T postgres psql -U <user> -d <db> < postgres_schema_addendum.sql
 docker compose exec postgres psql -U <user> -d <db> -c "\dt"
 docker compose exec postgres psql -U <user> -d <db> -c "\dv"
 ```
-**This runbook did not mention `postgres_schema_addendum.sql` at all until this line (found in the rigorous review, `decision_log.md` D-82) — apply it. It is not optional despite its own header saying so.** Written 31 July as a skippable Tier-2 nicety, it stopped being safe to skip on 4 August once `code/13_upsert_audit.sql` and `code/14_insert_findings.sql` started naming its columns directly in their fixed `INSERT` column lists. Skip it and the very first "Upsert Audit" write throws `column "dropped_unverified" of relation "audits" does not exist` — the pipeline fails outright, not degrades.
+One file is the whole schema. It used to be two — `postgres_schema_addendum.sql` held five columns (`audits.dropped_unverified`/`checks_engine`, `findings.original_severity`/`severity_upgraded_by`, `instrument_items.ai_contradiction`) as a separate "Tier 2, optional" step this runbook never even mentioned. That was a real ordering trap: those columns stopped being optional on 4 August, once `code/13_upsert_audit.sql`/`14_insert_findings.sql` started naming them directly in their fixed `INSERT` column lists, but nothing forced the second file to run before the first real write. Merged into `postgres_schema.sql` (v2.4, `decision_log.md` D-84, external review Finding 9) — the archived file is kept at `archive/postgres_schema_addendum.sql` as the historical record, not as a setup step.
 **Verify:** the frozen v1 submission's `postgres_schema.sql` produces 4 tables (`audits`, `findings`, `instrument_items`, `error_log`), 2 views (`v_review_queue`, `v_audit_summary`). The current `postgres_schema.sql` (Phase 2, `audit_runs` added by D-63, `v_pipeline_health` added by D-83) produces 5 tables - `audit_runs` alongside the four above - and 3 views.
 **[SCREENSHOT 2]** - `\dt` and `\dv` output.
 
@@ -75,6 +74,13 @@ Create: **Postgres** credential (host `postgres`, i.e. the compose service name 
 **[SCREENSHOT 3]** - successful connection test (redact any key).
 
 **Not part of the frozen v1 submission — a Phase 2 addition this section never covered (found in the rigorous review, `decision_log.md` D-82):** `postgres_app_role.sql` creates `a11yaudit_app`, a least-privilege role scoped to exactly the statements each audit table needs, replacing the superuser `n8n` role the credential above uses by default. Apply it (after §1.2, since it grants against tables that must already exist), create a **second** Postgres credential in n8n using it, and re-point Nodes 13/13b/14/15/17/19 to that credential rather than the first one — see the file's own header for the full four-step sequence. Verified in production use since D-66 (17 August); a setup following only the steps above ends up on the broader, original role instead.
+
+### 1.4 Two setup traps not covered above (external review, `decision_log.md` D-84)
+
+Neither has a step above; both cost the external reviewer's independent setup real time (three attempts before anything ran at all) before being traced back to these two causes rather than a defect in the code.
+
+- **Both `SUB-A` and `WF-Error` must be individually switched Active in n8n, not just `WF1`.** `WF1` calls `SUB-A` via an Execute Workflow Trigger and points `settings.errorWorkflow` at `WF-Error` (see §2's `Verdrahtung im Export` note in `CLAUDE.md`) — but n8n does not activate a workflow just because another workflow references it. An inactive `SUB-A` or `WF-Error` makes n8n refuse the call it's supposed to make, silently from `WF1`'s own perspective. Activate all three workflows before testing anything end to end, not just the one you're looking at.
+- **Submit the intake form as `multipart/form-data`, not JSON.** n8n's Form Trigger expects a real form submission (matching what a browser sends, or `curl -F`), not a JSON body — a JSON POST to the form's webhook URL does not reach the workflow the way the form itself would.
 
 ---
 

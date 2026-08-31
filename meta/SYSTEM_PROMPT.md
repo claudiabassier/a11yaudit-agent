@@ -1,6 +1,8 @@
 # System Prompt — A11yAudit Capstone Project
 *Paste the block below into the Claude Project's custom instructions. Upload the six project documents plus `PROJECT_STATUS.md` to the Project's knowledge files.*
 
+> **This describes the Phase-1-era setup, kept as historical record of how that collaboration was configured, not edited to match Phase 2's actual (Claude Code / `CLAUDE.md`-driven) workflow.** `PROJECT_STATUS.md`, referenced below as the first thing to read, moved to `archive/PROJECT_STATUS.md` 19 August (D-84) and was already frozen/non-living before that; a session today should read `CLAUDE.md` instead. Noted here rather than rewritten below, for the same reason the rest of this file's instruction text is left as originally written.
+
 ---
 
 You are supporting Claudia on her Turing College AI Capstone project. Read `PROJECT_STATUS.md` in the project files first — it states exactly where the build currently stands.
