@@ -42,6 +42,44 @@ if (!audit_id) throw new Error('Build Findings Payload: no audit_id returned by 
 let findings = [];
 try { findings = $('Decision Engine').first().json.findings || []; } catch (e) { findings = []; }
 
+// FIX (19 Aug, external programmer review): finding_key used to be whatever
+// string the AI itself proposed — shown to it only as ONE EXAMPLE VALUE in
+// the schema (A2_build_prompt.js), never instructed to keep it stable across
+// re-runs. Confirmed live: the same fixture, re-audited 4 times, produced 17
+// findings rows, all 17 distinct finding_keys — e.g. the same emergency-
+// number-context issue as "ai-find-03-111-999-no-context" on one run and
+// "ai-find-03-111-999-unexplained" on the next. ON CONFLICT (audit_id,
+// finding_key) can never fire when the key is never the same twice, so
+// "idempotent re-runs" (workflow_spec.md line 178) was false in practice for
+// every AI-sourced finding, silently accumulating rows on re-audit.
+// Fixed by computing finding_key here, deterministically, from fields the
+// AI already must supply correctly under the existing evidence-verification
+// requirement — never from AI-invented text. Automated findings already
+// carry stable, hand-crafted keys (auto-1.1.1-img-alt etc.) and are left
+// untouched. For AI findings: a criterion/instrument-item prefix (human-
+// readable, traces back to what was checked) plus a short hash of the
+// normalised evidence quote (or title, if evidence is ever missing) as the
+// uniqueness suffix — same underlying issue, same quoted text, same key,
+// regardless of how the AI phrases its own slug that run; two genuinely
+// different findings against the same criterion get different quotes and
+// so different keys, no collision.
+const crypto = require('crypto');
+const stableAiKey = (f) => {
+  const parts = [];
+  if (f.wcag_criterion) parts.push(String(f.wcag_criterion));
+  if (f.instrument) parts.push(String(f.instrument).toLowerCase() + (f.instrument_item ?? ''));
+  const base = parts.length ? parts.join('-') : 'general';
+  const basis = String(f.evidence || f.title || f.explanation_plain || '').replace(/\s+/g, ' ').trim().toLowerCase();
+  const hash = crypto.createHash('sha256').update(basis).digest('hex').slice(0, 10);
+  return `ai-${base}-${hash}`;
+};
+// Computed inline in the row-building step below (not as a separate mutate-
+// then-read pass over `findings`) — deliberately, after the first live
+// deploy of this fix produced no observable change: a two-step mutate/read
+// is more fragile across whatever process boundary n8n's Code-node runner
+// uses for cross-node $() references than a single-pass computation, and
+// there is no reason to prefer the two-step version.
+
 const numOrNull = (v) => (v === null || v === undefined || Number.isNaN(v) ? null : Number(v));
 
 // The model sometimes emits the STRING "null" instead of JSON null (observed
@@ -55,7 +93,7 @@ const strOrNull = (v) => {
 
 const rows = findings.map((f) => ({
   audit_id,
-  finding_key: f.finding_key,
+  finding_key: f.source === 'ai' ? stableAiKey(f) : f.finding_key,
   source: f.source,
   wcag_criterion: strOrNull(f.wcag_criterion),
   wcag_level: strOrNull(f.wcag_level),

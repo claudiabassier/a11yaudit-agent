@@ -1,6 +1,6 @@
 # A11yAudit - Technical Specification
 
-**Version 2.9 · 19 August 2026 - R4 now reads the deterministic score (Phase 2, Woche 2); a missing R9 clause in `legally_relevant`'s spec line found and fixed in passing**
+**Version 3.0 · 19 August 2026 - `finding_key` computed deterministically for AI findings, closing a silent duplicate-accumulation bug on re-audit (external review, D-80)**
 AI-assisted accessibility and health-literacy audit tool for digital health content.
 Stack: self-hosted n8n (Docker) + Postgres 16 · AI: Anthropic `claude-sonnet-4-6` via n8n's Anthropic node · Language: English.
 
@@ -175,7 +175,7 @@ cci_score               = earned ÷ applicable × 100     (item 17 reverse-score
 `INSERT … ON CONFLICT (content_hash) DO UPDATE`; writes scores, labels, flags, `triggered_rules`, `ai_model`, `ai_fallback_used`, `not_assessed_count`. Returns `audit_id`.
 
 ### Node 14 - `Insert Findings` (Postgres)
-Upsert on `(audit_id, finding_key)` - idempotent re-runs.
+Upsert on `(audit_id, finding_key)` - idempotent re-runs. Was false in practice for AI-sourced findings until 19 August (external review, `decision_log.md` D-80): `finding_key` used to be whatever string the AI itself proposed, unstable across re-runs, so the upsert could never fire and findings accumulated silently instead. `code/14a_build_findings_payload.js` (Node 14a - Build Findings Payload, added 4 Aug per D-26, not otherwise documented in this file) now computes `finding_key` deterministically from the wcag_criterion/instrument reference plus a hash of the evidence quote, never from AI-invented text.
 
 ### Node 15 - `Insert Instrument Items` (Postgres) - **DESIGNED, NOT BUILT IN v1 (D-14 Tier 2, cut by D-20)**
 *As designed:* upsert on `(audit_id, instrument, item_no)` into `instrument_items` - one row per PEMAT/CCI item with `verdict`, `decided_by` (`deterministic` / `ai` / `human`) and `rationale`, carrying `WHERE overridden_by_human = false` so a re-run never overwrites a human reviewer's correction. Intended as the queryable audit trail of the assessment itself.
