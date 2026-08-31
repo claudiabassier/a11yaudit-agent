@@ -12,10 +12,15 @@ echo "CLAIMS CHECK — $(date +%Y-%m-%d)"
 echo "Each hit asserts something about the world outside this repository."
 echo "It needs a source, a hedge, or removal. Statements about this system are false positives."
 echo
-# presentation.md was a planned markdown presentation script that was never
-# built - the deck is A11yAudit_presentation.pptx instead, binary, not
-# something this grep-based check can usefully scan. Dropped from the list
-# rather than left as a dead reference (decision_log.md D-81).
+# presentation.md is real and actively maintained (the speaking script,
+# deliberately kept outside this repo, same as A11yAudit_Fahrplan.md) -
+# not, as an earlier pass here wrongly claimed, a planned file that was
+# never built (corrected 19 August, decision_log.md D-84, after the
+# author flagged the error directly). It stays out of this loop for a
+# narrower reason: the file does not exist in THIS checkout at all, so
+# `[ -f "$f" ]` below would just skip it silently either way - checking
+# it would mean pointing this script at a path outside the repo, which
+# breaks for anyone else who clones it.
 for f in readme.md knowledge_base.md capstone_proposal.md workflow_spec.md; do
   [ -f "$f" ] || continue
   hits=$(grep -inE "$PAT" "$f")

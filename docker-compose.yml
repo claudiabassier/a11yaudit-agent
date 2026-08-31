@@ -17,7 +17,15 @@ services:
       retries: 5
 
   n8n:
-    image: docker.n8n.io/n8nio/n8n:latest
+    # Pinned, not :latest (D-85, 19 August) — :latest meant a fresh
+    # `docker compose up` could silently pull a different n8n version than
+    # the one this whole project has been built and tested against for
+    # three weeks (confirmed running version, checked directly against the
+    # live container: 2.32.7 — also the version D-50 names for its own
+    # test-form CSP workaround, so this is not a guess). Bump deliberately,
+    # not by drift: re-verify tests/golden and a real form submission
+    # before moving this tag.
+    image: docker.n8n.io/n8nio/n8n:2.32.7
     restart: unless-stopped
     ports:
       - "5678:5678"

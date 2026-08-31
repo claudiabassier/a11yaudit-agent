@@ -26,7 +26,7 @@ Prepared 5 August 2026. Verified secret-clean.
 | `docker-compose.yml` | Postgres 16 + n8n, with the two `NODE_FUNCTION_ALLOW_*` variables the Code nodes require |
 
 ### The documentation
-`workflow_spec.md` · `knowledge_base.md` · `decision_log.md` · `build_runbook.md` · `capstone_proposal.md` · `archive/PROJECT_STATUS.md` (moved from the repo root 19 August, D-84 - was current at the original 5 August submission this manifest describes, frozen and archived since) · `A11yAudit_presentation.pptx` (the slide deck; a planned separate markdown presentation script was never built, see `meta/claims_check.sh`'s matching reference for the same leftover)
+`workflow_spec.md` · `knowledge_base.md` · `decision_log.md` · `build_runbook.md` · `capstone_proposal.md` · `archive/PROJECT_STATUS.md` (moved from the repo root 19 August, D-84 - was current at the original 5 August submission this manifest describes, frozen and archived since) · `A11yAudit_presentation.pptx` (the slide deck; `presentation.md`, the speaking script, is real and deliberately kept outside this repo, same as `A11yAudit_Fahrplan.md` — corrected 19 August after this line wrongly called it "never built")
 
 Each carries its own version header and changelog. Read those rather than trusting a list here.
 

@@ -188,9 +188,9 @@ Package contents:
 | `decision_log.md` | design decisions, corrections, open questions |
 | `build_runbook.md` | this file - reproducible setup and test evidence |
 | `capstone_proposal.md` | one-page proposal |
-| `demo_audit_report.md` | generated report from the demo run |
+| `demo_output/` | generated reports from the demo runs, before/after comparison, failure-path records (never packaged as a single `demo_audit_report.md` — that name was planned here and never built, found stale 19 August, `decision_log.md` D-84's broken-link check) |
 | `screenshots/` | 01–16 as listed above |
-| `presentation.md` | STL presentation script |
+| `A11yAudit_presentation.pptx` | the slide deck. `presentation.md`, the speaking script, is real and actively maintained — deliberately kept outside this repo, same as `A11yAudit_Fahrplan.md`/`A11yAudit_Onepager.pdf` (personal working documents, not technical artefacts); this line originally claimed it was "never built", corrected 19 August after the author flagged the error directly |
 
 **Before exporting:** confirm no credential values or API keys appear in the workflow JSON (n8n stores credentials by reference, but check any hard-coded headers or Code nodes).
 

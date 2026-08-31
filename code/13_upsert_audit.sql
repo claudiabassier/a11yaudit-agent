@@ -1,7 +1,7 @@
 -- ===========================================================================
 -- Node 13 — Upsert Audit   ·   Workflow: WF1
 -- Postgres node, operation "Execute Query".
--- Query Parameters (Options):  {{ $json.audit_payload }}
+-- Query Parameters (Options): field "audit_payload" -- bound via the node's own Query Parameters option, NOT evaluated here. Never put a live n8n expression inside this comment: n8n evaluates expressions anywhere in the Query text, including inside SQL comments (decision_log.md D-71).
 --
 -- Idempotent on content_hash (spec Node 13): re-auditing identical content
 -- updates the same row and increments run_count instead of creating a twin.
