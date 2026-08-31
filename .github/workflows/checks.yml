@@ -69,6 +69,8 @@ jobs:
         run: bash meta/check_sql_comments.sh
       - name: code/ vs workflows_export_dev/ sync check (decision_log.md D-92)
         run: python3 meta/check_export_sync.py
+      - name: decision_log.md completeness check (decision_log.md D-94)
+        run: bash meta/check_decision_log_completeness.sh
       - name: Absolute-claims check (meta/claims_check.sh)
         run: |
           bash meta/claims_check.sh

@@ -165,7 +165,8 @@ The Code nodes need `NODE_FUNCTION_ALLOW_EXTERNAL=cheerio` and `NODE_FUNCTION_AL
 | `screenshots/` | proof of execution, with a capture list and notes on what to say about each frame |
 | `workflow_spec.md` | node-by-node technical documentation, synchronised with what was actually built |
 | `knowledge_base.md` | verified instrument items, WCAG scope in and out, safety terms, sources |
-| `decision_log.md` | design decisions, rejected alternatives, and every claim I had to correct |
+| `decision_log.md` | design decisions, rejected alternatives, and every claim I had to correct - 93 entries; short on time? read `decision_log_highlights.md` first |
+| `decision_log_highlights.md` | a curated 10-theme, ~5-minute index into `decision_log.md` - points at the entries worth reading first, doesn't replace or edit the log itself |
 | `build_runbook.md` | reproducible build and test procedure, scope tiers, test matrix |
 | `docs/scoring-stability.md` | three options weighed for R4's instability, impact/cost/runtime/drawbacks for each; Option A chosen and implemented 19 Aug |
 | `meta/` | build-session scaffolding, including the system prompt given to the AI assistant - included deliberately, since applying AI tools is part of what this project is about |

@@ -82,6 +82,16 @@ Neither has a step above; both cost the external reviewer's independent setup re
 - **Both `SUB-A` and `WF-Error` must be individually switched Active in n8n, not just `WF1`.** `WF1` calls `SUB-A` via an Execute Workflow Trigger and points `settings.errorWorkflow` at `WF-Error` (see §2's `Verdrahtung im Export` note in `CLAUDE.md`) — but n8n does not activate a workflow just because another workflow references it. An inactive `SUB-A` or `WF-Error` makes n8n refuse the call it's supposed to make, silently from `WF1`'s own perspective. Activate all three workflows before testing anything end to end, not just the one you're looking at.
 - **Submit the intake form as `multipart/form-data`, not JSON.** n8n's Form Trigger expects a real form submission (matching what a browser sends, or `curl -F`), not a JSON body — a JSON POST to the form's webhook URL does not reach the workflow the way the form itself would.
 
+### 1.5 Local pre-commit hook (`decision_log.md` D-94)
+
+Run once per clone:
+
+```bash
+git config core.hooksPath meta/hooks
+```
+
+Installs `meta/hooks/pre-commit`, which runs `meta/check_decision_log_completeness.sh` before every commit and blocks it if `decision_log.md`'s own completeness claim ("D-01 to D-NN, no missing numbers, no duplicates") is false of the actual document — the exact gap that let D-82 through D-92 exist only as changelog one-liners for eleven commits before a review caught it (D-93). Also runs in CI (`checks.yml`'s `static-checks` job), but branch protection is currently blocked on this private free-tier repo (D-86), so a red CI check today is informational only — this hook is the one thing that actually stops a bad commit before it happens. Bypass in a genuine emergency with `git commit --no-verify`; CI still catches it on push either way.
+
 ---
 
 ## 2. Build order

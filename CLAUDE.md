@@ -114,7 +114,8 @@ Wenn eine Änderung ansteht, immer zuerst prüfen: Läuft sie auf der Dev-Varian
 | `screenshots/` | Ausführungsnachweise |
 | `workflow_spec.md` | Node-für-Node-Dokumentation |
 | `knowledge_base.md` | verifizierte Instrument-Items, WCAG-Scope, Safety-Begriffe, Quellen |
-| `decision_log.md` | Designentscheidungen, verworfene Alternativen, korrigierte Behauptungen |
+| `decision_log.md` | Designentscheidungen, verworfene Alternativen, korrigierte Behauptungen - 93 Einträge; für den schnellen Einstieg zuerst `decision_log_highlights.md` |
+| `decision_log_highlights.md` | kuratierter 10-Themen-Index in `decision_log.md`, ~5 Minuten Lesezeit - ersetzt oder editiert das Log selbst nicht |
 | `build_runbook.md` | reproduzierbare Bau- und Testprozedur |
 | `meta/` | Build-Session-Material inkl. System-Prompt des verwendeten KI-Assistenten |
 | `archive/` | überholte oder einmalige Dateien, als Beleg behalten statt gelöscht (`decision_log.md` D-84) - u. a. `PROJECT_STATUS.md`, der eingefrorene Phase-1-Baustand/Übergabe-Schnappschuss; aktueller Stand: dieses File hier |
