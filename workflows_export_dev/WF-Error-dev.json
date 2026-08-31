@@ -1,0 +1,177 @@
+{
+  "name": "WF-Error-dev",
+  "nodes": [
+    {
+      "id": "b773058f-2f0a-47e5-8a41-aa0753aea93a",
+      "name": "Error Trigger",
+      "type": "n8n-nodes-base.errorTrigger",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "f001aae8-286f-4cef-a134-5c8d09e5b375",
+      "name": "Strip Payload",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        208,
+        0
+      ],
+      "parameters": {
+        "jsCode": "/**\n * WF-Error — Node 2: Strip Payload   (written Day 2, 1 Aug 2026)\n *\n * NODE:   Code node, \"Run Once for All Items\", between Error Trigger and\n *         \"Postgres: insert error_log\".\n *\n * PURPOSE (workflow_spec.md §3): retain ONLY metadata — workflow name, node\n *         name, error class, sanitised message, execution id, timestamp.\n *         Discard every trace of audited content and AI output.\n *         GDPR data minimisation: error_log must never become a back door\n *         through which page content or patient-facing text is stored.\n *\n * EXPECTED INPUT — n8n Error Trigger emits ONE item shaped roughly:\n *   {\n *     execution: { id, url, retryOf, error: { message, stack, name },\n *                  lastNodeExecuted, mode },\n *     workflow:  { id, name }\n *   }\n *   Field presence varies by n8n version and by how the error was raised,\n *   so EVERY access below is defensive. This node must never throw — an\n *   error handler that crashes loses the error it was called to record.\n *\n * OUTPUT — one item matching the error_log columns exactly:\n *   { workflow_name, node_name, error_class, error_message, execution_id }\n *   (occurred_at and error_id are defaulted by Postgres.)\n *\n * ---------------------------------------------------------------------------\n * TEST INPUT — pin this on the Error Trigger to run the node standalone:\n *\n * [{\n *   \"execution\": {\n *     \"id\": \"12345\",\n *     \"error\": { \"message\": \"Cannot find module 'cheerio'\", \"name\": \"Error\" },\n *     \"lastNodeExecuted\": \"Automated Checks\",\n *     \"mode\": \"manual\"\n *   },\n *   \"workflow\": { \"id\": \"abc\", \"name\": \"WF1_Audit_Intake\" }\n * }]\n *\n * Expect: workflow_name \"WF1_Audit_Intake\", node_name \"Automated Checks\",\n *         error_class \"module_missing\", execution_id \"12345\".\n * ---------------------------------------------------------------------------\n */\n\nconst MAX_MESSAGE_CHARS = 300;\n\n// Deterministic message → error_class mapping. Ordered: first match wins.\n// Deliberately conservative — anything unrecognised becomes 'unknown_error'\n// rather than being guessed at, so the classes stay trustworthy.\nconst CLASS_PATTERNS = [\n  [/no[_ ]content|content is empty|insufficient_content/i, 'no_content'],\n  [/insufficient[_ ]content|too short/i,                    'insufficient_content'],\n  [/bad[_ ]url|invalid url|malformed url/i,                 'bad_url'],\n  [/etimedout|timeout|timed out/i,                          'http_timeout'],\n  [/enotfound|econnrefused|getaddrinfo|dns/i,               'host_unreachable'],\n  [/cannot find module/i,                                   'module_missing'],\n  // API before the generic fetch pattern: an Anthropic 401 also matches\n  // \"request failed\", and attributing it to the AI call is the more useful\n  // of the two readings. A plain URL fetch returning 401 is possible and\n  // would be misclassified here — acceptable, and noted rather than hidden.\n  [/api[_ ]error|anthropic|openai|rate limit|\\b(401|403|429)\\b/i, 'api_error'],\n  [/fetch[_ ]error|status code (4|5)\\d\\d|request failed/i,  'fetch_error'],\n  [/validation[_ ]failed|schema|invalid json|not valid/i,   'validation_failed'],\n  [/postgres|database|relation .* does not exist|ecunn/i,   'database_error'],\n];\n\nfunction classify(message) {\n  if (!message) return 'unknown_error';\n  for (const [pattern, cls] of CLASS_PATTERNS) {\n    if (pattern.test(message)) return cls;\n  }\n  return 'unknown_error';\n}\n\n/**\n * Sanitise the error message before it is stored.\n * Three defences, in order:\n *   1. collapse whitespace  — multi-line stack fragments become one line\n *   2. redact anything key-shaped — sk-..., Bearer ..., long hex/base64 runs\n *   3. hard truncate — a backstop, not the primary defence. Known\n *      content-carrying throw sites (e.g. Node 2's bad_url, fixed\n *      10 Aug — see 02_normalize_input.js) now exclude raw content\n *      from the message at the source; truncation exists for whatever\n *      throw site hasn't had that same fix applied yet.\n */\nfunction sanitise(raw) {\n  if (!raw) return null;\n  let m = String(raw).replace(/\\s+/g, ' ').trim();\n\n  m = m.replace(/\\b(sk-[A-Za-z0-9_\\-]{8,})/g, '[redacted-key]');\n  m = m.replace(/\\bBearer\\s+[A-Za-z0-9._\\-]+/gi, 'Bearer [redacted]');\n  m = m.replace(/\\b[A-Fa-f0-9]{32,}\\b/g, '[redacted-hex]');\n  m = m.replace(/(password|api[_-]?key|token)\\s*[:=]\\s*\\S+/gi, '$1=[redacted]');\n\n  if (m.length > MAX_MESSAGE_CHARS) {\n    m = m.slice(0, MAX_MESSAGE_CHARS) + '… [truncated]';\n  }\n  return m;\n}\n\n// --- main -----------------------------------------------------------------\n// Wrapped whole: if anything unexpected arrives, still write a row saying so.\nlet out;\ntry {\n  const item = ($input.all()[0] || {}).json || {};\n\n  const execution = item.execution || {};\n  const workflow  = item.workflow  || {};\n  const error     = execution.error || item.error || {};\n\n  const rawMessage = error.message || error.description || null;\n\n  out = {\n    workflow_name: workflow.name || 'unknown_workflow',\n    node_name:     execution.lastNodeExecuted || error.node?.name || null,\n    error_class:   classify(rawMessage || error.name),\n    error_message: sanitise(rawMessage),\n    execution_id:  execution.id != null ? String(execution.id) : null,\n  };\n} catch (e) {\n  out = {\n    workflow_name: 'WF-Error',\n    node_name:     'Strip Payload',\n    error_class:   'unknown_error',\n    error_message: sanitise('Strip Payload itself failed: ' + e.message),\n    execution_id:  null,\n  };\n}\n\nreturn [{ json: out }];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "2d6a6b0d-b2d7-451e-90c0-e32294595ea9",
+      "name": "Insert error_log,",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        416,
+        0
+      ],
+      "parameters": {
+        "table": {
+          "__rl": true,
+          "mode": "name",
+          "value": "error_log"
+        },
+        "schema": {
+          "__rl": true,
+          "mode": "name",
+          "value": "public"
+        },
+        "columns": {
+          "value": {},
+          "schema": [
+            {
+              "id": "error_id",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "error_id",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "occurred_at",
+              "type": "dateTime",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "occurred_at",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "workflow_name",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": true,
+              "displayName": "workflow_name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "node_name",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "node_name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "error_class",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "error_class",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "error_message",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "error_message",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "execution_id",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "execution_id",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "credentials": {
+        "postgres": {
+          "id": "yBMtDK1alkKkbPjx",
+          "name": "Postgres a11yaudit dev"
+        }
+      },
+      "typeVersion": 2.7
+    }
+  ],
+  "connections": {
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Strip Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Strip Payload": {
+      "main": [
+        [
+          {
+            "node": "Insert error_log,",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "b891e496-52e5-4a45-bfa0-9f88da5a2287",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "nodeGroups": [],
+  "id": "HcX4w4xiQV5ZZY50",
+  "tags": []
+}

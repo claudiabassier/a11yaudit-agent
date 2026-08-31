@@ -218,20 +218,40 @@ jobs:
       - name: Import workflows and credentials
         run: |
           set -e
-          docker cp workflows_export/WF-Error.json ci-n8n:/tmp/WF-Error.json
-          docker cp workflows_export/WF1_Audit_Intake.json ci-n8n:/tmp/WF1_Audit_Intake.json
-          docker cp workflows_export/SUB-A_AI_Analysis.json ci-n8n:/tmp/SUB-A_AI_Analysis.json
-          docker exec ci-n8n n8n import:workflow --input=/tmp/WF-Error.json
-          docker exec ci-n8n n8n import:workflow --input=/tmp/WF1_Audit_Intake.json
-          docker exec ci-n8n n8n import:workflow --input=/tmp/SUB-A_AI_Analysis.json
+          # workflows_export_dev/ (D-89), not workflows_export/ — the latter
+          # is the frozen v1.3 submission (5 August), a different, older
+          # architecture (predates D-55's SUB-A_Validate subworkflow
+          # extraction entirely). Importing it here would have made this
+          # job a repeat of exactly the blind spot external review Finding 1
+          # named: a test that stays green while testing something other
+          # than the current code. workflows_export_dev/ is pulled fresh
+          # from the live -dev canvas's actual execution source
+          # (activeVersionId -> workflow_history, D-80) whenever code/
+          # changes are published — see workflows_export_dev/README.md.
+          docker cp workflows_export_dev/WF-Error-dev.json ci-n8n:/tmp/WF-Error-dev.json
+          docker cp workflows_export_dev/WF1_Audit_Intake-dev.json ci-n8n:/tmp/WF1_Audit_Intake-dev.json
+          docker cp workflows_export_dev/SUB-A_AI_Analysis-dev.json ci-n8n:/tmp/SUB-A_AI_Analysis-dev.json
+          docker cp workflows_export_dev/SUB-A_Validate-dev.json ci-n8n:/tmp/SUB-A_Validate-dev.json
+          docker exec ci-n8n n8n import:workflow --input=/tmp/WF-Error-dev.json
+          docker exec ci-n8n n8n import:workflow --input=/tmp/WF1_Audit_Intake-dev.json
+          docker exec ci-n8n n8n import:workflow --input=/tmp/SUB-A_AI_Analysis-dev.json
+          docker exec ci-n8n n8n import:workflow --input=/tmp/SUB-A_Validate-dev.json
           # IDs/names must match the credential references baked into the
-          # exported workflow JSON exactly (workflows_export/*.json carry
-          # only a credential id+name reference, never the secret itself —
-          # meta/GITHUB_SUBMISSION.md's own note on this). The Anthropic
-          # key is deliberately invalid — see the job-level comment above.
+          # exported workflow JSON exactly (workflows_export_dev/*.json
+          # carry only a credential id+name reference, never the secret
+          # itself). The Postgres credential is the least-privilege
+          # a11yaudit_app one (D-66/D-89 — the six write nodes were found
+          # live-authenticating as the n8n superuser role instead, contrary
+          # to what readme.md/decision_log.md D-66 claimed; fixed the same
+          # day). CI doesn't need to recreate that restricted role — the
+          # credential id/name here only has to match the workflow's own
+          # reference; the connection details point at this job's own
+          # throwaway superuser Postgres, same as every other job in this
+          # file. The Anthropic key is deliberately invalid — see the
+          # job-level comment above.
           cat > /tmp/ci_credentials.json << 'EOF'
           [
-            { "id": "vPiLWWTt24LF3VzP", "name": "Postgres a11yaudit", "type": "postgres",
+            { "id": "Yfrz4WaolHPKiGcw", "name": "Postgres a11yaudit_app (dev)", "type": "postgres",
               "data": { "host": "host.docker.internal", "port": 5432, "database": "a11yaudit_dev", "user": "n8n", "password": "ci_test_only" } },
             { "id": "5WVzsoNCm1M8TLEY", "name": "Anthropic account", "type": "anthropicApi",
               "data": { "apiKey": "sk-ci-deliberately-invalid-no-real-calls" } }
@@ -240,12 +260,13 @@ jobs:
           docker cp /tmp/ci_credentials.json ci-n8n:/tmp/ci_credentials.json
           docker exec ci-n8n n8n import:credentials --input=/tmp/ci_credentials.json
 
-      - name: Publish (activate) all three workflows, then restart to apply
+      - name: Publish (activate) all four workflows, then restart to apply
         run: |
           set -e
-          docker exec ci-n8n n8n publish:workflow --id=fv9YbvAy2rfKC2Ng  # WF-Error
-          docker exec ci-n8n n8n publish:workflow --id=cplV72n5kJnDaP3S  # WF1 - Audit Intake
-          docker exec ci-n8n n8n publish:workflow --id=4K342U3TtgqWWp6A # SUB-A_AI_Analysis
+          docker exec ci-n8n n8n publish:workflow --id=HcX4w4xiQV5ZZY50  # WF-Error-dev
+          docker exec ci-n8n n8n publish:workflow --id=JbyzWB2b6hEPA8aM  # WF1 - Audit Intake-dev
+          docker exec ci-n8n n8n publish:workflow --id=vK4HhxgU9byGvqVp  # SUB-A_AI_Analysis-dev
+          docker exec ci-n8n n8n publish:workflow --id=n9pcFHHVj8Gqu6yG  # SUB-A_Validate-dev
           # publish:workflow's own output says so explicitly: changes need
           # a restart to take effect on an already-running instance.
           docker restart ci-n8n
@@ -257,7 +278,7 @@ jobs:
 
       - name: Submit the real form (multipart/form-data — build_runbook.md's own D-84 note on this)
         run: |
-          curl -sf -X POST "http://localhost:5678/form/7e975c33-8fdb-404d-bbeb-258fc9f1e49c" \
+          curl -sf -X POST "http://localhost:5678/form/7769bc3d-55c5-4fe6-b363-ba338956d0b4" \
             -F "field-0=http://host.docker.internal:8899/bp-meds-short.html" \
             -F "field-3=en" \
             -F "field-4=general_public" \
