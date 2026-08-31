@@ -36,9 +36,13 @@ services:
       # For a first local run you can silence non-critical warnings:
       - N8N_RUNNERS_ENABLED=true
       # Code nodes: allow the HTML parser and Node's crypto module.
-      # If the Day-1 cheerio test fails, switch to code/05_automated_checks_regex.js
-      # (30-minute cap, pre-committed decision rule) — Node 8 needs no change,
-      # it falls back to a self-contained SHA-256.
+      # If cheerio becomes unreachable: this is a new, undiagnosed problem,
+      # not a switch-to-fallback case. The regex-based Day-1 contingency
+      # (code/05_automated_checks_regex.js) was retired 18 August, three
+      # defects behind this file with no production use to justify keeping
+      # it current (decision_log.md D-69) — it no longer exists on this
+      # branch. Node 8 needs no change either way, it falls back to a
+      # self-contained SHA-256 if crypto is unreachable.
       - NODE_FUNCTION_ALLOW_EXTERNAL=cheerio
       - NODE_FUNCTION_ALLOW_BUILTIN=crypto
     volumes:
