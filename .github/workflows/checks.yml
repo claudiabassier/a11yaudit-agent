@@ -214,6 +214,18 @@ jobs:
             sleep 2
           done
           curl -sf -o /dev/null http://localhost:5678/healthz || { echo "::error::n8n did not become healthy"; docker logs ci-n8n; exit 1; }
+          # /healthz answering is not enough on its own (decision_log.md
+          # D-90's first failure on this runner, a different symptom of the
+          # same root cause: a CLI command run too soon raced the server's
+          # own migration/startup sequence on the same fresh database and
+          # crashed — "relation ... does not exist"). Wait for the server's
+          # own log line confirming full startup before touching it with
+          # any exec-based command.
+          for i in $(seq 1 30); do
+            docker logs ci-n8n 2>&1 | grep -q "Editor is now accessible via" && break
+            sleep 2
+          done
+          docker logs ci-n8n 2>&1 | grep -q "Editor is now accessible via" || { echo "::error::n8n never logged full startup completion"; docker logs ci-n8n; exit 1; }
 
       - name: Import workflows and credentials
         run: |
@@ -269,11 +281,24 @@ jobs:
           docker exec ci-n8n n8n publish:workflow --id=n9pcFHHVj8Gqu6yG  # SUB-A_Validate-dev
           # publish:workflow's own output says so explicitly: changes need
           # a restart to take effect on an already-running instance.
+          before=$(docker logs ci-n8n 2>&1 | grep -c "Editor is now accessible via")
           docker restart ci-n8n
           for i in $(seq 1 30); do
             curl -sf -o /dev/null http://localhost:5678/healthz && break
             sleep 2
           done
+          # Same reasoning as the first startup: healthz alone raced the
+          # webhook-registration step once already (D-90) — wait for a NEW
+          # "fully up" log line (docker logs is cumulative across a
+          # restart, so watch the count grow past its pre-restart value,
+          # not just for the string to appear).
+          for i in $(seq 1 30); do
+            after=$(docker logs ci-n8n 2>&1 | grep -c "Editor is now accessible via")
+            [ "$after" -gt "$before" ] && break
+            sleep 2
+          done
+          after=$(docker logs ci-n8n 2>&1 | grep -c "Editor is now accessible via")
+          [ "$after" -gt "$before" ] || { echo "::error::n8n never completed its post-restart startup"; docker logs ci-n8n; exit 1; }
           docker exec ci-n8n n8n list:workflow --active=true
 
       - name: Submit the real form (multipart/form-data — build_runbook.md's own D-84 note on this)
