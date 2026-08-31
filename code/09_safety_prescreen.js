@@ -67,7 +67,20 @@ const TIER_A = [
 // ---- Tier B: dosing abbreviations, context-gated ---------------------------
 const TIER_B = ['bd','bid','tid','qid','qd','qhs','prn','po','sc','im','iv','stat','ac','pc','od','os','ou'];
 const CONTEXT_WINDOW = 40; // chars on each side of the abbreviation
-const CONTEXT_RE = /\d|(?<!\p{L})(mg|mcg|µg|ml|tablets?|Tabletten?|capsules?|Kapseln?|drops|Tropfen|dose|Dosis)(?!\p{L})/iu;
+// FIX (19 Aug, external programmer review): the bare \d branch matched ANY
+// digit anywhere in the 40-char window, including years and ages nowhere
+// near a dose — reproduced with "im Jahr 2020" and "im Alter ab 18 Jahren",
+// two ordinary sentences with no dosing content, both flagged safety_context
+// true via "im". Bounded to 1–3 digit numbers with digit boundaries
+// ((?<!\d)\d{1,3}(?!\d)) so a dose quantity ("1 tablet", "5 mg", "12
+// Tropfen") still matches but no digit inside a 4+-digit run (any year,
+// most large IDs) does. Does not close every case — a 1–2 digit age
+// ("im Alter von 68") can still coincide with "im" by chance — but removes
+// the single most common noise source. Reviewer explicitly called this
+// low-severity (routes only to an extra human glance, never a missed
+// escalation), so narrowing rather than removing the digit branch entirely
+// keeps the safety-net property the file's own header documents.
+const CONTEXT_RE = /(?<!\d)\d{1,3}(?!\d)|(?<!\p{L})(mg|mcg|µg|ml|tablets?|Tabletten?|capsules?|Kapseln?|drops|Tropfen|dose|Dosis)(?!\p{L})/iu;
 
 // ---- Tier C: emergency numbers, context-gated (REVIEW FIX, 31 Jul) --------
 // "112" standalone matches blood-pressure readings, ages, quantities. It
