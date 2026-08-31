@@ -57,7 +57,8 @@ def fetch_queue(db):
         (SELECT json_agg(json_build_object(
             'finding_key', f2.finding_key, 'severity', f2.severity,
             'title', f2.title, 'status', f2.status,
-            'instrument', f2.instrument, 'wcag_criterion', f2.wcag_criterion
+            'instrument', f2.instrument, 'instrument_item', f2.instrument_item,
+            'wcag_criterion', f2.wcag_criterion
           ) ORDER BY CASE f2.severity
               WHEN 'critical' THEN 1 WHEN 'high' THEN 2
               WHEN 'medium' THEN 3 ELSE 4 END)
@@ -79,7 +80,17 @@ def fetch_queue(db):
     return json.loads(raw) or []
 
 
+UUID_RE = re.compile(r"^[0-9a-fA-F-]{36}$")
+
+
 def fetch_report(db, audit_id):
+    # audit_id always originates from the DB's own uuid column (via
+    # fetch_queue's JSON), never from raw user input — but interpolating
+    # it into SQL unescaped is still the wrong pattern to write, the exact
+    # kind of thing this project's own review has flagged elsewhere.
+    # Refuse rather than trust the shape silently.
+    if not UUID_RE.match(audit_id):
+        sys.exit(f"Refusing to query: '{audit_id}' does not look like a UUID.")
     query = f"SELECT report_md FROM audits WHERE audit_id = '{audit_id}';"
     return run_sql(db, query).rstrip("\n")
 
@@ -146,6 +157,17 @@ def md_to_html(md):
 SEVERITY_COLOR = {"critical": "#b3261e", "high": "#c05621", "medium": "#946200", "low": "#4b5563"}
 
 
+def score(v):
+    """Mirror code/18_generate_report.js's own score() formatter: a null
+    screening_score means D-36's 'nothing was actually screened' case,
+    not a missing dict key — dict.get(k, default) does NOT catch a key
+    that is present with value None, only a genuinely absent key, so a
+    naive .get("screening_score", "—") silently rendered the literal
+    text "None" instead. Reproduced and fixed before this was noticed by
+    a reviewer, not after."""
+    return "not computable" if v is None else str(v)
+
+
 def render(rows, db):
     now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     parts = [f"""<!doctype html><html><head><meta charset="utf-8">
@@ -178,7 +200,7 @@ blockquote {{ border-left: 3px solid #ccc; margin: 0.3rem 0; padding-left: 0.8re
             n_open = len(r.get("open_findings") or [])
             parts.append(
                 f'<tr><td><a href="#{anchor}">{html.escape(label)}</a></td>'
-                f'<td>{r.get("screening_score", "—")}</td><td>{html.escape(rules)}</td>'
+                f'<td>{score(r.get("screening_score"))}</td><td>{html.escape(rules)}</td>'
                 f'<td>{legal}</td><td>{n_open}</td></tr>'
             )
         parts.append("</table>")
@@ -193,7 +215,13 @@ blockquote {{ border-left: 3px solid #ccc; margin: 0.3rem 0; padding-left: 0.8re
                 parts.append("<table><tr><th>Severity</th><th>Title</th><th>Reference</th><th>Status</th></tr>")
                 for f in findings:
                     color = SEVERITY_COLOR.get(f["severity"], "#666")
-                    ref = f.get("wcag_criterion") or (f"{f.get('instrument','')} {f.get('instrument_item','') or ''}".strip()) or "—"
+                    # Same None-vs-missing-key trap as score() above: a present
+                    # key with SQL NULL must go through `or ''`, not a .get()
+                    # default, or a null instrument/instrument_item renders the
+                    # literal word "None" here too.
+                    instrument = f.get("instrument") or ""
+                    instrument_item = f.get("instrument_item") or ""
+                    ref = f.get("wcag_criterion") or f"{instrument} {instrument_item}".strip() or "—"
                     parts.append(
                         f'<tr><td><span class="badge" style="background:{color}">{f["severity"]}</span></td>'
                         f'<td>{html.escape(f["title"])}</td><td>{html.escape(str(ref))}</td><td>{f["status"]}</td></tr>'

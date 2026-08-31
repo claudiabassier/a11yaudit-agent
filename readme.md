@@ -147,10 +147,13 @@ The Code nodes need `NODE_FUNCTION_ALLOW_EXTERNAL=cheerio` and `NODE_FUNCTION_AL
 
 | Path | Purpose |
 |---|---|
-| `workflows_export/` | the three workflow JSONs - main workflow, AI subworkflow, error handler |
+| `workflows_export/` | the three workflow JSONs as submitted 5 August - frozen, older architecture (predates D-55's subworkflow extraction), kept as evidence, not iterated on |
+| `workflows_export_dev/` | a current export of the live `-dev` canvas (4 workflows, including `SUB-A_Validate-dev`), pulled from `activeVersionId`/`workflow_history` - what `checks.yml`'s `n8n-e2e` job and `meta/check_export_sync.py` actually check against (D-89, closing external review Finding 1's real blind spot) |
+| `.github/workflows/checks.yml` | CI - six jobs on every push/PR: secret scan, golden tests, both standalone harnesses, static checks (syntax, SQL-comment guard, code/-vs-export sync, two advisory doc checks), a real Postgres service-container schema check, and a real end-to-end n8n run (D-83/D-85/D-87) |
 | `postgres_schema.sql` | database schema - 5 tables (`audits`, `findings`, `instrument_items`, `audit_runs`, `error_log`), 3 views (`v_review_queue`, `v_audit_summary`, `v_pipeline_health` - added D-83) |
 | `postgres_app_role.sql` | Phase 2: the least-privilege `a11yaudit_app` role every write node now authenticates as - table-by-table grants, no `DELETE` anywhere, `INSERT`-only on `audit_runs`/`error_log` |
 | `tools/review_dashboard.py` | renders `v_review_queue` plus every open report into one static HTML page - a reviewer opens a file, doesn't write SQL (D-92, closing external review Finding 3) |
+| `meta/check_export_sync.py` | CI check - compares every mapped node's code in `workflows_export_dev/` against `code/*.js`/`*.sql`, byte-for-byte, hard failure on drift (D-92) |
 | `docs/hand-scoring-worksheet.md`, `docs/hand-scoring-ai-verdicts.md`, `docs/hand-scoring-comparison.md` | Phase 2: the blind hand-scoring exercise and its comparison against the AI's actual verdicts (D-67) |
 | `code/` | the JavaScript and SQL for every Code and Postgres node, one file per node, each with its input/output contract and a standalone test input |
 | `code/_DAY0_REVIEW.md` | pre-build code review: eight defects found in my own code before any node was built |
