@@ -1,8 +1,10 @@
 #!/bin/bash
-# meta/hooks/pre-commit — blocks a commit on the two fast, deterministic
+# meta/hooks/pre-commit — blocks a commit on the fast, deterministic
 # documentation-integrity checks this project has: decision_log.md's own
-# completeness claim, and readme.md/CLAUDE.md's table/view counts against
-# the real schema.
+# completeness claim, readme.md/CLAUDE.md's table/view counts against the
+# real schema, and meta/'s own file registry (every check script actually
+# documented and wired in — the exact table that has gone stale three
+# times, decision_log.md D-96).
 #
 # Why this exists as a local hook, not just a CI check: branch protection
 # is currently blocked on this private free-tier repo (decision_log.md
@@ -36,3 +38,5 @@ run_check meta/check_decision_log_completeness.sh \
   "decision_log.md's completeness claim does not match its own body"
 run_check meta/check_doc_schema_numbers.sh \
   "readme.md/CLAUDE.md's table/view count claims don't match postgres_schema.sql"
+run_check meta/check_meta_registry.sh \
+  "meta/'s own file registry (README table / checks.yml wiring) is incomplete"

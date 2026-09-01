@@ -73,6 +73,8 @@ jobs:
         run: bash meta/check_decision_log_completeness.sh
       - name: readme.md/CLAUDE.md table+view counts vs postgres_schema.sql (decision_log.md D-95)
         run: bash meta/check_doc_schema_numbers.sh
+      - name: meta/ file registry check — every meta/check_* documented and wired in (decision_log.md D-96)
+        run: bash meta/check_meta_registry.sh
       - name: Absolute-claims check (meta/claims_check.sh)
         run: |
           bash meta/claims_check.sh
