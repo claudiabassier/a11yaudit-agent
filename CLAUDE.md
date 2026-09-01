@@ -62,6 +62,7 @@ Diese Eigenschaften sind das Systemdesign, nicht Implementierungsdetails. Änder
 - **Bei technischen Sackgassen kein offenes Debugging.** Zeitlimit setzen und einen Fallback benennen, bevor es losgeht (z. B. „30 Minuten, dann Umstieg auf X") - bewährtes Muster aus `decision_log.md` D-17.
 - **Kein Secret ins Repo.** Keine Keys, Tokens, Verbindungsdaten, produktiven Webhook-URLs, realen Kundendaten. Das Repo ist derzeit privat, wird aber später öffentlich.
 - **Der eingereichte Stand v1.3 wird nicht verändert.** Siehe Arbeitsumgebung.
+- **Anti-Drift-Disziplin proaktiv anwenden, nicht erst bei der nächsten Review nachholen** - `~/Desktop/a11yaudit-agent/workflow_discipline_prompt.md` (außerhalb des Repos, projektübergreifend gedacht). Kernregel: neue Datei/neuer Check/neue Zahlenbehauptung → sofort im selben Schritt prüfen, ob ein Index/README/CI-Eintrag/Doku-Zahl mitgezogen werden muss - nicht als Folgeaufgabe. Direkte Reaktion auf drei reale Wiederholungen derselben Lücke in diesem Projekt (`decision_log.md` D-82, D-93, D-96).
 
 ---
 
