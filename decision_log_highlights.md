@@ -40,8 +40,8 @@ The `n8n-e2e` job imports the real exported workflows into a real headless n8n c
 **7. A platform wall, named rather than worked around (D-86).**
 Branch protection — making the CI checks a hard merge gate — was attempted directly via GitHub's REST API and rejected with a flat `403: upgrade or make the repo public`, not the softer "won't be enforced" the UI implies. No workaround exists on a private free-tier repo; deferred to whenever the repo goes public, recorded as a real, current gap rather than quietly dropped.
 
-**8. Personal/personal-content content was purged from git history, not just from the current file tree (D-78).**
-A specific detail and a specific detail, sitting in plain history since the very first commit, missed by an earlier content sweep that only checked current files. Removed with `git filter-repo --replace-text` across all three branches, verified by a full-history grep afterward, not assumed clean because the current tree looked clean.
+**8. Personal content was purged from git history, not just from the current file tree (D-78).**
+Content sitting in plain history since the very first commit, missed by an earlier content sweep that only checked current files. Removed with `git filter-repo --replace-text` across all three branches, verified by a full-history grep afterward, not assumed clean because the current tree looked clean.
 
 **9. This log's own discipline broke for eleven entries in a row, and the fix is itself documented rather than quietly patched (D-93, D-94).**
 Every commit from D-82 through D-92 updated this file's changelog line but never appended the full entry its own stated format requires — caught only by a fifth rigorous review explicitly asked for, not by anything automatic. Reconstructed transparently from the commit history rather than hidden. The follow-up (D-94) applies this project's own stated principle — "don't rely on judgment where a deterministic check will do" — to the log itself: a CI check plus a local pre-commit hook now fail the moment a `D-XX:` commit lands without a matching `## D-XX` section, so the next lapse gets caught at commit time, not three reviews later.
