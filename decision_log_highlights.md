@@ -1,6 +1,6 @@
 # A11yAudit — Decision Log Highlights
 
-`decision_log.md` is 93 entries, ~1,550 lines, and the project's actual
+`decision_log.md` is 98 entries, ~1,650 lines, and the project's actual
 source of truth — every claim in `readme.md`/`CLAUDE.md` traces back to
 an entry there, with the evidence that backs it. It is also too long
 for anyone to read end to end, which means its real value — that this
@@ -37,8 +37,8 @@ The `n8n-e2e` job imports the real exported workflows into a real headless n8n c
 **6. The one accuracy number this project has, and the honest boundary around it (D-67).**
 74.5% combined agreement (79.5% adjusted) between the AI's verdicts and a blind hand-scoring of two fixtures. This is real, and it is not a validated multi-rater study against independent human auditors — the project has never claimed it is one (see D-79's own framing: that study "was never in scope for any single finding to close"), and that gap remains the single biggest unresolved limitation as of this writing.
 
-**7. A platform wall, named rather than worked around (D-86).**
-Branch protection — making the CI checks a hard merge gate — was attempted directly via GitHub's REST API and rejected with a flat `403: upgrade or make the repo public`, not the softer "won't be enforced" the UI implies. No workaround exists on a private free-tier repo; deferred to whenever the repo goes public, recorded as a real, current gap rather than quietly dropped.
+**7. A platform wall, named rather than worked around — and later actually closed, not just recorded as fixed (D-86, closed at D-99).**
+Branch protection — making the CI checks a hard merge gate — was attempted directly via GitHub's REST API and rejected with a flat `403: upgrade or make the repo public`, not the softer "won't be enforced" the UI implies. No workaround exists on a private free-tier repo; deferred to whenever the repo goes public. Once the repository actually went public, the same request was retried and succeeded, verified with a separate `GET` returning `"protected": true` rather than trusted from the `PUT` alone.
 
 **8. Personal content was purged from git history, not just from the current file tree (D-78).**
 Content sitting in plain history since the very first commit, missed by an earlier content sweep that only checked current files. Removed with `git filter-repo --replace-text` across all three branches, verified by a full-history grep afterward, not assumed clean because the current tree looked clean.
@@ -51,4 +51,4 @@ Every commit from D-82 through D-92 updated this file's changelog line but never
 
 ---
 
-*Curated 19 August 2026, `decision_log.md` D-94. Ten themes, chosen for what a reviewer with five minutes should see first — not the ten most recent entries, not a representative sample of all 93. Read `decision_log.md` itself for anything you intend to rely on or repeat.*
+*Curated 19 August 2026, `decision_log.md` D-94; theme 7 updated 2 September 2026 against D-99. Ten themes, chosen for what a reviewer with five minutes should see first — not the ten most recent entries, not a representative sample of all 99. Read `decision_log.md` itself for anything you intend to rely on or repeat.*
